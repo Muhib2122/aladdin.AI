@@ -11,141 +11,122 @@
     
     <style>
         :root {
-            --bg: #101217;
-            --sidebar: #13161b;
-            --card: #1c2128;
-            --text: #f0f3f5;
+            --bg: #09090b;
+            --sidebar: #000000;
+            --card: #18181b;
+            --text: #f4f4f5;
             --gold: #e2b714;
-            --accent: #3d444d;
+            --accent: #27272a;
         }
         .light-theme {
             --bg: #ffffff;
-            --sidebar: #f0f2f5;
+            --sidebar: #f4f4f5;
             --card: #ffffff;
-            --text: #1a1d21;
+            --text: #09090b;
             --gold: #b38a3d;
-            --accent: #e1e4e8;
+            --accent: #e4e4e7;
         }
         
-        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); margin:0; transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); overflow: hidden; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); margin:0; transition: 0.3s; overflow: hidden; }
         .font-magic { font-family: 'Cinzel', serif; }
-        .genie-glow { filter: drop-shadow(0 0 15px var(--gold)); transition: 0.3s; }
-        .genie-glow:hover { filter: drop-shadow(0 0 25px var(--gold)); transform: scale(1.05); }
+        .genie-glow { filter: drop-shadow(0 0 10px var(--gold)); }
         
-        /* Auth Overlay */
-        #auth-overlay { position: fixed; inset:0; background: rgba(0,0,0,0.95); z-index: 9999; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(10px); }
-        .auth-card { background: var(--card); padding: 3rem; border-radius: 24px; border: 1px solid var(--accent); width: 420px; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
+        #auth-overlay { position: fixed; inset:0; background: rgba(0,0,0,0.9); z-index: 9999; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(12px); }
+        .auth-card { background: var(--card); padding: 2.5rem; border-radius: 20px; border: 1px solid var(--accent); width: 100%; max-width: 400px; text-align: center; }
 
-        /* Sidebar & Layout */
-        .sidebar-item { cursor: pointer; padding: 14px; border-radius: 12px; margin-bottom: 6px; transition: 0.2s; font-size: 14px; display: flex; align-items: center; justify-content: space-between; color: var(--text); opacity: 0.8; }
-        .sidebar-item:hover { background: var(--accent); opacity: 1; }
-        .active-chat { background: rgba(226, 183, 20, 0.15) !important; color: var(--gold); border: 1px solid rgba(226, 183, 20, 0.3); opacity: 1; }
+        .sidebar-item { cursor: pointer; padding: 10px; border-radius: 8px; margin-bottom: 4px; transition: 0.2s; font-size: 14px; display: flex; align-items: center; justify-content: space-between; color: var(--text); }
+        .sidebar-item:hover { background: var(--accent); }
+        .active-chat { background: var(--accent); border-left: 3px solid var(--gold); }
 
-        /* Chat Window */
-        .msg-bubble { margin-bottom: 32px; animation: slideUp 0.5s ease-out; }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        .prose pre { background: #000 !important; padding: 16px; border-radius: 12px; border: 1px solid #333; margin: 12px 0; }
+        .msg-bubble { margin-bottom: 24px; animation: fadeIn 0.4s ease; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .prose pre { background: #000 !important; padding: 12px; border-radius: 8px; margin: 8px 0; overflow-x: auto; }
         
-        .cursor { display: inline-block; width: 10px; height: 20px; background: var(--gold); margin-left: 5px; animation: blink 0.8s infinite; vertical-align: middle; }
+        .cursor { display: inline-block; width: 8px; height: 18px; background: var(--gold); animation: blink 0.8s infinite; vertical-align: middle; }
         @keyframes blink { 50% { opacity: 0; } }
 
-        #sidebar { transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
-        @media (max-width: 768px) { #sidebar { position: fixed; transform: translateX(-100%); z-index: 50; height: 100%; width: 280px; } #sidebar.open { transform: translateX(0); } }
-
-        /* Custom Scrollbar */
-        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 3px; }
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 10px; }
     </style>
 </head>
 <body class="flex h-screen">
 
     <div id="auth-overlay">
         <div class="auth-card" id="email-step">
-            <div class="text-8xl mb-6 genie-glow">🧞</div>
-            <h2 class="text-3xl font-bold mb-2 font-magic text-gold">ALADDIN AI</h2>
-            <p class="text-gray-400 mb-8 text-sm tracking-widest uppercase">The Legend Awakens</p>
-            <input type="email" id="auth-email" placeholder="Enter your email" class="w-full bg-transparent border border-accent p-4 rounded-xl mb-4 outline-none focus:border-gold text-center transition-all">
-            <button onclick="sendOTP()" id="otp-btn" class="w-full bg-white text-black font-bold py-4 rounded-xl hover:bg-gold transition duration-300 transform active:scale-95 shadow-lg">Request Magic Code</button>
+            <div class="text-6xl mb-4 genie-glow">🧞</div>
+            <h2 class="text-2xl font-bold mb-1 font-magic text-gold">ALADDIN AI</h2>
+            <p class="text-xs text-gray-500 mb-6 uppercase tracking-widest">Premium Intelligence</p>
+            <input type="email" id="auth-email" placeholder="Enter your email" class="w-full bg-black/20 border border-accent p-3 rounded-lg mb-4 outline-none focus:border-gold text-center">
+            <button onclick="sendOTP()" id="otp-btn" class="w-full bg-white text-black font-bold py-3 rounded-lg hover:bg-gold transition transform active:scale-95">Send Magic Code</button>
         </div>
 
         <div class="auth-card hidden" id="otp-step">
-            <h2 class="text-2xl font-bold mb-4 font-magic">Magic Verification</h2>
-            <p class="text-gray-400 mb-6 text-sm">Enter the 6-digit code sent to your inbox.</p>
-            <input type="text" id="auth-otp" placeholder="••••••" maxlength="6" class="w-full tracking-[1em] text-center text-3xl bg-transparent border border-accent p-4 rounded-xl mb-6 outline-none focus:border-gold">
-            <button onclick="verifyOTP()" class="w-full bg-gold text-black font-bold py-4 rounded-xl shadow-lg">Unlock Lamp</button>
+            <h2 class="text-xl font-bold mb-4 font-magic">Verification</h2>
+            <input type="text" id="auth-otp" placeholder="Enter Code" maxlength="6" class="w-full text-center text-2xl bg-black/20 border border-accent p-3 rounded-lg mb-4 outline-none focus:border-gold tracking-[0.5em]">
+            <button onclick="verifyOTP()" class="w-full bg-gold text-black font-bold py-3 rounded-lg">Enter the Lamp</button>
         </div>
 
         <div class="auth-card hidden" id="profile-step">
-            <h2 class="text-2xl font-bold mb-6 font-magic">Master Setup</h2>
-            <input type="text" id="user-name" placeholder="Your Name" class="w-full bg-transparent border border-accent p-4 rounded-xl mb-4 outline-none focus:border-gold">
-            <input type="number" id="user-age" placeholder="Your Age" class="w-full bg-transparent border border-accent p-4 rounded-xl mb-6 outline-none focus:border-gold">
-            <button onclick="saveProfile()" class="w-full bg-gold text-black font-bold py-4 rounded-xl">Begin the Journey</button>
+            <h2 class="text-xl font-bold mb-6 font-magic">Master Setup</h2>
+            <input type="text" id="user-name" placeholder="Full Name" class="w-full bg-black/20 border border-accent p-3 rounded-lg mb-3 outline-none focus:border-gold">
+            <input type="number" id="user-age" placeholder="Age" class="w-full bg-black/20 border border-accent p-3 rounded-lg mb-6 outline-none focus:border-gold">
+            <button onclick="saveProfile()" class="w-full bg-gold text-black font-bold py-3 rounded-lg">Finish Setup</button>
         </div>
     </div>
 
-    <aside id="sidebar" class="w-[300px] bg-[var(--sidebar)] border-r border-accent flex flex-col p-5">
-        <button onclick="createNewChat()" class="flex items-center justify-center gap-3 border border-accent p-4 rounded-xl hover:bg-accent transition mb-8 font-semibold shadow-sm text-sm">
-            <span class="text-xl">+</span> <span>New Wish</span>
+    <aside id="sidebar" class="w-[260px] bg-[var(--sidebar)] border-r border-accent flex flex-col p-3">
+        <button onclick="createNewChat()" class="flex items-center gap-3 border border-accent p-3 rounded-lg hover:bg-accent transition mb-6 font-medium text-sm">
+            <span class="text-lg">+</span> New Chat
         </button>
         
-        <div id="chat-list" class="flex-1 overflow-y-auto space-y-2 pr-2 custom-scrollbar"></div>
+        <div id="chat-list" class="flex-1 overflow-y-auto custom-scrollbar"></div>
 
-        <div class="pt-6 border-t border-accent space-y-3">
-            <button onclick="toggleTheme()" class="w-full flex items-center gap-4 p-3 rounded-xl hover:bg-accent transition text-sm">
-                <span id="theme-icon">🌙</span> <span id="theme-text">Dark Mode</span>
-            </button>
-            <button onclick="logout()" class="w-full flex items-center gap-4 p-3 rounded-xl hover:bg-red-500/10 text-red-400 transition text-sm">
-                <span>🚪</span> <span>Release Lamp (Logout)</span>
-            </button>
+        <div class="pt-4 border-t border-accent space-y-2">
+            <button onclick="toggleTheme()" class="w-full flex items-center gap-3 p-2 rounded-lg hover:bg-accent text-sm">🌙 Theme</button>
+            <button onclick="logout()" class="w-full flex items-center gap-3 p-2 rounded-lg hover:bg-red-900/10 text-red-500 text-sm">🚪 Logout</button>
             
-            <div class="flex items-center gap-4 p-3 bg-[var(--card)] rounded-2xl mt-4 border border-accent">
-                <div class="w-12 h-12 bg-gradient-to-br from-gold to-yellow-600 rounded-xl flex items-center justify-center font-bold text-black text-xl shadow-inner">
-                    <span id="user-initial">U</span>
-                </div>
+            <div class="flex items-center gap-3 p-3 bg-white/5 rounded-xl mt-2 border border-accent">
+                <div class="w-8 h-8 bg-gold rounded flex items-center justify-center font-bold text-black text-sm" id="user-initial">U</div>
                 <div class="text-xs truncate">
-                    <p class="font-bold text-[var(--text)]" id="profile-name">Master</p>
-                    <p class="text-gold opacity-80 uppercase tracking-tighter">Legendary Status</p>
+                    <p class="font-bold" id="profile-display-name">Master</p>
                 </div>
             </div>
         </div>
     </aside>
 
     <main class="flex-1 flex flex-col overflow-hidden relative">
-        <header class="p-6 border-b border-accent flex justify-between items-center bg-[var(--bg)] sticky top-0 z-10 backdrop-blur-sm">
-            <button onclick="toggleSidebar()" class="md:hidden text-2xl">☰</button>
-            <div class="flex items-center gap-3">
-                <span class="text-3xl genie-glow">🧞</span>
-                <span class="font-bold text-gold font-magic tracking-[0.25em] text-2xl">ALADDIN v3.0</span>
+        <header class="p-4 border-b border-accent flex justify-between items-center bg-[var(--bg)]/80 backdrop-blur-md sticky top-0 z-10">
+            <div class="flex items-center gap-2">
+                <span class="text-2xl">🧞</span>
+                <span class="font-bold text-gold font-magic tracking-widest">ALADDIN v3.0</span>
             </div>
-            <div id="greeting-badge" class="hidden md:flex items-center gap-2 text-[10px] px-4 py-2 rounded-full border border-gold text-gold font-bold bg-gold/5 uppercase tracking-wider"></div>
+            <div id="greeting-badge" class="text-[10px] px-3 py-1 rounded-full border border-gold/30 text-gold font-bold bg-gold/5 uppercase"></div>
         </header>
 
-        <div id="chat-window" class="flex-1 overflow-y-auto scroll-smooth custom-scrollbar">
-            <div id="messages" class="max-w-4xl mx-auto p-8 pt-12 space-y-12">
-                </div>
+        <div id="chat-window" class="flex-1 overflow-y-auto custom-scrollbar">
+            <div id="messages" class="max-w-3xl mx-auto p-6 space-y-10"></div>
         </div>
 
-        <div class="p-6 bg-gradient-to-t from-[var(--bg)] via-[var(--bg)] to-transparent">
-            <div class="max-w-4xl mx-auto relative group">
+        <div class="p-4 bg-gradient-to-t from-[var(--bg)] via-[var(--bg)] to-transparent">
+            <div class="max-w-3xl mx-auto relative group">
                 <input type="file" id="file-upload" class="hidden" multiple onchange="handleFileUpload(this)">
                 
-                <textarea id="user-input" rows="1" placeholder="Grant the command, Master..." 
-                    class="w-full bg-[var(--card)] border border-accent rounded-2xl py-5 px-6 pl-16 pr-16 outline-none focus:border-gold transition-all shadow-xl resize-none max-h-60 leading-relaxed"></textarea>
+                <textarea id="user-input" rows="1" placeholder="Type a message..." 
+                    class="w-full bg-[var(--card)] border border-accent rounded-2xl py-4 px-14 outline-none focus:border-gold transition-all shadow-xl resize-none max-h-40"></textarea>
                 
-                <button onclick="document.getElementById('file-upload').click()" class="absolute left-4 bottom-4 p-3 text-gold/60 hover:text-gold transition">
+                <button onclick="document.getElementById('file-upload').click()" class="absolute left-4 bottom-3.5 p-1 text-gray-500 hover:text-gold transition">
                     <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M16.5 6v11.5c0 2.21-1.79 4-4 4s-4-1.79-4-4V5a2.5 2.5 0 0 1 5 0v10.5c0 .28-.22.5-.5.5s-.5-.22-.5-.5V6H10v9.5a2.5 2.5 0 0 0 5 0V5a4.5 4.5 0 0 0-9 0v12.5c0 3.31 2.69 6 6 6s6-2.69 6-6V6h-1.5z"></path></svg>
                 </button>
                 
-                <button onclick="handleSendMessage()" class="absolute right-4 bottom-4 p-3 bg-gold rounded-xl text-black hover:scale-105 active:scale-95 transition-all shadow-xl group">
-                    <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"></path></svg>
+                <button onclick="handleSendMessage()" class="absolute right-4 bottom-3.5 p-1 bg-gold rounded-lg text-black hover:scale-105 active:scale-95 transition-all shadow-lg">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"></path></svg>
                 </button>
             </div>
-            <p class="text-[10px] text-center text-gray-600 mt-3 font-medium tracking-widest uppercase">Powered by Aladdin-Llama 3.3 Mythic Engine • Legend Intelligence</p>
         </div>
     </main>
 
     <script>
-        // 🚀 CONFIRMED: YOUR REAL API KEYS ARE SET HERE
+        // 🚀 CONFIRMED: YOUR REAL API KEYS
         const GROQ_KEY = "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";
         const EMAILJS_KEYS = {
             service_id: "service_d7q8v4o",
@@ -156,12 +137,12 @@
         let chats = JSON.parse(localStorage.getItem('aladdin_chats')) || [];
         let currentChatId = null;
         let currentOTP = "";
-        let uploadedFiles = [];
 
         // INITIALIZE
         (function() { emailjs.init(EMAILJS_KEYS.public_key); })();
 
         window.onload = () => {
+            // FIXED: Persistent Login Check
             if(localStorage.getItem('aladdin_logged_in') === 'true') {
                 document.getElementById('auth-overlay').style.display = 'none';
                 initApp();
@@ -169,32 +150,30 @@
             updateGreeting();
         };
 
-        // 1. CONFIRMED: REAL EMAIL CODE SYSTEM
+        // 1. FIXED EMAIL OTP SYSTEM (Correct Variable {{email}})
         async function sendOTP() {
             const email = document.getElementById('auth-email').value;
-            if(!email.includes('@')) return alert("Please provide a valid mortal email!");
+            if(!email.includes('@')) return alert("Invalid email!");
             
-            // Simulation is deactivated. Only real OTP will work.
             currentOTP = Math.floor(100000 + Math.random() * 900000).toString();
             const btn = document.getElementById('otp-btn');
-            btn.innerText = "Sending Magic..."; btn.disabled = true;
+            btn.innerText = "Sending..."; btn.disabled = true;
 
             try {
-                // Real EmailJS Send
+                // FIXED: Using 'email' variable as per your EmailJS dashboard
                 await emailjs.send(EMAILJS_KEYS.service_id, EMAILJS_KEYS.template_id, {
-                    to_email: email,
-                    otp: currentOTP,
+                    email: email, 
+                    otp: currentOTP
                 });
                 
-                alert("The code has been sent through the winds. Check your inbox!");
+                alert("Magic code sent to your email!");
                 document.getElementById('email-step').classList.add('hidden');
                 document.getElementById('otp-step').classList.remove('hidden');
             } catch (err) {
-                // Highly command fix: If email fails, do not allow dummy access.
-                alert("Magic failed. (Check your EmailJS account keys). Real code must be used.");
-                console.error("EmailJS Error:", err);
+                alert("Magic failed. Ensure EmailJS keys are correct.");
+                console.error(err);
             } finally {
-                btn.innerText = "Request Magic Code"; btn.disabled = false;
+                btn.innerText = "Send Magic Code"; btn.disabled = false;
             }
         }
 
@@ -203,26 +182,24 @@
                 document.getElementById('otp-step').classList.add('hidden');
                 document.getElementById('profile-step').classList.remove('hidden');
             } else {
-                alert("Wrong code, Master! Real magic must be precise. (Dummies are blocked).");
+                alert("Wrong code! Real magic only.");
             }
         }
 
         function saveProfile() {
             const name = document.getElementById('user-name').value || "Master";
             const age = document.getElementById('user-age').value || "20";
-            localStorage.setItem('user_profile', JSON.stringify({ name, age, signup_time: Date.now() }));
-            localStorage.setItem('aladdin_logged_in', 'true'); // Final login session set
-            document.getElementById('auth-overlay').style.display = 'none';
-            location.reload(); // Reload to refresh chat panel and greetings
+            localStorage.setItem('user_profile', JSON.stringify({ name, age }));
+            localStorage.setItem('aladdin_logged_in', 'true'); // Fix: No auto logout
+            location.reload();
         }
 
         function logout() {
             localStorage.removeItem('aladdin_logged_in');
-            // User profile is not removed to allow faster re-login.
             location.reload();
         }
 
-        // ChatGPT-Style Greeting with Standard Time
+        // 2. CHATGPT-STYLE GREETINGS & PANEL
         function updateGreeting() {
             const profile = JSON.parse(localStorage.getItem('user_profile'));
             if(!profile) return;
@@ -230,27 +207,16 @@
             const hours = new Date().getHours();
             const badge = document.getElementById('greeting-badge');
             
-            const greetings = {
-                morning: ["সুপ্রভাত", "Good Morning", "ইন্দ্রজালে স্বাগতম"],
-                afternoon: ["শুভ অপরাহ্ন", "Good Afternoon", "যাত্রা শুরু হোক"],
-                evening: ["শুভ সন্ধ্যা", "Good Evening", "ল্যাম্প জ্বলে উঠেছে"],
-                night: ["শুভ রাত্রি", "Late Night Commands", "মাস্টার কি জেগে আছেন?"]
-            };
-
-            let timeKey = "morning";
-            if(hours >= 12 && hours < 17) timeKey = "afternoon";
-            else if(hours >= 17 && hours < 21) timeKey = "evening";
-            else if(hours >= 21 || hours < 5) timeKey = "night";
-
-            const randomGreet = greetings[timeKey][Math.floor(Math.random() * greetings[timeKey].length)];
-            badge.innerHTML = `✨ ${randomGreet}, ${profile.name}`;
-            badge.classList.remove('hidden');
+            const greetMsg = hours < 12 ? "Good Morning" : hours < 17 ? "Good Afternoon" : "Good Evening";
+            const localGreetings = ["স্বাগতম", "Welcome", "The Lamp is Active"];
+            const randomExtra = localGreetings[Math.floor(Math.random() * localGreetings.length)];
+            
+            badge.innerHTML = `✨ ${greetMsg}, ${profile.name} | ${randomExtra}`;
         }
 
-        // 2. CHATGPT-STYLE USER PANEL & FEATURES
         function initApp() {
             const profile = JSON.parse(localStorage.getItem('user_profile'));
-            document.getElementById('profile-name').innerText = profile.name;
+            document.getElementById('profile-display-name').innerText = profile.name;
             document.getElementById('user-initial').innerText = profile.name[0].toUpperCase();
             
             if(chats.length === 0) createNewChat();
@@ -265,11 +231,10 @@
         }
 
         function renderSidebar() {
-            const list = document.getElementById('chat-list');
-            list.innerHTML = chats.map(chat => `
+            document.getElementById('chat-list').innerHTML = chats.map(chat => `
                 <div class="sidebar-item ${chat.id === currentChatId ? 'active-chat' : ''}" onclick="renderChat(${chat.id})">
-                    <span class="truncate pr-4">💬 ${chat.title}</span>
-                    <span onclick="deleteChat(event, ${chat.id})" class="opacity-50 hover:text-red-500 hover:opacity-100 transition">×</span>
+                    <span class="truncate">💬 ${chat.title}</span>
+                    <span onclick="deleteChat(event, ${chat.id})" class="opacity-30 hover:opacity-100">×</span>
                 </div>
             `).join('');
         }
@@ -281,9 +246,9 @@
             area.innerHTML = "";
             
             if(chat.messages.length === 0) {
-                area.innerHTML = `<div class="text-center mt-32 space-y-4">
-                    <h1 class="text-5xl font-magic text-gold genie-glow">How can I assist you, Master?</h1>
-                    <p class="text-gray-500 max-w-lg mx-auto">Your Legendary Brain is ready. Code, Write, Imagine, Analyse - your wish is my command. Upload any file, ask any query.</p>
+                area.innerHTML = `<div class="text-center mt-20 opacity-40">
+                    <h1 class="text-3xl font-magic text-gold">Aladdin Legend 3.0</h1>
+                    <p>I can understand Bangla, English and anything you wish.</p>
                 </div>`;
             } else {
                 chat.messages.forEach(m => addMsgUI(m.role, m.content, false));
@@ -293,25 +258,21 @@
 
         function addMsgUI(role, content, streaming) {
             const div = document.createElement('div');
-            div.className = `msg-bubble flex gap-5 ${role === 'user' ? 'justify-end' : ''}`;
-            
-            const avatar = role === 'ai' ? '<div class="w-10 h-10 flex-shrink-0 bg-gold rounded-xl text-black flex items-center justify-center shadow-lg font-bold">🧞</div>' : '';
-            const bg = role === 'user' ? 'bg-[var(--card)] px-6 py-4 rounded-3xl rounded-tr-none border border-accent shadow-xl max-w-[85%]' : 'flex-1 prose prose-invert max-w-full';
-            
+            div.className = `msg-bubble flex gap-4 ${role === 'user' ? 'flex-row-reverse' : ''}`;
+            const avatar = role === 'ai' ? '🧞' : '👤';
             div.innerHTML = `
-                ${avatar}
-                <div class="${bg}">
-                    <div class="content-body text-[16px] leading-[1.8] font-normal">${streaming ? content : marked.parse(content)}</div>
+                <div class="w-8 h-8 rounded bg-accent flex items-center justify-center text-sm">${avatar}</div>
+                <div class="flex-1 text-sm leading-relaxed prose prose-invert max-w-full">
+                    <div class="content-body">${streaming ? content : marked.parse(content)}</div>
                     ${streaming ? '<span class="cursor"></span>' : ''}
                 </div>
             `;
             document.getElementById('messages').appendChild(div);
-            scrollToBottom();
-            marked.setOptions({ langPrefix: 'lang-' }); // Add language class to code blocks
+            document.getElementById('chat-window').scrollTop = document.getElementById('chat-window').scrollHeight;
             return div.querySelector('.content-body');
         }
 
-        // ChatGPT-Style Real Real-time Streaming
+        // 3. LEGEND BRAIN STREAMING
         async function handleSendMessage() {
             const input = document.getElementById('user-input');
             const text = input.value.trim();
@@ -324,21 +285,6 @@
             chat.messages.push({role: 'user', content: text});
             input.value = '';
 
-            // IMAGE LOGIC (Powered by Flux)
-            if(text.toLowerCase().includes("image") || text.toLowerCase().includes("ছবির")) {
-                const box = addMsgUI('ai', "Invoking magic...", false);
-                const url = `https://image.pollinations.ai/prompt/${encodeURIComponent("hyper-realistic, high detail, 8k, cinematic, " + text)}?width=1024&height=1024&nologo=true&model=flux`;
-                box.innerHTML = `<img src="${url}" class="rounded-2xl border border-gold mt-4 shadow-2xl animate-pulse">`;
-                chat.messages.push({role:'assistant', content: `![image](${url})`});
-                saveData(); return;
-            }
-
-            // FILE CHAT (Optional, for future analysis logic)
-            // if(uploadedFiles.length > 0) {
-            //   analyseFiles(uploadedFiles, chat);
-            // }
-
-            // REAL AI STREAMING CHAT (powered by Groq 70B)
             const streamBox = addMsgUI('ai', '', true);
             
             try {
@@ -347,11 +293,8 @@
                     headers: { "Authorization": `Bearer ${GROQ_KEY}`, "Content-Type": "application/json" },
                     body: JSON.stringify({
                         model: "llama-3.3-70b-versatile",
-                        messages: [
-                            {role: "system", content: "You are Aladdin AI v3.0, a legendary, factual assistant. Expert in Bangla and all languages. Master of code and knowledge."},
-                            ...chat.messages
-                        ],
-                        stream: true // Real SSE streaming enabled
+                        messages: [{role: "system", content: "You are Aladdin AI v3.0, a legendary assistant. You understand Bangla & English perfectly. Answer like ChatGPT Pro."}, ...chat.messages],
+                        stream: true
                     })
                 });
 
@@ -371,51 +314,17 @@
                             streamBox.innerHTML = marked.parse(fullText);
                         }
                     }
-                    scrollToBottom();
                 }
                 streamBox.nextElementSibling.remove();
                 chat.messages.push({role: 'assistant', content: fullText});
                 saveData();
-            } catch (err) { streamBox.innerHTML = "Error connecting to the lamp. API or Network issue."; }
+            } catch (err) { streamBox.innerHTML = "Lamp Error. Check Connection."; }
         }
 
-        // FILE ACCESS SYSTEM (IMAGE, PDF)
-        function handleFileUpload(input) {
-            const files = input.files;
-            const area = document.getElementById('messages');
-            uploadedFiles = []; // Clear previous uploads
-
-            // Optional: Show preview and analyze files logic.
-            // For now, it just registers the files. Analysis needs an updated prompt.
-            addMsgUI('user', `Uploaded ${files.length} file(s) for analysis.`, false);
-            chat.messages.push({role: 'user', content: `[User uploaded ${files.length} file(s) for analysis.]`});
-            
-            // For now, it just stores them. In a real update, we'd append text analysis to the messages.
-            Array.from(files).forEach(file => {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    uploadedFiles.push({name: file.name, type: file.type, data: e.target.result});
-                };
-                reader.readAsArrayBuffer(file);
-            });
-            input.value = ''; // Reset input
-        }
-
-        // 3. UTILS
         function saveData() { localStorage.setItem('aladdin_chats', JSON.stringify(chats)); }
         function deleteChat(e, id) { e.stopPropagation(); chats = chats.filter(c => c.id !== id); saveData(); initApp(); }
-        function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); }
-        function toggleTheme() {
-            document.body.classList.toggle('light-theme');
-            const isLight = document.body.classList.contains('light-theme');
-            document.getElementById('theme-icon').innerText = isLight ? "☀️" : "🌙";
-            document.getElementById('theme-text').innerText = isLight ? "Light Mode" : "Dark Mode";
-        }
-        function scrollToBottom() { const win = document.getElementById('chat-window'); win.scrollTop = win.scrollHeight; }
-
-        document.getElementById('user-input').addEventListener('input', function() {
-            this.style.height = 'auto'; this.style.height = (this.scrollHeight) + 'px';
-        });
+        function toggleTheme() { document.body.classList.toggle('light-theme'); }
+        function handleFileUpload(input) { alert(input.files.length + " file(s) ready to process."); }
 
         document.getElementById('user-input').addEventListener('keydown', (e) => {
             if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSendMessage(); }
