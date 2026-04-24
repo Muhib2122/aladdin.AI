@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aladdin AI v3.0 | Pro Edition</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Cinzel:wght@700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    
+    <style>
+        :root { --gpt-dark: #212121; --gpt-sidebar: #171717; --gold: #d4a853; }
+        body { font-family: 'Inter', sans-serif; background: var(--gpt-dark); color: #ececec; margin:0; overflow: hidden; }
+        .genie-glow { filter: drop-shadow(0 0 10px var(--gold)); }
+        
+        /* Auth Overlay */
+        #auth-overlay { position: fixed; inset:0; background: #000; z-index: 9999; display: flex; align-items: center; justify-content: center; }
+        .auth-card { background: #171717; padding: 2.5rem; border-radius: 15px; border: 1px solid #333; width: 380px; text-align: center; }
+
+        /* Layout */
+        .sidebar-item { cursor: pointer; padding: 12px; border-radius: 8px; margin-bottom: 5px; transition: 0.2s; font-size: 14px; display: flex; align-items: center; justify-content: space-between; color: #c5c5d2; }
+        .sidebar-item:hover { background: #2f2f2f; }
+        .active-chat { background: #343541 !important; color: white; }
+
+        .chat-container { max-width: 800px; margin: 0 auto; padding: 20px; }
+        .msg-bubble { margin-bottom: 30px; line-height: 1.7; font-size: 16px; }
+        .cursor { display: inline-block; width: 8px; height: 18px; background: #fff; margin-left: 4px; animation: blink 0.7s infinite; }
+        @keyframes blink { 50% { opacity: 0; } }
+
+        #sidebar { transition: transform 0.3s ease; }
+        @media (max-width: 768px) { #sidebar { position: fixed; transform: translateX(-100%); z-index: 50; height: 100%; } #sidebar.open { transform: translateX(0); } }
+    </style>
+</head>
+<body class="flex h-screen">
+
+    <div id="auth-overlay">
+        <div class="auth-card" id="email-step">
+            <div class="text-6xl mb-4 genie-glow">🧞</div>
+            <h2 class="text-2xl font-bold mb-2">Aladdin AI v3.0</h2>
+            <p class="text-gray-400 mb-6 text-sm">Magic code will be sent to your email</p>
+            <input type="email" id="auth-email" placeholder="Enter email" class="w-full bg-[#2f2f2f] border border-[#444] p-3 rounded-lg mb-4 outline-none focus:border-gold">
+            <button onclick="sendOTP()" class="w-full bg-white text-black font-bold py-3 rounded-lg hover:bg-gold transition">Send Code</button>
+        </div>
+        <div class="auth-card hidden" id="otp-step">
+            <h2 class="text-xl font-bold mb-4">Verify Identity</h2>
+            <p class="text-gray-400 mb-6 text-sm">Enter the code from your inbox</p>
+            <input type="text" id="auth-otp" placeholder="000000" maxlength="6" class="w-full tracking-widest text-center text-2xl bg-[#2f2f2f] border border-[#444] p-3 rounded-lg mb-4 outline-none">
+            <button onclick="verifyOTP()" class="w-full bg-gold text-black font-bold py-3 rounded-lg">Verify & Enter Lamp</button>
+        </div>
+    </div>
+
+    <aside id="sidebar" class="w-[260px] bg-[#171717] border-r border-[#333] flex flex-col p-3">
+        <button onclick="createNewChat()" class="flex items-center gap-3 border border-[#444] p-3 rounded-lg hover:bg-[#2f2f2f] transition mb-4 text-sm">
+            <span>+</span> <span>New Wish</span>
+        </button>
+        <div id="chat-list" class="flex-1 overflow-y-auto"></div>
+        <div class="pt-4 border-t border-[#333] flex items-center gap-3">
+            <div class="w-9 h-9 bg-gradient-to-tr from-purple-600 to-blue-500 rounded flex items-center justify-center font-bold">U</div>
+            <span class="text-sm font-medium">Master User</span>
+        </div>
+    </aside>
+
+    <main class="flex-1 flex flex-col overflow-hidden">
+        <header class="p-4 border-b border-[#333] flex justify-between items-center bg-[#212121]">
+            <button onclick="toggleSidebar()" class="md:hidden">☰</button>
+            <div class="flex items-center gap-2">
+                <span class="text-xl genie-glow">🧞</span>
+                <span class="font-bold text-gold font-cinzel tracking-widest">ALADDIN v3.0</span>
+            </div>
+            <div class="text-[10px] text-green-500 font-bold border border-green-800 px-2 py-1 rounded uppercase">70B Streaming</div>
+        </header>
+
+        <div id="chat-window" class="flex-1 overflow-y-auto">
+            <div id="messages" class="chat-container"></div>
+        </div>
+
+        <div class="p-4 bg-gradient-to-t from-[#212121] to-transparent">
+            <div class="max-w-3xl mx-auto relative">
+                <textarea id="user-input" rows="1" placeholder="Type your magic command..." 
+                    class="w-full bg-[#2f2f2f] border border-[#444] rounded-xl py-4 px-5 pr-14 outline-none focus:border-gold resize-none max-h-48"></textarea>
+                <button onclick="handleSendMessage()" class="absolute right-3 bottom-3 p-2 bg-gold rounded-lg text-black hover:scale-105 transition">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"></path></svg>
+                </button>
+            </div>
+            <p class="text-[10px] text-center text-gray-600 mt-2">Unlimited Magic powered by Groq Llama 3.3</p>
+        </div>
+    </main>
+
+    <script>
+        const GROQ_KEY = "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";
+        let chats = JSON.parse(localStorage.getItem('aladdin_chats')) || [];
+        let currentChatId = null;
+        let currentOTP = "";
+
+        // EMAILJS INIT
+        (function() { emailjs.init("5IDeLAjB6gy610xIB"); })();
+
+        async function sendOTP() {
+            const email = document.getElementById('auth-email').value;
+            if(!email.includes('@')) return alert("Enter valid email");
+            
+            currentOTP = Math.floor(100000 + Math.random() * 900000).toString();
+            const btn = document.querySelector('#email-step button');
+            btn.innerText = "Sending Code..."; btn.disabled = true;
+
+            try {
+                await emailjs.send("service_d7q8v4o", "template_9nrhdsl", { to_email: email, otp: currentOTP });
+                alert("Magic code sent to your email!");
+                document.getElementById('email-step').classList.add('hidden');
+                document.getElementById('otp-step').classList.remove('hidden');
+            } catch (err) {
+                alert("Email failed! Use '123456' (Demo Mode)");
+                document.getElementById('email-step').classList.add('hidden');
+                document.getElementById('otp-step').classList.remove('hidden');
+            } finally { btn.innerText = "Send Code"; btn.disabled = false; }
+        }
+
+        function verifyOTP() {
+            const val = document.getElementById('auth-otp').value;
+            if(val === currentOTP || val === "123456") {
+                document.getElementById('auth-overlay').style.display = 'none';
+                initApp();
+            } else { alert("Incorrect Code!"); }
+        }
+
+        function initApp() {
+            if(chats.length === 0) createNewChat();
+            else renderChat(chats[0].id);
+            renderSidebar();
+        }
+
+        function createNewChat() {
+            const id = Date.now();
+            chats.unshift({ id, title: "New Wish", messages: [] });
+            saveData(); renderSidebar(); renderChat(id);
+        }
+
+        function renderSidebar() {
+            const list = document.getElementById('chat-list');
+            list.innerHTML = chats.map(chat => `
+                <div class="sidebar-item ${chat.id === currentChatId ? 'active-chat' : ''}" onclick="renderChat(${chat.id})">
+                    <span class="truncate">💬 ${chat.title}</span>
+                    <span onclick="deleteChat(event, ${chat.id})" class="hover:text-red-500">×</span>
+                </div>
+            `).join('');
+        }
+
+        function renderChat(id) {
+            currentChatId = id;
+            const chat = chats.find(c => c.id === id);
+            const msgArea = document.getElementById('messages');
+            msgArea.innerHTML = chat.messages.length === 0 ? '<div class="text-center mt-20 text-gray-500"><h1 class="text-3xl font-cinzel text-gold">Your wish?</h1></div>' : '';
+            chat.messages.forEach(m => addMsgUI(m.role, m.content, false));
+            renderSidebar();
+        }
+
+        function addMsgUI(role, content, streaming) {
+            const div = document.createElement('div');
+            div.className = `msg-bubble flex gap-4 ${role === 'user' ? 'justify-end' : ''}`;
+            div.innerHTML = `
+                ${role === 'ai' ? '<div class="w-8 h-8 flex-shrink-0 bg-gold rounded text-black flex items-center justify-center">🧞</div>' : ''}
+                <div class="${role === 'user' ? 'bg-[#2f2f2f] px-4 py-2 rounded-2xl max-w-[80%]' : 'flex-1'}">
+                    <div class="prose prose-invert max-w-full">${streaming ? content : marked.parse(content)}</div>
+                    ${streaming ? '<span class="cursor"></span>' : ''}
+                </div>
+            `;
+            document.getElementById('messages').appendChild(div);
+            document.getElementById('chat-window').scrollTop = document.getElementById('chat-window').scrollHeight;
+            return div.querySelector('.prose');
+        }
+
+        async function handleSendMessage() {
+            const input = document.getElementById('user-input');
+            const text = input.value.trim();
+            if(!text) return;
+
+            const chat = chats.find(c => c.id === currentChatId);
+            if(chat.messages.length === 0) chat.title = text.substring(0, 25);
+
+            addMsgUI('user', text, false);
+            chat.messages.push({role: 'user', content: text});
+            input.value = '';
+
+            // Image Logic
+            if(text.toLowerCase().includes("image") || text.toLowerCase().includes("generate")) {
+                const box = addMsgUI('ai', "Generating magic...", false);
+                const url = `https://image.pollinations.ai/prompt/${encodeURIComponent("photorealistic, high quality, " + text)}?width=1024&height=1024&nologo=true`;
+                box.innerHTML = `<img src="${url}" class="rounded-xl border border-gold mt-2">`;
+                chat.messages.push({role:'assistant', content: `![img](${url})`});
+                saveData(); return;
+            }
+
+            // Real Streaming Chat
+            const streamingDiv = addMsgUI('ai', '', true);
+            try {
+                const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+                    method: "POST",
+                    headers: { "Authorization": `Bearer ${GROQ_KEY}`, "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        model: "llama-3.3-70b-versatile",
+                        messages: [{role: "system", content: "You are Aladdin AI, an expert and helpful assistant."}, ...chat.messages],
+                        stream: true
+                    })
+                });
+
+                const reader = res.body.getReader();
+                const decoder = new TextDecoder();
+                let fullText = "";
+
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+                    const chunk = decoder.decode(value);
+                    const lines = chunk.split("\n");
+                    for (const line of lines) {
+                        if (line.startsWith("data: ") && line !== "data: [DONE]") {
+                            const data = JSON.parse(line.substring(6));
+                            fullText += data.choices[0].delta.content || "";
+                            streamingDiv.innerHTML = marked.parse(fullText);
+                        }
+                    }
+                    document.getElementById('chat-window').scrollTop = document.getElementById('chat-window').scrollHeight;
+                }
+                streamingDiv.nextElementSibling.remove();
+                chat.messages.push({role: 'assistant', content: fullText});
+                saveData();
+            } catch (err) { streamingDiv.innerHTML = "Error connecting to the lamp."; }
+        }
+
+        function deleteChat(e, id) { e.stopPropagation(); chats = chats.filter(c => c.id !== id); saveData(); initApp(); }
+        function saveData() { localStorage.setItem('aladdin_chats', JSON.stringify(chats)); }
+        function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); }
+        
+        document.getElementById('user-input').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSendMessage(); }
+        });
+    </script>
+</body>
+</html>
