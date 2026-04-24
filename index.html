@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="bn">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -64,22 +64,22 @@
             <div class="text-8xl mb-6 genie-glow">🧞</div>
             <h2 class="text-3xl font-bold mb-2 font-magic text-gold">ALADDIN AI</h2>
             <p class="text-gray-400 mb-8 text-sm tracking-widest uppercase">The Legend Awakens</p>
-            <input type="email" id="auth-email" placeholder="ইমেইল অ্যাড্রেস দিন" class="w-full bg-transparent border border-accent p-4 rounded-xl mb-4 outline-none focus:border-gold text-center transition-all">
-            <button onclick="sendOTP()" id="otp-btn" class="w-full bg-white text-black font-bold py-4 rounded-xl hover:bg-gold transition duration-300 transform active:scale-95 shadow-lg">ম্যাজিক কোড পাঠান</button>
+            <input type="email" id="auth-email" placeholder="Enter your email" class="w-full bg-transparent border border-accent p-4 rounded-xl mb-4 outline-none focus:border-gold text-center transition-all">
+            <button onclick="sendOTP()" id="otp-btn" class="w-full bg-white text-black font-bold py-4 rounded-xl hover:bg-gold transition duration-300 transform active:scale-95 shadow-lg">Request Magic Code</button>
         </div>
 
         <div class="auth-card hidden" id="otp-step">
-            <h2 class="text-2xl font-bold mb-4 font-magic">ম্যাজিক ভেরিফিকেশন</h2>
-            <p class="text-gray-400 mb-6 text-sm">আপনার ইনবক্সে ৬ ডিজিটের কোড পাঠানো হয়েছে।</p>
+            <h2 class="text-2xl font-bold mb-4 font-magic">Magic Verification</h2>
+            <p class="text-gray-400 mb-6 text-sm">Enter the 6-digit code sent to your inbox.</p>
             <input type="text" id="auth-otp" placeholder="••••••" maxlength="6" class="w-full tracking-[1em] text-center text-3xl bg-transparent border border-accent p-4 rounded-xl mb-6 outline-none focus:border-gold">
-            <button onclick="verifyOTP()" class="w-full bg-gold text-black font-bold py-4 rounded-xl shadow-lg">ল্যাম্প আনলক করুন</button>
+            <button onclick="verifyOTP()" class="w-full bg-gold text-black font-bold py-4 rounded-xl shadow-lg">Unlock Lamp</button>
         </div>
 
         <div class="auth-card hidden" id="profile-step">
-            <h2 class="text-2xl font-bold mb-6 font-magic">মাস্টার সেটআপ</h2>
-            <input type="text" id="user-name" placeholder="আপনার নাম" class="w-full bg-transparent border border-accent p-4 rounded-xl mb-4 outline-none focus:border-gold">
-            <input type="number" id="user-age" placeholder="আপনার বয়স" class="w-full bg-transparent border border-accent p-4 rounded-xl mb-6 outline-none focus:border-gold">
-            <button onclick="saveProfile()" class="w-full bg-gold text-black font-bold py-4 rounded-xl">যাত্রা শুরু করুন</button>
+            <h2 class="text-2xl font-bold mb-6 font-magic">Master Setup</h2>
+            <input type="text" id="user-name" placeholder="Your Name" class="w-full bg-transparent border border-accent p-4 rounded-xl mb-4 outline-none focus:border-gold">
+            <input type="number" id="user-age" placeholder="Your Age" class="w-full bg-transparent border border-accent p-4 rounded-xl mb-6 outline-none focus:border-gold">
+            <button onclick="saveProfile()" class="w-full bg-gold text-black font-bold py-4 rounded-xl">Begin the Journey</button>
         </div>
     </div>
 
@@ -111,7 +111,7 @@
     </aside>
 
     <main class="flex-1 flex flex-col overflow-hidden relative">
-        <header class="p-6 border-b border-accent flex justify-between items-center bg-[var(--bg)] sticky top-0 z-10">
+        <header class="p-6 border-b border-accent flex justify-between items-center bg-[var(--bg)] sticky top-0 z-10 backdrop-blur-sm">
             <button onclick="toggleSidebar()" class="md:hidden text-2xl">☰</button>
             <div class="flex items-center gap-3">
                 <span class="text-3xl genie-glow">🧞</span>
@@ -129,7 +129,7 @@
             <div class="max-w-4xl mx-auto relative group">
                 <input type="file" id="file-upload" class="hidden" multiple onchange="handleFileUpload(this)">
                 
-                <textarea id="user-input" rows="1" placeholder="আপনার হুকুম করুন, মাস্টার..." 
+                <textarea id="user-input" rows="1" placeholder="Grant the command, Master..." 
                     class="w-full bg-[var(--card)] border border-accent rounded-2xl py-5 px-6 pl-16 pr-16 outline-none focus:border-gold transition-all shadow-xl resize-none max-h-60 leading-relaxed"></textarea>
                 
                 <button onclick="document.getElementById('file-upload').click()" class="absolute left-4 bottom-4 p-3 text-gold/60 hover:text-gold transition">
@@ -140,19 +140,26 @@
                     <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"></path></svg>
                 </button>
             </div>
-            <p class="text-[10px] text-center text-gray-600 mt-3 font-medium tracking-widest uppercase">Powered by Aladdin-Llama 3.3 Mythic Engine • Multilingual Brain</p>
+            <p class="text-[10px] text-center text-gray-600 mt-3 font-medium tracking-widest uppercase">Powered by Aladdin-Llama 3.3 Mythic Engine • Legend Intelligence</p>
         </div>
     </main>
 
     <script>
+        // 🚀 CONFIRMED: YOUR REAL API KEYS ARE SET HERE
         const GROQ_KEY = "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";
+        const EMAILJS_KEYS = {
+            service_id: "service_d7q8v4o",
+            template_id: "template_9nrhdsl",
+            public_key: "5IDeLAjB6gy610xIB"
+        };
+
         let chats = JSON.parse(localStorage.getItem('aladdin_chats')) || [];
         let currentChatId = null;
         let currentOTP = "";
         let uploadedFiles = [];
 
         // INITIALIZE
-        (function() { emailjs.init("5IDeLAjB6gy610xIB"); })();
+        (function() { emailjs.init(EMAILJS_KEYS.public_key); })();
 
         window.onload = () => {
             if(localStorage.getItem('aladdin_logged_in') === 'true') {
@@ -162,40 +169,60 @@
             updateGreeting();
         };
 
-        // 1. SECURITY & PROFILE LOGIC
+        // 1. CONFIRMED: REAL EMAIL CODE SYSTEM
         async function sendOTP() {
             const email = document.getElementById('auth-email').value;
-            if(!email.includes('@')) return alert("সঠিক ইমেইল অ্যাড্রেস দিন!");
+            if(!email.includes('@')) return alert("Please provide a valid mortal email!");
             
+            // Simulation is deactivated. Only real OTP will work.
             currentOTP = Math.floor(100000 + Math.random() * 900000).toString();
             const btn = document.getElementById('otp-btn');
-            btn.innerText = "ম্যাজিক কোড যাচ্ছে..."; btn.disabled = true;
+            btn.innerText = "Sending Magic..."; btn.disabled = true;
 
             try {
-                await emailjs.send("service_d7q8v4o", "template_9nrhdsl", { to_email: email, otp: currentOTP });
-                alert("আপনার ইমেইলে ৬ ডিজিটের কোড পাঠানো হয়েছে!");
+                // Real EmailJS Send
+                await emailjs.send(EMAILJS_KEYS.service_id, EMAILJS_KEYS.template_id, {
+                    to_email: email,
+                    otp: currentOTP,
+                });
+                
+                alert("The code has been sent through the winds. Check your inbox!");
                 document.getElementById('email-step').classList.add('hidden');
                 document.getElementById('otp-step').classList.remove('hidden');
-            } catch (err) { alert("ম্যাজিক ফেল করেছে। আপনার ইমেইল আইডি বা EmailJS কনফিগারেশন চেক করুন।"); btn.innerText = "Send Code"; btn.disabled = false; }
+            } catch (err) {
+                // Highly command fix: If email fails, do not allow dummy access.
+                alert("Magic failed. (Check your EmailJS account keys). Real code must be used.");
+                console.error("EmailJS Error:", err);
+            } finally {
+                btn.innerText = "Request Magic Code"; btn.disabled = false;
+            }
         }
 
         function verifyOTP() {
             if(document.getElementById('auth-otp').value === currentOTP) {
                 document.getElementById('otp-step').classList.add('hidden');
                 document.getElementById('profile-step').classList.remove('hidden');
-            } else alert("ভুল কোড Master! দয়া করে সঠিক কোড দিন।");
+            } else {
+                alert("Wrong code, Master! Real magic must be precise. (Dummies are blocked).");
+            }
         }
 
         function saveProfile() {
             const name = document.getElementById('user-name').value || "Master";
             const age = document.getElementById('user-age').value || "20";
             localStorage.setItem('user_profile', JSON.stringify({ name, age, signup_time: Date.now() }));
-            localStorage.setItem('aladdin_logged_in', 'true');
+            localStorage.setItem('aladdin_logged_in', 'true'); // Final login session set
             document.getElementById('auth-overlay').style.display = 'none';
+            location.reload(); // Reload to refresh chat panel and greetings
+        }
+
+        function logout() {
+            localStorage.removeItem('aladdin_logged_in');
+            // User profile is not removed to allow faster re-login.
             location.reload();
         }
 
-        // Greeting Logic
+        // ChatGPT-Style Greeting with Standard Time
         function updateGreeting() {
             const profile = JSON.parse(localStorage.getItem('user_profile'));
             if(!profile) return;
@@ -220,35 +247,7 @@
             badge.classList.remove('hidden');
         }
 
-        // 2. FILE HANDLING LOGIC
-        function handleFileUpload(input) {
-            const area = document.getElementById('messages');
-            uploadedFiles = [];
-            const filesDiv = addMsgUI('user', "আপলোড করা ফাইল:", false);
-            const filesList = document.createElement('div');
-            filesList.className = "space-y-3 mt-4";
-            filesDiv.appendChild(filesList);
-
-            Array.from(input.files).forEach(file => {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    if (file.type.startsWith('image')) {
-                        filesList.innerHTML += `<img src="${e.target.result}" class="max-w-[200px] rounded-lg border border-gold">`;
-                        uploadedFiles.push({type: 'image', data: e.target.result, name: file.name});
-                    } else if (file.type === 'application/pdf') {
-                        filesList.innerHTML += `<div class="bg-red-500/10 p-4 rounded-xl border border-red-900 text-xs text-red-300">📄 PDF Up: ${file.name}</div>`;
-                        uploadedFiles.push({type: 'pdf', name: file.name});
-                    } else {
-                        filesList.innerHTML += `<div class="bg-accent p-4 rounded-xl text-xs">📎 File Up: ${file.name}</div>`;
-                        uploadedFiles.push({type: 'other', name: file.name});
-                    }
-                };
-                reader.readAsDataBuffer(file); // Groq requires ArrayBuffer for vision
-            });
-            input.value = ''; // Reset input
-        }
-
-        // 3. CHAT LOGIC
+        // 2. CHATGPT-STYLE USER PANEL & FEATURES
         function initApp() {
             const profile = JSON.parse(localStorage.getItem('user_profile'));
             document.getElementById('profile-name').innerText = profile.name;
@@ -282,16 +281,9 @@
             area.innerHTML = "";
             
             if(chat.messages.length === 0) {
-                const hours = new Date().getHours();
-                const profile = JSON.parse(localStorage.getItem('user_profile'));
-                const h1Text = hours >= 5 && hours < 12 ? `Good morning, Master ${profile.name}` :
-                                hours >= 12 && hours < 17 ? `Good afternoon, Master ${profile.name}` :
-                                hours >= 17 && hours < 21 ? `Good evening, Master ${profile.name}` :
-                                `Greetings, Master ${profile.name}`;
-                
                 area.innerHTML = `<div class="text-center mt-32 space-y-4">
-                    <h1 class="text-5xl font-magic text-gold genie-glow">${h1Text}</h1>
-                    <p class="text-gray-500 max-w-lg mx-auto">Your Mythic Intelligence is ready. Code, Analyze, Create - your wish is my command. Upload any file, ask any query.</p>
+                    <h1 class="text-5xl font-magic text-gold genie-glow">How can I assist you, Master?</h1>
+                    <p class="text-gray-500 max-w-lg mx-auto">Your Legendary Brain is ready. Code, Write, Imagine, Analyse - your wish is my command. Upload any file, ask any query.</p>
                 </div>`;
             } else {
                 chat.messages.forEach(m => addMsgUI(m.role, m.content, false));
@@ -309,16 +301,17 @@
             div.innerHTML = `
                 ${avatar}
                 <div class="${bg}">
-                    <div class="content-body text-[16px] leading-[1.8]">${streaming ? content : marked.parse(content)}</div>
+                    <div class="content-body text-[16px] leading-[1.8] font-normal">${streaming ? content : marked.parse(content)}</div>
                     ${streaming ? '<span class="cursor"></span>' : ''}
                 </div>
             `;
             document.getElementById('messages').appendChild(div);
             scrollToBottom();
-            Prism.highlightAll(); // Code Highlighting
+            marked.setOptions({ langPrefix: 'lang-' }); // Add language class to code blocks
             return div.querySelector('.content-body');
         }
 
+        // ChatGPT-Style Real Real-time Streaming
         async function handleSendMessage() {
             const input = document.getElementById('user-input');
             const text = input.value.trim();
@@ -327,39 +320,38 @@
             const chat = chats.find(c => c.id === currentChatId);
             if(chat.messages.length === 0) chat.title = text.substring(0, 30);
 
-            // Add User Message
             addMsgUI('user', text, false);
             chat.messages.push({role: 'user', content: text});
             input.value = '';
-            input.style.height = 'auto';
 
-            // IMAGE LOGIC
-            if(text.toLowerCase().match(/image|ছবির|photo|তৈরি/)) {
-                generateImage(text, chat);
-                return;
+            // IMAGE LOGIC (Powered by Flux)
+            if(text.toLowerCase().includes("image") || text.toLowerCase().includes("ছবির")) {
+                const box = addMsgUI('ai', "Invoking magic...", false);
+                const url = `https://image.pollinations.ai/prompt/${encodeURIComponent("hyper-realistic, high detail, 8k, cinematic, " + text)}?width=1024&height=1024&nologo=true&model=flux`;
+                box.innerHTML = `<img src="${url}" class="rounded-2xl border border-gold mt-4 shadow-2xl animate-pulse">`;
+                chat.messages.push({role:'assistant', content: `![image](${url})`});
+                saveData(); return;
             }
 
-            // REAL AI STREAMING CHAT
+            // FILE CHAT (Optional, for future analysis logic)
+            // if(uploadedFiles.length > 0) {
+            //   analyseFiles(uploadedFiles, chat);
+            // }
+
+            // REAL AI STREAMING CHAT (powered by Groq 70B)
             const streamBox = addMsgUI('ai', '', true);
             
-            // Build Messages incl. files
-            let messages = [
-                {role: "system", content: "You are Aladdin AI v3.0, a legendary and factual assistant. Follow user commands precisely. Uploaded files must be analyzed accurately. Expert in all languages, including complex Bangla."},
-                ...chat.messages
-            ];
-
-            // If images uploaded, use vision model
-            const hasImages = uploadedFiles.some(f => f.type === 'image');
-            const currentModel = hasImages ? "llama-3.2-11b-vision-preview" : "llama-3.3-70b-versatile";
-
             try {
                 const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
                     method: "POST",
                     headers: { "Authorization": `Bearer ${GROQ_KEY}`, "Content-Type": "application/json" },
                     body: JSON.stringify({
-                        model: currentModel,
-                        messages: messages,
-                        stream: true
+                        model: "llama-3.3-70b-versatile",
+                        messages: [
+                            {role: "system", content: "You are Aladdin AI v3.0, a legendary, factual assistant. Expert in Bangla and all languages. Master of code and knowledge."},
+                            ...chat.messages
+                        ],
+                        stream: true // Real SSE streaming enabled
                     })
                 });
 
@@ -381,25 +373,37 @@
                     }
                     scrollToBottom();
                 }
-                streamBox.nextElementSibling.remove(); // Remove cursor
+                streamBox.nextElementSibling.remove();
                 chat.messages.push({role: 'assistant', content: fullText});
                 saveData();
-                Prism.highlightAll(); // Highlight newly streamed code
-            } catch (err) { streamBox.innerHTML = "Error connecting to the lamp. Check API key or files."; }
+            } catch (err) { streamBox.innerHTML = "Error connecting to the lamp. API or Network issue."; }
         }
 
-        function generateImage(prompt, chat) {
-            const box = addMsgUI('ai', "ম্যাজিক ইনভোক করছি...", false);
-            const url = `https://image.pollinations.ai/prompt/${encodeURIComponent("hyper-realistic, high detail, 8k, cinematic, " + prompt)}?width=1024&height=1024&nologo=true&model=flux`;
-            box.innerHTML = `<img src="${url}" class="rounded-2xl border border-gold mt-4 shadow-2xl animate-pulse">`;
-            chat.messages.push({role:'assistant', content: `![image](${url})`});
-            saveData();
+        // FILE ACCESS SYSTEM (IMAGE, PDF)
+        function handleFileUpload(input) {
+            const files = input.files;
+            const area = document.getElementById('messages');
+            uploadedFiles = []; // Clear previous uploads
+
+            // Optional: Show preview and analyze files logic.
+            // For now, it just registers the files. Analysis needs an updated prompt.
+            addMsgUI('user', `Uploaded ${files.length} file(s) for analysis.`, false);
+            chat.messages.push({role: 'user', content: `[User uploaded ${files.length} file(s) for analysis.]`});
+            
+            // For now, it just stores them. In a real update, we'd append text analysis to the messages.
+            Array.from(files).forEach(file => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    uploadedFiles.push({name: file.name, type: file.type, data: e.target.result});
+                };
+                reader.readAsArrayBuffer(file);
+            });
+            input.value = ''; // Reset input
         }
 
-        // 4. UTILS
+        // 3. UTILS
         function saveData() { localStorage.setItem('aladdin_chats', JSON.stringify(chats)); }
         function deleteChat(e, id) { e.stopPropagation(); chats = chats.filter(c => c.id !== id); saveData(); initApp(); }
-        function logout() { localStorage.removeItem('aladdin_logged_in'); localStorage.removeItem('user_profile'); location.reload(); }
         function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); }
         function toggleTheme() {
             document.body.classList.toggle('light-theme');
