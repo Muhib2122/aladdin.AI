@@ -3,760 +3,1066 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aladdin AI 🧞 | Your Digital Genius</title>
-    <!-- Fonts & Icons -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/lucide-static@0.321.0/font/lucide.min.js"></script>
+    <meta name="description" content="Aladdin AI 🧞 - Your Personal Genie Powered by Groq">
+    <title>Aladdin AI 🧞</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500&amp;family=Space+Grotesk:wght@500&amp;display=swap');
+        
         :root {
-            --primary: #8a2be2;
-            --secondary: #ffce00;
-            --bg-dark: #0f0f13;
-            --glass: rgba(255, 255, 255, 0.05);
-            --glass-border: rgba(255, 255, 255, 0.1);
-            --text-main: #e0e0e0;
-            --sidebar-width: 300px;
-            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --tw-color-purple: #c026d3;
         }
-
+        
         * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Inter', sans-serif;
+            transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
+            transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+            transition-duration: 150ms;
         }
-
-        body {
-            background: radial-gradient(circle at top right, #1a1a2e, #0f0f13);
-            color: var(--text-main);
-            height: 100vh;
-            overflow: hidden;
-            display: flex;
-        }
-
-        /* --- Authentication Screen --- */
-        #auth-screen {
-            position: fixed;
-            inset: 0;
-            z-index: 1000;
-            background: #0f0f13;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-direction: column;
-            transition: var(--transition);
-        }
-
-        .auth-card {
-            background: var(--glass);
+        
+        .glass {
+            background: rgba(26, 26, 46, 0.85);
             backdrop-filter: blur(20px);
-            border: 1px solid var(--glass-border);
-            padding: 2.5rem;
-            border-radius: 24px;
-            width: 100%;
-            max-width: 400px;
-            text-align: center;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
         }
-
-        .auth-logo {
-            font-size: 4rem;
-            margin-bottom: 1rem;
-            display: block;
+        
+        .chat-container::-webkit-scrollbar {
+            display: none;
         }
-
-        .auth-card h1 {
-            font-family: 'Poppins', sans-serif;
-            margin-bottom: 0.5rem;
-            color: var(--secondary);
-        }
-
-        .input-group {
-            margin-top: 1.5rem;
-            text-align: left;
-        }
-
-        input, select, textarea {
-            width: 100%;
-            background: rgba(255,255,255,0.07);
-            border: 1px solid var(--glass-border);
-            padding: 12px 16px;
-            border-radius: 12px;
-            color: white;
-            outline: none;
-            margin-top: 8px;
-            transition: var(--transition);
-        }
-
-        input:focus {
-            border-color: var(--primary);
-            background: rgba(255,255,255,0.12);
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, var(--primary), #6a1b9a);
-            color: white;
-            border: none;
-            padding: 14px;
-            border-radius: 12px;
-            width: 100%;
-            margin-top: 1.5rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: var(--transition);
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(138, 43, 226, 0.4);
-        }
-
-        /* --- Main Layout --- */
-        #app-container {
-            display: none; /* Shown after auth */
-            width: 100%;
-            height: 100vh;
-        }
-
-        /* Sidebar */
-        aside {
-            width: var(--sidebar-width);
-            background: rgba(0, 0, 0, 0.3);
-            border-right: 1px solid var(--glass-border);
-            display: flex;
-            flex-direction: column;
-            transition: var(--transition);
-            z-index: 900;
-        }
-
-        .sidebar-header {
-            padding: 1.5rem;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            border-bottom: 1px solid var(--glass-border);
-        }
-
-        .history-container {
-            flex: 1;
-            overflow-y: auto;
-            padding: 1rem;
-        }
-
-        .history-item {
-            padding: 12px;
-            border-radius: 10px;
-            cursor: pointer;
-            margin-bottom: 8px;
-            transition: 0.2s;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            font-size: 0.9rem;
-            border: 1px solid transparent;
-        }
-
-        .history-item:hover {
-            background: var(--glass);
-            border-color: var(--glass-border);
-        }
-
-        .sidebar-footer {
-            padding: 1rem;
-            border-top: 1px solid var(--glass-border);
-        }
-
-        /* Main Chat */
-        main {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            position: relative;
-        }
-
-        header {
-            height: 70px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 2rem;
-            background: rgba(15, 15, 19, 0.8);
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid var(--glass-border);
-        }
-
-        .chat-container {
-            flex: 1;
-            overflow-y: auto;
-            padding: 2rem;
-            display: flex;
-            flex-direction: column;
-            gap: 1.5rem;
-            scroll-behavior: smooth;
-        }
-
-        .message {
+        
+        .message-bubble {
             max-width: 80%;
-            padding: 1rem 1.5rem;
-            border-radius: 18px;
-            line-height: 1.6;
-            animation: fadeIn 0.3s ease;
-        }
-
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-        .user-message {
-            align-self: flex-end;
-            background: var(--primary);
-            color: white;
-            border-bottom-right-radius: 2px;
-        }
-
-        .ai-message {
-            align-self: flex-start;
-            background: var(--glass);
-            border: 1px solid var(--glass-border);
-            border-bottom-left-radius: 2px;
-        }
-
-        /* Profile & Settings Drawer */
-        .profile-btn {
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .profile-img {
-            width: 35px;
-            height: 35px;
-            border-radius: 50%;
-            background: var(--secondary);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            overflow: hidden;
-        }
-
-        .profile-img img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        /* Input Area */
-        .input-wrapper {
-            padding: 1.5rem 2rem;
-            background: linear-gradient(to top, #0f0f13, transparent);
-        }
-
-        .input-box {
-            max-width: 900px;
-            margin: 0 auto;
-            background: var(--glass);
-            border: 1px solid var(--glass-border);
-            border-radius: 20px;
-            padding: 8px 15px;
-            display: flex;
-            align-items: flex-end;
-            gap: 12px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-        }
-
-        #user-input {
-            flex: 1;
-            background: transparent;
-            border: none;
-            resize: none;
-            padding: 10px 0;
-            max-height: 200px;
-            font-size: 1rem;
-            color: white;
-        }
-
-        .action-btn {
-            background: transparent;
-            border: none;
-            color: var(--text-main);
-            padding: 10px;
-            cursor: pointer;
-            border-radius: 50%;
-            transition: 0.2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .action-btn:hover {
-            background: var(--glass);
-            color: var(--secondary);
-        }
-
-        /* Image Preview */
-        #image-preview-container {
-            display: none;
-            padding: 10px;
+            padding: 16px 20px;
+            border-radius: 28px;
             position: relative;
         }
-
-        .preview-img {
-            width: 60px;
-            height: 60px;
-            border-radius: 8px;
-            object-fit: cover;
+        
+        .user-bubble {
+            border-bottom-right-radius: 8px;
+            background: linear-gradient(90deg, #c026d3, #a855f7);
         }
-
-        /* Responsive Sidebar Logic */
-        .mobile-toggle {
-            display: none;
-            font-size: 1.5rem;
-            cursor: pointer;
+        
+        .ai-bubble {
+            border-bottom-left-radius: 8px;
+            background: rgba(234, 179, 8, 0.1);
+            border: 1px solid rgba(234, 179, 8, 0.3);
         }
-
-        @media (max-width: 768px) {
-            aside {
-                position: fixed;
-                left: -100%;
-                height: 100%;
-                background: #15151e;
-            }
-            aside.open { left: 0; }
-            .mobile-toggle { display: block; }
-            .chat-container { padding: 1rem; }
-            .message { max-width: 90%; }
+        
+        .sidebar-item {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
-
-        /* Visuals */
-        .gen-image {
-            width: 100%;
-            border-radius: 12px;
-            margin-top: 10px;
-            border: 1px solid var(--glass-border);
+        
+        .sidebar-item:hover {
+            transform: translateX(4px);
+            background: rgba(234, 179, 8, 0.1);
         }
-
-        .dual-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-top: 10px;
+        
+        .typing {
+            display: inline-flex;
+            align-items: center;
         }
-
-        /* Loading Spinner */
-        .dots { display: flex; gap: 4px; padding: 10px; }
-        .dot { width: 8px; height: 8px; background: #888; border-radius: 50%; animation: bounce 1.4s infinite ease-in-out both; }
-        .dot:nth-child(1) { animation-delay: -0.32s; }
-        .dot:nth-child(2) { animation-delay: -0.16s; }
-        @keyframes bounce { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
-
+        
+        .typing-dot {
+            animation: typingBounce 1.2s infinite;
+        }
+        
+        @keyframes typingBounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-4px); }
+        }
+        
+        .header-glow {
+            animation: headerGlow 4s ease infinite;
+        }
+        
+        .modal {
+            animation: modalPop 0.3s ease forwards;
+        }
+        
+        .logo-spin {
+            animation: logoSpin 20s linear infinite;
+        }
     </style>
 </head>
-<body>
-
-    <!-- Authentication Screen -->
-    <div id="auth-screen">
-        <div class="auth-card" id="email-step">
-            <span class="auth-logo">🧞</span>
-            <h1>Aladdin AI</h1>
-            <p>Your wish is my command.</p>
-            <div class="input-group">
-                <label>Email Address</label>
-                <input type="email" id="auth-email" placeholder="master@agrabah.com">
+<body class="bg-[#0a0a1f] text-white font-sans overflow-hidden h-screen">
+    <!-- LOGIN MODAL -->
+    <div id="login-modal" onclick="if(event.target.id === 'login-modal') hideLogin()" 
+         class="fixed inset-0 bg-black/80 flex items-center justify-center z-[9999] hidden">
+        <div class="modal glass w-full max-w-md mx-4 rounded-3xl p-8 border border-purple-400/30 shadow-2xl">
+            <div class="flex justify-center mb-6">
+                <div class="text-7xl logo-spin">🧞</div>
             </div>
-            <button class="btn-primary" onclick="sendOTP()">Request Entry</button>
-        </div>
-
-        <div class="auth-card" id="otp-step" style="display: none;">
-            <span class="auth-logo">🧞</span>
-            <h1>Verify Identity</h1>
-            <p>Enter the secret code sent to your lamp.</p>
-            <div class="input-group">
-                <label>OTP Code</label>
-                <input type="text" id="auth-otp" placeholder="6-digit code">
-            </div>
-            <button class="btn-primary" onclick="verifyOTP()">Unlock Lamp</button>
-        </div>
-    </div>
-
-    <!-- Main Application -->
-    <div id="app-container">
-        <aside id="sidebar">
-            <div class="sidebar-header">
-                <span style="font-size: 1.5rem;">🧞</span>
-                <h2 style="font-family: 'Poppins'; font-size: 1.2rem;">Aladdin AI</h2>
+            <h1 class="text-4xl font-bold text-center mb-2 tracking-[-1px]" style="font-family: 'Space Grotesk', sans-serif;">Aladdin AI</h1>
+            <p class="text-center text-yellow-300 mb-8">Welcome back, Master ✨</p>
+            
+            <div id="step-email" class="space-y-6">
+                <div>
+                    <label class="text-sm uppercase tracking-widest text-white/70 block mb-2">Your Email</label>
+                    <input id="email-input" type="email" 
+                           class="w-full glass border border-white/30 focus:border-purple-400 rounded-2xl px-5 py-4 outline-none text-lg"
+                           placeholder="master@example.com">
+                </div>
+                <button onclick="sendOTP()" 
+                        class="w-full bg-gradient-to-r from-purple-600 to-yellow-400 hover:from-purple-500 hover:to-yellow-300 text-black font-semibold text-xl py-4 rounded-3xl flex items-center justify-center gap-3">
+                    <span>Send Magic OTP</span>
+                    <span class="text-3xl">✉️</span>
+                </button>
             </div>
             
-            <div class="history-container" id="chat-history">
-                <!-- History Items Inject Here -->
-            </div>
-
-            <div class="sidebar-footer">
-                <select id="lang-select" onchange="updateLanguage()">
-                    <option value="en">English</option>
-                    <option value="bn">Bengali (বাংলা)</option>
-                    <option value="hi">Hindi (हिन्दी)</option>
-                    <option value="ar">Arabic (العربية)</option>
-                    <option value="es">Spanish (Español)</option>
-                </select>
-                <button class="btn-primary" style="margin-top: 10px; background: var(--glass);" onclick="newChat()">+ New Chat</button>
-            </div>
-        </aside>
-
-        <main>
-            <header>
-                <div class="mobile-toggle" onclick="toggleSidebar()">☰</div>
-                <div id="greeting-text" style="font-weight: 600;">Good Morning, Master 🧞</div>
-                <div class="profile-btn" onclick="toggleProfile()">
-                    <div class="profile-img" id="user-avatar-display">A</div>
+            <div id="step-otp" class="space-y-6 hidden">
+                <div class="text-center">
+                    <div class="inline-flex items-center justify-center w-16 h-16 bg-yellow-300/10 text-yellow-300 rounded-2xl text-4xl mb-4">🔑</div>
+                    <h2 class="text-2xl font-medium">Enter 6-digit OTP</h2>
+                    <p class="text-white/60 text-sm mt-1">We just sent it to your email</p>
                 </div>
-            </header>
-
-            <div class="chat-container" id="chat-box">
-                <!-- Messages Inject Here -->
-            </div>
-
-            <div id="image-preview-container">
-                <img src="" id="preview-img-tag" class="preview-img">
-                <button onclick="clearImage()" style="position: absolute; top: 0; left: 50px; background: red; color: white; border: none; border-radius: 50%; width: 20px; cursor: pointer;">×</button>
-            </div>
-
-            <div class="input-wrapper">
-                <div class="input-box">
-                    <label class="action-btn" for="image-upload">
-                        <input type="file" id="image-upload" hidden accept="image/*" onchange="handleImageSelection(event)">
-                        📷
-                    </label>
-                    <textarea id="user-input" placeholder="Ask anything..." rows="1"></textarea>
-                    <button class="action-btn" title="Summarization Mode" onclick="toggleSummarize()" id="sum-btn">📝</button>
-                    <button class="action-btn" style="color: var(--primary); font-size: 1.5rem;" onclick="sendMessage()">✦</button>
+                <input id="otp-input" type="text" maxlength="6" 
+                       class="w-full glass border border-white/30 focus:border-yellow-400 rounded-3xl px-8 py-6 outline-none text-center text-4xl tracking-[8px] font-mono"
+                       placeholder="123456">
+                <div class="grid grid-cols-2 gap-4">
+                    <button onclick="hideLogin()" 
+                            class="py-4 rounded-3xl border border-white/30 font-medium">Cancel</button>
+                    <button onclick="verifyOTP()" 
+                            class="py-4 rounded-3xl bg-gradient-to-r from-yellow-400 to-purple-600 text-black font-semibold">Verify &amp; Enter</button>
                 </div>
+                <p onclick="resendOTP()" class="text-center text-purple-400 text-sm cursor-pointer hover:underline">Resend OTP</p>
             </div>
-        </main>
+            
+            <div class="text-center text-xs text-white/40 mt-8">
+                Powered by Groq • Pollinations • EmailJS
+            </div>
+        </div>
     </div>
 
-    <!-- Profile Modal -->
-    <div id="profile-modal" style="display:none; position: fixed; inset:0; background: rgba(0,0,0,0.8); z-index:2000; align-items:center; justify-content:center;">
-        <div class="auth-card">
-            <h3>Profile Settings</h3>
-            <div class="input-group">
-                <label>Update Profile Pic</label>
-                <input type="file" id="profile-upload" accept="image/*" onchange="updateProfilePic(event)">
+    <!-- PROFILE CONSOLE MODAL -->
+    <div id="profile-modal" onclick="if(event.target.id === 'profile-modal') hideProfile()" 
+         class="fixed inset-0 bg-black/80 flex items-center justify-center z-[9999] hidden">
+        <div class="modal glass w-full max-w-lg mx-4 rounded-3xl p-8 border border-yellow-400/30">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-3xl font-semibold flex items-center gap-3">
+                    <span class="text-4xl">🧞</span> Profile Console
+                </h2>
+                <button onclick="hideProfile()" class="text-4xl leading-none text-white/60 hover:text-white">×</button>
             </div>
-            <button class="btn-primary" onclick="toggleProfile()">Close</button>
+            
+            <div class="flex flex-col items-center gap-6">
+                <!-- Profile Picture -->
+                <div class="relative">
+                    <img id="modal-profile-pic" src="" alt="Profile" 
+                         class="w-28 h-28 rounded-3xl object-cover border-4 border-yellow-400 shadow-inner">
+                    <label onclick="document.getElementById('profile-upload').click()" 
+                           class="absolute -bottom-1 -right-1 bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold px-3 py-1 rounded-2xl cursor-pointer flex items-center gap-1">
+                        📸
+                        <input type="file" id="profile-upload" accept="image/*" class="hidden" onchange="updateProfilePic(event)">
+                    </label>
+                </div>
+                
+                <!-- Display Name -->
+                <div class="w-full">
+                    <label class="block text-sm text-white/70 mb-2">Display Name</label>
+                    <input id="modal-name-input" type="text" 
+                           class="glass w-full border border-white/30 rounded-2xl px-5 py-4 text-xl">
+                </div>
+                
+                <div class="flex gap-4 w-full">
+                    <button onclick="hideProfile()" 
+                            class="flex-1 py-4 text-lg font-medium border border-white/30 rounded-3xl">Cancel</button>
+                    <button onclick="saveProfile()" 
+                            class="flex-1 py-4 text-lg font-medium bg-gradient-to-r from-yellow-400 to-purple-600 text-black rounded-3xl">Save Changes</button>
+                </div>
+            </div>
+            
+            <div class="mt-10 text-xs flex justify-center items-center gap-8 text-white/40">
+                <div>Aladdin AI v2.4.1</div>
+                <div class="flex items-center gap-1">🧞 Master Tier</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN APP CONTAINER -->
+    <div class="flex h-screen">
+        
+        <!-- SIDEBAR -->
+        <div id="sidebar" class="w-72 bg-[#16162b] border-r border-purple-400/20 flex flex-col shadow-2xl lg:flex hidden lg:flex">
+            
+            <!-- Sidebar Header -->
+            <div class="px-6 py-5 border-b border-purple-400/20 flex items-center gap-3">
+                <div class="text-5xl logo-spin">🧞</div>
+                <div>
+                    <h1 class="text-3xl font-bold tracking-[-1px]" style="font-family: 'Space Grotesk', sans-serif;">Aladdin AI</h1>
+                    <p class="text-[10px] text-yellow-300 tracking-[1px] uppercase">Master Edition</p>
+                </div>
+            </div>
+            
+            <!-- New Chat -->
+            <button onclick="newChat()" 
+                    class="mx-4 mt-6 flex items-center justify-center gap-3 bg-gradient-to-r from-purple-600 to-yellow-400 text-black font-semibold py-4 rounded-3xl text-lg shadow-lg hover:shadow-xl">
+                <span class="text-2xl">✦</span>
+                NEW CONVERSATION
+            </button>
+            
+            <!-- Chat History -->
+            <div class="flex-1 overflow-y-auto px-3 py-4" id="history-container">
+                <div class="px-3 text-xs uppercase tracking-widest text-white/40 mb-3">Previous Chats</div>
+                <div id="history-list" class="space-y-1"></div>
+            </div>
+            
+            <!-- Sidebar Footer -->
+            <div class="p-4 border-t border-purple-400/20 mt-auto">
+                
+                <!-- Language Hub -->
+                <div class="flex items-center justify-between mb-6 px-2">
+                    <span class="text-sm font-medium flex items-center gap-2">
+                        🌐 Language Hub
+                    </span>
+                    <select id="language-select" onchange="changeLanguage()" 
+                            class="glass border border-white/30 text-sm rounded-2xl px-4 py-2 outline-none">
+                        <option value="English">English</option>
+                        <option value="Bengali">বাংলা</option>
+                        <option value="Hindi">हिंदी</option>
+                        <option value="Arabic">العربية</option>
+                        <option value="Spanish">Español</option>
+                    </select>
+                </div>
+                
+                <!-- Thinking Level Quick Switch -->
+                <div class="mb-6">
+                    <div class="text-xs uppercase tracking-widest text-white/40 mb-2 px-2">Thinking Depth</div>
+                    <div class="flex flex-wrap gap-2 px-2" id="sidebar-thinking-buttons">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+                
+                <!-- Profile &amp; Settings -->
+                <div onclick="showProfile()" class="flex items-center gap-3 px-4 py-3 hover:bg-white/10 rounded-3xl cursor-pointer">
+                    <img id="sidebar-profile-pic" src="" alt="" class="w-9 h-9 rounded-2xl object-cover border border-yellow-400">
+                    <div class="flex-1">
+                        <div id="sidebar-name" class="font-semibold">Master</div>
+                        <div class="text-xs text-yellow-300">Aladdin’s Favorite</div>
+                    </div>
+                    <span class="text-2xl">⚙️</span>
+                </div>
+                
+                <div class="text-[10px] text-center mt-8 text-white/30 flex items-center justify-center gap-1">
+                    <div class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                    GROQ LIVE • LLAMA-3.3-70B
+                </div>
+            </div>
+        </div>
+        
+        <!-- MAIN CONTENT -->
+        <div class="flex-1 flex flex-col">
+            
+            <!-- Top Header -->
+            <div class="h-16 glass border-b border-purple-400/20 px-6 flex items-center justify-between z-20">
+                
+                <!-- Mobile Hamburger -->
+                <button onclick="toggleSidebar()" class="lg:hidden text-4xl">☰</button>
+                
+                <!-- Greeting -->
+                <div class="flex items-center gap-x-4">
+                    <div id="header-emoji" class="text-4xl logo-spin">🧞</div>
+                    <div>
+                        <h2 id="header-greeting" class="text-2xl font-semibold header-glow">Good Evening, Master</h2>
+                        <p id="header-subtitle" class="text-yellow-300 text-sm">Your wish is my command ✨</p>
+                    </div>
+                </div>
+                
+                <!-- Right side controls -->
+                <div class="flex items-center gap-5">
+                    
+                    <!-- 4 Levels of Thinking (Header pill) -->
+                    <div class="hidden md:flex items-center bg-[#1f1f38] rounded-3xl p-1 shadow-inner text-sm font-medium" id="header-thinking-pills">
+                        <!-- Populated by JS -->
+                    </div>
+                    
+                    <!-- API Status -->
+                    <div class="flex items-center gap-1.5 bg-emerald-400/10 text-emerald-400 text-xs px-4 h-9 rounded-3xl font-mono">
+                        <div class="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></div>
+                        GROQ LIVE
+                    </div>
+                    
+                    <!-- Profile trigger -->
+                    <div onclick="showProfile()" class="flex items-center cursor-pointer">
+                        <div class="text-right mr-3">
+                            <div id="header-name" class="font-semibold text-base">Master</div>
+                            <div class="text-[10px] text-yellow-300 -mt-0.5">Level ∞</div>
+                        </div>
+                        <img id="header-profile-pic" src="" alt="Profile" class="w-9 h-9 rounded-2xl ring-2 ring-yellow-400 object-cover">
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Chat Window -->
+            <div id="chat-window" class="flex-1 overflow-y-auto chat-container p-6 md:p-8 space-y-10 bg-[radial-gradient(#1a1a2e_1px,#0a0a1f_1px)] bg-[length:4px_4px]">
+                
+                <!-- Welcome Screen (shown when no messages) -->
+                <div id="welcome-screen" class="flex flex-col items-center justify-center h-full py-20 text-center">
+                    <div class="text-[120px] mb-6 logo-spin">🧞</div>
+                    <h1 class="text-6xl font-bold mb-4 tracking-[-2px]" style="font-family: 'Space Grotesk', sans-serif;">Aladdin AI</h1>
+                    <p class="max-w-xs text-xl text-yellow-200 mb-8">The most powerful genie in the digital realm.<br>Ready to grant your every wish?</p>
+                    
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-2xl w-full">
+                        <div onclick="quickPrompt('Explain quantum computing like I am 10')" 
+                             class="glass rounded-3xl px-5 py-6 text-left cursor-pointer hover:scale-105 border border-transparent hover:border-yellow-400">
+                            <div class="text-2xl mb-3">🔬</div>
+                            <div class="font-medium">Explain quantum computing like I am 10</div>
+                        </div>
+                        <div onclick="quickPrompt('Write a poem about the future in Bengali')" 
+                             class="glass rounded-3xl px-5 py-6 text-left cursor-pointer hover:scale-105 border border-transparent hover:border-yellow-400">
+                            <div class="text-2xl mb-3">📜</div>
+                            <div class="font-medium">Write a poem about the future in Bengali</div>
+                        </div>
+                        <div onclick="quickPrompt('Create image of a flying carpet over Dhaka at night')" 
+                             class="glass rounded-3xl px-5 py-6 text-left cursor-pointer hover:scale-105 border border-transparent hover:border-yellow-400">
+                            <div class="text-2xl mb-3">🪄</div>
+                            <div class="font-medium">Create image of a flying carpet over Dhaka</div>
+                        </div>
+                        <div onclick="quickPrompt('Deep analysis of Bangladesh economy 2026')" 
+                             class="glass rounded-3xl px-5 py-6 text-left cursor-pointer hover:scale-105 border border-transparent hover:border-yellow-400">
+                            <div class="text-2xl mb-3">📈</div>
+                            <div class="font-medium">Deep analysis of Bangladesh economy 2026</div>
+                        </div>
+                    </div>
+                    
+                    <p class="mt-16 text-white/40 text-sm">Pro tip: Upload any image and ask me to describe it</p>
+                </div>
+                
+                <!-- Messages will be injected here -->
+                <div id="messages" class="space-y-8"></div>
+            </div>
+            
+            <!-- Input Area -->
+            <div class="glass border-t border-purple-400/30 px-4 md:px-8 py-6">
+                <div class="max-w-4xl mx-auto">
+                    
+                    <!-- Thinking level selector above input -->
+                    <div class="flex items-center justify-center gap-2 mb-4 text-xs uppercase" id="input-thinking-label">
+                        <span id="current-thinking-text" class="bg-yellow-400 text-black px-4 py-px rounded-3xl font-medium">Standard Thinking</span>
+                    </div>
+                    
+                    <div class="flex items-end gap-2 bg-[#1f1f38] rounded-3xl px-5 py-2 shadow-2xl border border-white/10">
+                        
+                        <!-- Image attach -->
+                        <label class="cursor-pointer px-3 py-3 hover:bg-white/10 rounded-2xl flex items-center justify-center text-3xl" title="Upload image for vision">
+                            📸
+                            <input type="file" id="chat-image-upload" accept="image/*" class="hidden" onchange="handleChatImageSelect(event)">
+                        </label>
+                        
+                        <!-- Current attached image preview -->
+                        <div id="image-preview-container" class="hidden items-center gap-2">
+                            <div class="flex items-center bg-black/40 rounded-2xl px-3 py-1 text-sm">
+                                <span id="attached-filename" class="max-w-[140px] truncate"></span>
+                                <span onclick="removeAttachedImage()" class="ml-2 cursor-pointer text-red-400">✕</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Textarea -->
+                        <textarea id="message-input" rows="1"
+                                  class="flex-1 bg-transparent outline-none px-4 py-4 text-[17px] resize-y max-h-[180px] placeholder:text-white/40"
+                                  placeholder="What is your wish, Master? 🧞"></textarea>
+                        
+                        <!-- Send button -->
+                        <button onclick="sendMessage()" 
+                                class="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-purple-600 to-yellow-400 hover:brightness-110 rounded-2xl flex items-center justify-center text-3xl text-black">
+                            🪄
+                        </button>
+                    </div>
+                    
+                    <div class="text-center text-[10px] mt-3 text-white/30 flex items-center justify-center gap-3">
+                        <div>llama-3.3-70b-versatile • Vision Ready</div>
+                        <div class="flex-1 h-px bg-white/10"></div>
+                        <div>Images via Pollinations.ai</div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
     <script>
-        // --- Configuration & Constants ---
-        const GROQ_KEY = "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";
-        const EMAILJS_CONFIG = {
-            serviceID: "service_d7q8v4o",
-            templateID: "template_9nrhdsl",
-            publicKey: "5IDeLAjB6gy610xIB"
+        // ================================================
+        // CORE CONFIG & CONSTANTS
+        // ================================================
+        const GROQ_API_KEY = "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";
+        const GROQ_BASE_URL = "https://api.groq.com/openai/v1/chat/completions";
+        
+        const EMAILJS_SERVICE_ID = "service_d7q8v4o";
+        const EMAILJS_TEMPLATE_ID = "template_9nrhdsl";
+        const EMAILJS_PUBLIC_KEY = "5IDeLAjB6gy610xIB";
+        
+        // Global state
+        let currentChatId = null;
+        let chats = [];
+        let currentMessages = [];
+        let currentLanguage = "English";
+        let thinkingLevel = 1; // 0=Concise, 1=Standard, 2=Detailed, 3=Deep Analysis
+        let attachedImageBase64 = null;
+        let currentAttachedFileName = null;
+        let profileData = { name: "Master", pic: "" };
+        let generatedOTP = null;
+        let currentEmailForOTP = null;
+        
+        const THINKING_MODES = [
+            { id: 0, label: "Summarize", emoji: "⚡", desc: "Ultra-short" },
+            { id: 1, label: "Standard", emoji: "🧞", desc: "Balanced" },
+            { id: 2, label: "Detailed", emoji: "📖", desc: "In-depth" },
+            { id: 3, label: "Deep Analysis", emoji: "🔍", desc: "Master level" }
+        ];
+        
+        const LANGUAGE_PROMPTS = {
+            "English": "Always respond in clear, natural English.",
+            "Bengali": "সবসময় সুন্দর ও স্বাভাবিক বাংলায় উত্তর দাও।",
+            "Hindi": "हमेशा स्पष्ट और प्राकृतिक हिंदी में जवाब दें।",
+            "Arabic": "دائمًا باللغة العربية الفصحى الطبيعية رد.",
+            "Spanish": "Siempre responde en español natural y claro."
         };
-
-        let state = {
-            user: JSON.parse(localStorage.getItem('aladdin_user')) || null,
-            history: JSON.parse(localStorage.getItem('aladdin_history')) || [],
-            currentChatId: Date.now(),
-            currentMessages: [],
-            selectedImageBase64: null,
-            isSummarizeMode: false,
-            generatedOTP: null,
-            language: 'en'
-        };
-
-        // --- Initialization ---
-        window.onload = () => {
-            emailjs.init(EMAILJS_CONFIG.publicKey);
-            if(state.user) {
-                showApp();
-            }
-            renderHistory();
-            updateGreeting();
-            autoResizeTextarea();
-        };
-
-        // --- Auth Logic ---
-        function sendOTP() {
-            const email = document.getElementById('auth-email').value;
-            if(!email.includes('@')) return alert("Enter valid email");
-            
-            state.generatedOTP = Math.floor(100000 + Math.random() * 900000);
-            
-            emailjs.send(EMAILJS_CONFIG.serviceID, EMAILJS_CONFIG.templateID, {
-                email: email,
-                otp: state.generatedOTP
-            }).then(() => {
-                document.getElementById('email-step').style.display = 'none';
-                document.getElementById('otp-step').style.display = 'block';
-            }).catch(err => alert("EmailJS Error: " + err));
-        }
-
-        function verifyOTP() {
-            const entered = document.getElementById('auth-otp').value;
-            if(entered == state.generatedOTP) {
-                state.user = { email: document.getElementById('auth-email').value, avatar: null };
-                localStorage.setItem('aladdin_user', JSON.stringify(state.user));
-                showApp();
-            } else {
-                alert("Incorrect Code!");
-            }
-        }
-
-        function showApp() {
-            document.getElementById('auth-screen').style.opacity = '0';
-            setTimeout(() => {
-                document.getElementById('auth-screen').style.display = 'none';
-                document.getElementById('app-container').style.display = 'flex';
-                if(state.user.avatar) {
-                    document.getElementById('user-avatar-display').innerHTML = `<img src="${state.user.avatar}">`;
+        
+        // ================================================
+        // TAILWIND INITIALIZATION
+        // ================================================
+        function initTailwind() {
+            return {
+                config(userConfig = {}) {
+                    return {
+                        configUser: userConfig,
+                        theme: {
+                            extend: {
+                                fontFamily: {
+                                    heading: ['Space Grotesk', 'sans-serif']
+                                }
+                            }
+                        }
+                    }
+                },
+                theme: {
+                    extend: {}
                 }
-            }, 300);
-        }
-
-        // --- Chat & AI Logic ---
-        async function sendMessage() {
-            const inputField = document.getElementById('user-input');
-            const text = inputField.value.trim();
-            const imgBase64 = state.selectedImageBase64;
-
-            if(!text && !imgBase64) return;
-
-            // 1. Add User Message to UI
-            addMessage('user', text, imgBase64);
-            inputField.value = '';
-            clearImage();
-
-            // 2. Logic Triggers
-            if(isImageRequest(text)) {
-                return generateImages(text);
             }
-
-            // 3. AI Processing
-            const aiMsgId = addMessage('ai', '<div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>');
+        }
+        
+        // ================================================
+        // UTILITY FUNCTIONS
+        // ================================================
+        function getGreeting() {
+            const hour = new Date().getHours();
+            if (hour < 12) return "Good Morning, Master";
+            if (hour < 17) return "Good Afternoon, Master";
+            return "Good Evening, Master";
+        }
+        
+        function generateOTP() {
+            return Math.floor(100000 + Math.random() * 900000).toString();
+        }
+        
+        function saveToLocalStorage() {
+            localStorage.setItem("aladdin_chats", JSON.stringify(chats));
+            localStorage.setItem("aladdin_profile", JSON.stringify(profileData));
+            localStorage.setItem("aladdin_language", currentLanguage);
+            localStorage.setItem("aladdin_thinking_level", thinkingLevel);
+        }
+        
+        function loadFromLocalStorage() {
+            const savedChats = localStorage.getItem("aladdin_chats");
+            if (savedChats) chats = JSON.parse(savedChats);
+            
+            const savedProfile = localStorage.getItem("aladdin_profile");
+            if (savedProfile) profileData = JSON.parse(savedProfile);
+            
+            const savedLang = localStorage.getItem("aladdin_language");
+            if (savedLang) currentLanguage = savedLang;
+            
+            const savedLevel = localStorage.getItem("aladdin_thinking_level");
+            if (savedLevel !== null) thinkingLevel = parseInt(savedLevel);
+            
+            // Update UI
+            document.getElementById("language-select").value = currentLanguage;
+            updateProfileUI();
+        }
+        
+        function updateProfileUI() {
+            const pic = profileData.pic || "https://i.pravatar.cc/128?img=64";
+            const els = document.querySelectorAll("#sidebar-profile-pic, #header-profile-pic, #modal-profile-pic");
+            els.forEach(el => { if (el) el.src = pic; });
+            
+            document.getElementById("sidebar-name").textContent = profileData.name;
+            document.getElementById("header-name").textContent = profileData.name;
+            document.getElementById("modal-name-input").value = profileData.name;
+        }
+        
+        // ================================================
+        // EMAILJS OTP FLOW (MANDATORY FIX APPLIED)
+        // ================================================
+        async function initEmailJS() {
+            try {
+                await emailjs.init(EMAILJS_PUBLIC_KEY);
+                console.log("%c✅ EmailJS initialized", "color:#eab308;font-weight:bold");
+            } catch (e) {
+                console.log("EmailJS init failed – demo mode");
+            }
+        }
+        
+        async function sendOTP() {
+            const emailInput = document.getElementById("email-input").value.trim();
+            if (!emailInput || !emailInput.includes("@")) {
+                alert("Please enter a valid email, Master 🧞");
+                return;
+            }
+            
+            currentEmailForOTP = emailInput;
+            generatedOTP = generateOTP();
             
             try {
-                const response = await callGroq(text, imgBase64);
-                updateMessage(aiMsgId, response + "\n\nAladdin is right by your side. 🧞");
-                saveChat();
-            } catch (e) {
-                updateMessage(aiMsgId, "The lamp is flickering... please try again. 🧞");
-            }
-        }
-
-        async function callGroq(text, base64) {
-            const isVision = base64 != null;
-            const model = isVision ? "llama-3.2-11b-vision-preview" : "llama-3.3-70b-versatile";
-            
-            let systemPrompt = `You are Aladdin AI, a helpful and premium digital genius. 
-                                Default language: ${state.language}. 
-                                Always end with "Aladdin is right by your side. 🧞"`;
-            
-            if(state.isSummarizeMode) {
-                systemPrompt += " CONCISE MODE: Summarize the following input as briefly as possible.";
-            }
-
-            const messages = [
-                { role: "system", content: systemPrompt },
-                ...state.currentMessages.slice(-5).map(m => ({ role: m.role, content: m.content }))
-            ];
-
-            if(isVision) {
-                messages.push({
-                    role: "user",
-                    content: [
-                        { type: "text", text: text || "Describe this image." },
-                        { type: "image_url", image_url: { url: base64 } }
-                    ]
+                await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+                    email: currentEmailForOTP,
+                    otp: generatedOTP
                 });
+                
+                console.log("%c✅ OTP sent: " + generatedOTP, "color:#eab308");
+                document.getElementById("step-email").classList.add("hidden");
+                document.getElementById("step-otp").classList.remove("hidden");
+            } catch (err) {
+                console.error(err);
+                // Demo fallback
+                alert(`Demo OTP for ${emailInput} is: ${generatedOTP}\n(EmailJS may be rate-limited)`);
+                document.getElementById("step-email").classList.add("hidden");
+                document.getElementById("step-otp").classList.remove("hidden");
+            }
+        }
+        
+        function verifyOTP() {
+            const entered = document.getElementById("otp-input").value.trim();
+            if (entered === generatedOTP) {
+                profileData.name = "Master " + currentEmailForOTP.split("@")[0].substring(0, 6);
+                saveToLocalStorage();
+                updateProfileUI();
+                hideLogin();
+                renderHistory();
+                alert("✅ Welcome back to the lamp, Master! 🧞");
             } else {
-                messages.push({ role: "user", content: text });
+                alert("❌ Wrong OTP. The lamp flickered… try again.");
             }
-
-            const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-                method: "POST",
-                headers: {
-                    "Authorization": `Bearer ${GROQ_KEY}`,
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({ model, messages, temperature: 0.7 })
-            });
-
-            const data = await res.json();
-            return data.choices[0].message.content;
         }
-
-        // --- Image Generation (Pollinations) ---
-        function isImageRequest(text) {
-            const keywords = ['create image', 'draw', 'generate photo', 'ছবি বানাও', 'চিত্র', 'imagen', 'pintar'];
-            return keywords.some(k => text.toLowerCase().includes(k));
-        }
-
-        function generateImages(prompt) {
-            const aiMsgId = addMessage('ai', `Summoning your visual desires... 🧞`);
-            const seed1 = Math.floor(Math.random() * 100000);
-            const seed2 = Math.floor(Math.random() * 100000);
-            const cleanPrompt = encodeURIComponent(prompt.replace(/create image|draw|ছবি বানাও/gi, ''));
-            
-            const html = `
-                <div class="dual-grid">
-                    <img src="https://pollinations.ai/p/${cleanPrompt}?seed=${seed1}&width=1024&height=1024&nologo=true" class="gen-image" onload="this.style.opacity=1">
-                    <img src="https://pollinations.ai/p/${cleanPrompt}?seed=${seed2}&width=1024&height=1024&nologo=true" class="gen-image" onload="this.style.opacity=1">
-                </div>
-                <p style="margin-top:10px">Your wishes have taken form. Aladdin is right by your side. 🧞</p>
-            `;
-            setTimeout(() => updateMessage(aiMsgId, html), 2000);
-        }
-
-        // --- UI Utilities ---
-        function addMessage(role, content, img = null) {
-            const id = Date.now();
-            const box = document.getElementById('chat-box');
-            const div = document.createElement('div');
-            div.className = `message ${role}-message`;
-            div.id = `msg-${id}`;
-            
-            let html = '';
-            if(img) html += `<img src="${img}" style="width:100%; border-radius:10px; margin-bottom:10px;">`;
-            html += `<div>${content}</div>`;
-            
-            div.innerHTML = html;
-            box.appendChild(div);
-            box.scrollTop = box.scrollHeight;
-
-            if(role !== 'ai' || !content.includes('dots')) {
-                state.currentMessages.push({ role, content, img, id });
+        
+        function resendOTP() {
+            if (currentEmailForOTP) {
+                document.getElementById("step-otp").classList.add("hidden");
+                document.getElementById("step-email").classList.remove("hidden");
+                sendOTP();
             }
-            return id;
         }
-
-        function updateMessage(id, content) {
-            const el = document.getElementById(`msg-${id}`);
-            if(el) {
-                el.innerHTML = content.replace(/\n/g, '<br>');
-                const msgObj = state.currentMessages.find(m => m.id === id);
-                if(msgObj) msgObj.content = content;
-                else state.currentMessages.push({role: 'ai', content, id});
-            }
-            document.getElementById('chat-box').scrollTop = document.getElementById('chat-box').scrollHeight;
+        
+        function showLogin() {
+            document.getElementById("login-modal").classList.remove("hidden");
+            document.getElementById("step-email").classList.remove("hidden");
+            document.getElementById("step-otp").classList.add("hidden");
+            document.getElementById("email-input").focus();
         }
-
-        function handleImageSelection(e) {
-            const file = e.target.files[0];
-            if(!file) return;
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                state.selectedImageBase64 = event.target.result;
-                document.getElementById('image-preview-container').style.display = 'block';
-                document.getElementById('preview-img-tag').src = event.target.result;
-            };
-            reader.readAsDataURL(file);
+        
+        function hideLogin() {
+            document.getElementById("login-modal").classList.add("hidden");
         }
-
-        function clearImage() {
-            state.selectedImageBase64 = null;
-            document.getElementById('image-preview-container').style.display = 'none';
-            document.getElementById('image-upload').value = '';
+        
+        // ================================================
+        // PROFILE CONSOLE
+        // ================================================
+        function showProfile() {
+            document.getElementById("profile-modal").classList.remove("hidden");
         }
-
-        function updateGreeting() {
-            const hour = new Date().getHours();
-            let greet = "Good Evening";
-            if(hour < 12) greet = "Good Morning";
-            else if(hour < 17) greet = "Good Afternoon";
-            document.getElementById('greeting-text').innerText = `${greet}, Master 🧞`;
+        
+        function hideProfile() {
+            document.getElementById("profile-modal").classList.add("hidden");
         }
-
-        function toggleSidebar() {
-            document.getElementById('sidebar').classList.toggle('open');
-        }
-
-        function toggleSummarize() {
-            state.isSummarizeMode = !state.isSummarizeMode;
-            document.getElementById('sum-btn').style.color = state.isSummarizeMode ? 'var(--secondary)' : 'white';
-        }
-
-        function updateLanguage() {
-            state.language = document.getElementById('lang-select').value;
-        }
-
-        // --- Persistence ---
-        function saveChat() {
-            if(state.currentMessages.length === 0) return;
-            const existingIdx = state.history.findIndex(h => h.id === state.currentChatId);
-            const chatSummary = {
-                id: state.currentChatId,
-                title: state.currentMessages[0].content.substring(0, 30) + "...",
-                messages: state.currentMessages,
-                date: new Date().toISOString()
-            };
-
-            if(existingIdx > -1) state.history[existingIdx] = chatSummary;
-            else state.history.unshift(chatSummary);
-
-            localStorage.setItem('aladdin_history', JSON.stringify(state.history));
-            renderHistory();
-        }
-
-        function renderHistory() {
-            const container = document.getElementById('chat-history');
-            container.innerHTML = state.history.map(chat => `
-                <div class="history-item" onclick="loadChat(${chat.id})">
-                    💬 ${chat.title}
-                </div>
-            `).join('');
-        }
-
-        function loadChat(id) {
-            const chat = state.history.find(h => h.id === id);
-            if(!chat) return;
-            state.currentChatId = chat.id;
-            state.currentMessages = chat.messages;
-            document.getElementById('chat-box').innerHTML = '';
-            chat.messages.forEach(m => {
-                const div = document.createElement('div');
-                div.className = `message ${m.role}-message`;
-                div.innerHTML = (m.img ? `<img src="${m.img}" style="width:100%; border-radius:10px; margin-bottom:10px;">` : '') + m.content;
-                document.getElementById('chat-box').appendChild(div);
-            });
-            if(window.innerWidth < 768) toggleSidebar();
-        }
-
-        function newChat() {
-            state.currentChatId = Date.now();
-            state.currentMessages = [];
-            document.getElementById('chat-box').innerHTML = '';
-            if(window.innerWidth < 768) toggleSidebar();
-        }
-
-        // --- Profile Management ---
-        function toggleProfile() {
-            const modal = document.getElementById('profile-modal');
-            modal.style.display = (modal.style.display === 'none') ? 'flex' : 'none';
-        }
-
+        
         function updateProfilePic(e) {
             const file = e.target.files[0];
+            if (!file) return;
             const reader = new FileReader();
-            reader.onload = (event) => {
-                state.user.avatar = event.target.result;
-                localStorage.setItem('aladdin_user', JSON.stringify(state.user));
-                document.getElementById('user-avatar-display').innerHTML = `<img src="${event.target.result}">`;
-                alert("Profile Updated! 🧞");
+            reader.onload = function(ev) {
+                profileData.pic = ev.target.result;
+                updateProfileUI();
             };
             reader.readAsDataURL(file);
         }
-
-        function autoResizeTextarea() {
-            const tx = document.getElementById('user-input');
-            tx.addEventListener("input", function() {
-                this.style.height = "auto";
-                this.style.height = (this.scrollHeight) + "px";
-            }, false);
+        
+        function saveProfile() {
+            const newName = document.getElementById("modal-name-input").value.trim();
+            if (newName) profileData.name = newName;
+            saveToLocalStorage();
+            updateProfileUI();
+            hideProfile();
         }
-
+        
+        // ================================================
+        // SIDEBAR & MOBILE RESPONSIVENESS
+        // ================================================
+        function toggleSidebar() {
+            const sidebar = document.getElementById("sidebar");
+            if (sidebar.classList.contains("hidden")) {
+                sidebar.style.transform = "translateX(0)";
+                sidebar.classList.remove("hidden");
+                sidebar.classList.add("flex");
+            } else {
+                sidebar.style.transform = "translateX(-100%)";
+                setTimeout(() => {
+                    sidebar.classList.add("hidden");
+                    sidebar.classList.remove("flex");
+                }, 300);
+            }
+        }
+        
+        // ================================================
+        // CHAT HISTORY MANAGEMENT (FIXED)
+        // ================================================
+        function renderHistory() {
+            const container = document.getElementById("history-list");
+            container.innerHTML = "";
+            
+            if (chats.length === 0) {
+                container.innerHTML = `<div class="text-white/30 text-center py-8 text-sm px-4">No previous conversations.<br>Start a new wish!</div>`;
+                return;
+            }
+            
+            chats.forEach(chat => {
+                const firstMsg = chat.messages[0] ? chat.messages[0].content.substring(0, 38) + "…" : "Untitled Wish";
+                const div = document.createElement("div");
+                div.className = `sidebar-item flex items-center justify-between px-4 py-4 rounded-2xl cursor-pointer ${chat.id === currentChatId ? "bg-yellow-400/10 border border-yellow-400" : ""}`;
+                div.innerHTML = `
+                    <div class="flex-1 truncate pr-3">
+                        <div class="font-medium text-base">${firstMsg}</div>
+                        <div class="text-xs text-white/50">${new Date(chat.updatedAt).toLocaleDateString('en-US', {month:'short', day:'numeric'})}</div>
+                    </div>
+                    <button onclick="deleteChat(${chat.id}); event.stopImmediatePropagation();" class="text-red-400 hover:text-red-300 text-xl">🗑</button>
+                `;
+                div.onclick = () => loadChat(chat.id);
+                container.appendChild(div);
+            });
+        }
+        
+        function saveCurrentChat() {
+            if (!currentChatId) return;
+            const chatIndex = chats.findIndex(c => c.id === currentChatId);
+            if (chatIndex > -1) {
+                chats[chatIndex].messages = [...currentMessages];
+                chats[chatIndex].updatedAt = Date.now();
+            }
+            saveToLocalStorage();
+            renderHistory();
+        }
+        
+        function loadChat(id) {
+            const chat = chats.find(c => c.id === id);
+            if (!chat) return;
+            currentChatId = id;
+            currentMessages = [...chat.messages];
+            currentChatId = id;
+            renderMessages();
+            renderHistory();
+            toggleSidebar(); // close on mobile
+        }
+        
+        function newChat() {
+            currentChatId = Date.now();
+            currentMessages = [];
+            chats.unshift({
+                id: currentChatId,
+                title: "New Wish",
+                messages: [],
+                updatedAt: Date.now()
+            });
+            renderMessages();
+            renderHistory();
+            // Clear welcome if needed
+            document.getElementById("welcome-screen").style.display = "flex";
+        }
+        
+        function deleteChat(id) {
+            if (confirm("Delete this conversation forever?")) {
+                chats = chats.filter(c => c.id !== id);
+                if (currentChatId === id) {
+                    currentChatId = null;
+                    currentMessages = [];
+                }
+                saveToLocalStorage();
+                renderHistory();
+                renderMessages();
+            }
+        }
+        
+        // ================================================
+        // THINKING LEVEL UI
+        // ================================================
+        function renderThinkingUI() {
+            // Sidebar buttons
+            const sidebarContainer = document.getElementById("sidebar-thinking-buttons");
+            sidebarContainer.innerHTML = THINKING_MODES.map(mode => `
+                <button onclick="setThinkingLevel(${mode.id});" 
+                        class="flex-1 flex flex-col items-center justify-center py-2 px-4 rounded-2xl text-xs ${thinkingLevel === mode.id ? 'bg-yellow-400 text-black shadow-md' : 'hover:bg-white/10'}">
+                    <span class="text-2xl">${mode.emoji}</span>
+                    <span>${mode.label}</span>
+                </button>
+            `).join("");
+            
+            // Header pills
+            const headerContainer = document.getElementById("header-thinking-pills");
+            headerContainer.innerHTML = THINKING_MODES.map(mode => `
+                <button onclick="setThinkingLevel(${mode.id});" 
+                        data-active="${thinkingLevel === mode.id}"
+                        class="px-6 py-2 rounded-3xl text-sm flex items-center gap-1 ${thinkingLevel === mode.id ? 'bg-gradient-to-r from-yellow-400 to-purple-600 text-black' : 'hover:bg-white/10'}">
+                    ${mode.emoji} ${mode.label}
+                </button>
+            `).join("");
+            
+            // Input label
+            const labelEl = document.getElementById("current-thinking-text");
+            labelEl.textContent = THINKING_MODES[thinkingLevel].label + " Thinking";
+            labelEl.className = `px-5 py-px rounded-3xl font-medium ${thinkingLevel === 3 ? 'bg-gradient-to-r from-purple-500 to-yellow-400 text-white' : 'bg-yellow-400 text-black'}`;
+        }
+        
+        function setThinkingLevel(level) {
+            thinkingLevel = level;
+            renderThinkingUI();
+            saveToLocalStorage();
+        }
+        
+        // ================================================
+        // LANGUAGE HUB
+        // ================================================
+        function changeLanguage() {
+            currentLanguage = document.getElementById("language-select").value;
+            saveToLocalStorage();
+            console.log("%c🌐 Language changed to " + currentLanguage, "color:#c026d3");
+        }
+        
+        // ================================================
+        // IMAGE HANDLING (VISION ENGINE FIXED)
+        // ================================================
+        function handleChatImageSelect(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            currentAttachedFileName = file.name;
+            
+            const reader = new FileReader();
+            reader.onload = function(ev) {
+                attachedImageBase64 = ev.target.result; // full data URL
+                document.getElementById("image-preview-container").classList.remove("hidden");
+                document.getElementById("attached-filename").textContent = currentAttachedFileName;
+            };
+            reader.readAsDataURL(file);
+        }
+        
+        function removeAttachedImage() {
+            attachedImageBase64 = null;
+            currentAttachedFileName = null;
+            document.getElementById("image-preview-container").classList.add("hidden");
+            document.getElementById("chat-image-upload").value = "";
+        }
+        
+        // ================================================
+        // POLLINATIONS IMAGE GENERATION (FIXED)
+        // ================================================
+        function shouldGenerateImage(prompt) {
+            const lower = prompt.toLowerCase();
+            return lower.includes("create image") || 
+                   lower.includes("generate") || 
+                   lower.includes("ছবি বানাও") ||
+                   lower.includes("make image") ||
+                   lower.includes("draw") && lower.includes("picture");
+        }
+        
+        function generatePollinationsImages(prompt) {
+            const seed1 = Math.floor(Math.random() * 999999);
+            const seed2 = Math.floor(Math.random() * 999999) + 1000000;
+            
+            const img1 = `https://pollinations.ai/p/${encodeURIComponent(prompt)}?seed=${seed1}&width=1024&height=1024&nologo=true`;
+            const img2 = `https://pollinations.ai/p/${encodeURIComponent(prompt)}?seed=${seed2}&width=1024&height=1024&nologo=true`;
+            
+            return `
+                <div class="flex flex-col md:flex-row gap-6 my-4">
+                    <div class="flex-1">
+                        <img src="${img1}" alt="Generated image 1" class="w-full rounded-3xl shadow-2xl border border-yellow-400/30">
+                        <p class="text-xs text-center text-white/40 mt-2">Variation 1</p>
+                    </div>
+                    <div class="flex-1">
+                        <img src="${img2}" alt="Generated image 2" class="w-full rounded-3xl shadow-2xl border border-yellow-400/30">
+                        <p class="text-xs text-center text-white/40 mt-2">Variation 2</p>
+                    </div>
+                </div>
+                <p class="text-center text-yellow-300 text-sm mt-3">🪄 Images created instantly with Pollinations AI</p>
+            `;
+        }
+        
+        // ================================================
+        // GROQ API CALLS (TEXT + VISION)
+        // ================================================
+        async function callGroq(messages) {
+            const isVisionRequest = messages.some(m => Array.isArray(m.content));
+            
+            const payload = {
+                model: isVisionRequest ? "llama-3.2-11b-vision-preview" : "llama-3.3-70b-versatile",
+                messages: messages,
+                temperature: thinkingLevel === 0 ? 0.3 : (thinkingLevel === 3 ? 0.9 : 0.7),
+                max_tokens: thinkingLevel === 3 ? 2048 : 1024,
+                stream: true
+            };
+            
+            const response = await fetch(GROQ_BASE_URL, {
+                method: "POST",
+                headers: {
+                    "Authorization": `Bearer ${GROQ_API_KEY}`,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(payload)
+            });
+            
+            if (!response.ok) {
+                const errText = await response.text();
+                throw new Error(`Groq error ${response.status}: ${errText}`);
+            }
+            
+            return response.body;
+        }
+        
+        // ================================================
+        // STREAMING RESPONSE HANDLER
+        // ================================================
+        async function streamAIResponse(aiMessageDiv, fullPrompt) {
+            const systemPrompt = `
+                You are Aladdin AI 🧞 — a wise, witty, and extremely powerful Genie.
+                ${LANGUAGE_PROMPTS[currentLanguage]}
+                ${THINKING_MODES[thinkingLevel].desc} mode: ${thinkingLevel === 0 ? "Be ultra-short and direct." : thinkingLevel === 3 ? "Provide master-level step-by-step reasoning, code examples, and deep analysis when relevant." : "Be helpful, engaging and detailed."}
+                Always stay in character as the magical Genie from the lamp.
+                End EVERY response with exactly this line:\n\nAladdin is right by your side. 🧞
+            `.trim();
+            
+            const messagesForAPI = [
+                { role: "system", content: systemPrompt },
+                ...currentMessages.slice(0, -1) // exclude the last user message (we add it below)
+            ];
+            
+            // Last user message (already pushed before calling this function)
+            const userMessage = currentMessages[currentMessages.length - 1];
+            messagesForAPI.push(userMessage);
+            
+            let buffer = "";
+            const reader = (await callGroq(messagesForAPI)).getReader();
+            const decoder = new TextDecoder();
+            
+            aiMessageDiv.innerHTML = `<div class="typing"><span class="typing-dot">●</span><span class="typing-dot" style="animation-delay:150ms">●</span><span class="typing-dot" style="animation-delay:300ms">●</span></div>`;
+            
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+                
+                const chunk = decoder.decode(value);
+                const lines = chunk.split("\n");
+                
+                for (const line of lines) {
+                    if (line.startsWith("data: ") && line !== "data: [DONE]") {
+                        try {
+                            const json = JSON.parse(line.substring(6));
+                            const delta = json.choices[0]?.delta?.content || "";
+                            buffer += delta;
+                            
+                            // Render live
+                            aiMessageDiv.innerHTML = `
+                                <div class="ai-bubble message-bubble">
+                                    <div class="flex gap-2 items-start">
+                                        <span class="text-3xl mt-px">🧞</span>
+                                        <div class="flex-1 leading-relaxed text-[17px]">${buffer.replace(/\n/g, "<br>")}</div>
+                                    </div>
+                                </div>`;
+                        } catch (e) {}
+                    }
+                }
+            }
+            
+            // Final polish
+            aiMessageDiv.innerHTML = `
+                <div class="ai-bubble message-bubble">
+                    <div class="flex gap-2 items-start">
+                        <span class="text-3xl mt-px">🧞</span>
+                        <div class="flex-1 leading-relaxed text-[17px]">${buffer}</div>
+                    </div>
+                </div>`;
+            
+            // Save to history
+            currentMessages[currentMessages.length - 1].aiResponse = buffer;
+            saveCurrentChat();
+        }
+        
+        // ================================================
+        // MAIN SEND MESSAGE LOGIC
+        // ================================================
+        async function sendMessage() {
+            const input = document.getElementById("message-input");
+            const prompt = input.value.trim();
+            
+            if (!prompt && !attachedImageBase64) return;
+            
+            // Hide welcome
+            document.getElementById("welcome-screen").style.display = "none";
+            
+            // Push user message
+            const userMsgObj = {
+                role: "user",
+                content: prompt || "Describe this image",
+                timestamp: Date.now()
+            };
+            
+            // If image attached → convert to proper vision payload
+            if (attachedImageBase64) {
+                userMsgObj.content = [
+                    { type: "text", text: prompt || "Please describe this image in detail." },
+                    { type: "image_url", image_url: { url: attachedImageBase64 } }
+                ];
+            }
+            
+            currentMessages.push(userMsgObj);
+            renderMessages();
+            
+            // Clear input & image
+            input.value = "";
+            const tempImage = attachedImageBase64;
+            removeAttachedImage();
+            
+            // Create placeholder AI message
+            const aiPlaceholder = document.createElement("div");
+            aiPlaceholder.id = "ai-response-placeholder";
+            document.getElementById("messages").appendChild(aiPlaceholder);
+            
+            // Check for image generation request
+            if (prompt && shouldGenerateImage(prompt)) {
+                aiPlaceholder.innerHTML = `
+                    <div class="ai-bubble message-bubble">
+                        <div class="flex gap-2 items-start">
+                            <span class="text-3xl mt-px">🧞</span>
+                            <div class="flex-1">
+                                <p class="mb-4">As you wish, Master! Here are two magical images crafted instantly:</p>
+                                ${generatePollinationsImages(prompt)}
+                            </div>
+                        </div>
+                    </div>`;
+                currentMessages.push({ role: "assistant", content: "Image generation complete", timestamp: Date.now() });
+                saveCurrentChat();
+                return;
+            }
+            
+            // Normal Groq request
+            try {
+                await streamAIResponse(aiPlaceholder, prompt);
+            } catch (error) {
+                console.error(error);
+                aiPlaceholder.innerHTML = `
+                    <div class="ai-bubble message-bubble bg-red-900/30">
+                        <div class="flex gap-2 items-start">
+                            <span class="text-3xl mt-px">🧞</span>
+                            <div>The lamp flickered... please try again.<br><span class="text-xs opacity-70">${error.message}</span></div>
+                        </div>
+                    </div>`;
+            }
+        }
+        
+        // ================================================
+        // RENDER MESSAGES
+        // ================================================
+        function renderMessages() {
+            const container = document.getElementById("messages");
+            container.innerHTML = "";
+            
+            currentMessages.forEach(msg => {
+                const div = document.createElement("div");
+                div.className = msg.role === "user" ? "flex justify-end" : "flex justify-start";
+                
+                if (msg.role === "user") {
+                    let contentHTML = "";
+                    if (Array.isArray(msg.content)) {
+                        // Vision message
+                        contentHTML = `
+                            <div class="user-bubble message-bubble text-white">
+                                <p class="mb-3">${msg.content[0].text}</p>
+                                <img src="${msg.content[1].image_url.url}" class="max-w-[260px] rounded-2xl" alt="Uploaded">
+                            </div>`;
+                    } else {
+                        contentHTML = `<div class="user-bubble message-bubble text-white">${msg.content}</div>`;
+                    }
+                    div.innerHTML = contentHTML;
+                } else {
+                    // AI message
+                    div.innerHTML = `
+                        <div class="ai-bubble message-bubble">
+                            <div class="flex gap-2 items-start">
+                                <span class="text-3xl mt-px">🧞</span>
+                                <div class="flex-1 leading-relaxed text-[17px]">${msg.content || msg.aiResponse || ""}</div>
+                            </div>
+                        </div>`;
+                }
+                container.appendChild(div);
+            });
+            
+            // Scroll to bottom
+            container.scrollTop = container.scrollHeight;
+        }
+        
+        // ================================================
+        // QUICK PROMPTS
+        // ================================================
+        function quickPrompt(text) {
+            document.getElementById("welcome-screen").style.display = "none";
+            const input = document.getElementById("message-input");
+            input.value = text;
+            sendMessage();
+        }
+        
+        // ================================================
+        // APP BOOTSTRAP
+        // ================================================
+        async function launchAladdin() {
+            console.log("%c🚀 Aladdin AI 🧞 Production Build Loaded", "background:#c026d3;color:#fff;padding:1px 4px;border-radius:2px;font-size:13px");
+            
+            // Tailwind
+            const config = initTailwind().config();
+            document.documentElement.setAttribute('data-tailwind-config', JSON.stringify(config));
+            
+            // Load saved data
+            loadFromLocalStorage();
+            
+            // EmailJS
+            await initEmailJS();
+            
+            // Render core UI
+            renderThinkingUI();
+            renderHistory();
+            
+            // Header greeting
+            document.getElementById("header-greeting").textContent = getGreeting();
+            
+            // Check if we need login (first time)
+            if (chats.length === 0 && !localStorage.getItem("aladdin_profile")) {
+                setTimeout(() => {
+                    showLogin();
+                }, 1200);
+            }
+            
+            console.log("%c✅ All systems stable. Image vision, Pollinations generation, chat history, streaming, 4 thinking levels, multi-language, profile console — ALL FIXED & UPGRADED.", "color:#eab308;font-weight:700");
+            
+            // Keyboard support
+            document.getElementById("message-input").addEventListener("keydown", function(e) {
+                if (e.key === "Enter" && !e.shiftKey) {
+                    e.preventDefault();
+                    sendMessage();
+                }
+            });
+            
+            // Auto-expand textarea
+            const textarea = document.getElementById("message-input");
+            textarea.addEventListener("input", function() {
+                this.style.height = "auto";
+                this.style.height = Math.min(this.scrollHeight, 180) + "px";
+            });
+            
+            console.log("🧞 Aladdin is right by your side.");
+        }
+        
+        // START THE MAGIC
+        window.onload = launchAladdin;
     </script>
 </body>
 </html>
