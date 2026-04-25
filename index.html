@@ -3,325 +3,310 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aladdin AI | Premium v3.0</title>
+    <title>Aladdin AI v3.0 | The Legend Awakes</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600&display=swap" rel="stylesheet">
     
     <style>
-        :root { --bg: #0b0b0b; --sidebar: #171717; --accent: #10a37f; --user-msg: #2f2f2f; }
-        body { font-family: 'Inter', sans-serif; background: var(--bg); color: #ececf1; margin: 0; overflow: hidden; }
-        .theme-blue { --accent: #3b82f6; } .theme-purple { --accent: #a855f7; }
-        .theme-red { --accent: #ef4444; }
-
-        /* Sidebar Desktop/Mobile */
-        #sidebar { transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); z-index: 50; }
-        @media (max-width: 768px) { 
-            #sidebar { position: fixed; height: 100%; transform: translateX(-100%); width: 280px; } 
+        :root { --accent: #10a37f; --bg: #0d0d0d; --sidebar: #000000; }
+        body { font-family: 'Sora', sans-serif; background: var(--bg); color: #e5e7eb; overflow: hidden; }
+        .glass { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.05); }
+        
+        /* Mobile UI Fixes */
+        @media (max-width: 768px) {
+            #sidebar { position: fixed; transform: translateX(-100%); z-index: 100; height: 100%; width: 85%; transition: 0.3s; }
             #sidebar.open { transform: translateX(0); }
         }
 
-        /* Message Styles */
-        .msg-ai { background: transparent; padding: 24px 0; border-bottom: 1px solid #ffffff0d; }
-        .msg-user { background: var(--user-msg); border-radius: 18px; padding: 12px 18px; margin: 8px 0; max-width: 85%; align-self: flex-end; }
-        
-        /* Loading Dots */
-        .thinking { display: flex; gap: 4px; padding: 12px; }
-        .dot { width: 6px; height: 6px; background: var(--accent); border-radius: 50%; animation: bounce 1.4s infinite ease-in-out; }
-        .dot:nth-child(2) { animation-delay: 0.2s; }
-        .dot:nth-child(3) { animation-delay: 0.4s; }
-        @keyframes bounce { 0%, 80%, 100% { transform: translateY(0); } 40% { transform: translateY(-8px); } }
+        /* ChatGPT Style Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
 
-        /* Input Optimization */
-        #user-input::-webkit-scrollbar { width: 0; }
-        .gen-img { width: 100%; max-width: 320px; border-radius: 12px; border: 1px solid #444; transition: 0.3s; }
-        .gen-img:hover { transform: scale(1.02); }
+        /* Thinking Animation */
+        .dots { display: flex; gap: 4px; padding: 10px; }
+        .dot { width: 8px; height: 8px; background: var(--accent); border-radius: 50%; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 0.3; transform: scale(0.8); } 50% { opacity: 1; transform: scale(1.1); } }
+
+        /* Pop-up Menu Fix */
+        .bottom-menu { position: absolute; bottom: 70px; left: 10px; width: 200px; display: none; }
+        .bottom-menu.active { display: block; }
     </style>
 </head>
-<body class="flex h-screen overflow-hidden">
+<body class="flex h-screen">
 
-    <div id="auth-wall" class="fixed inset-0 bg-black z-[100] flex items-center justify-center p-6 transition-opacity duration-500">
-        <div class="w-full max-w-sm text-center">
-            <h1 class="text-4xl font-bold mb-8 tracking-tighter">🧞 ALADDIN AI</h1>
-            <div id="email-form">
-                <input type="email" id="target-email" placeholder="Your email address" class="w-full p-4 bg-[#1a1a1a] border border-white/10 rounded-xl mb-4 focus:border-[var(--accent)] outline-none">
-                <button onclick="sendVerification()" id="auth-btn" class="w-full py-4 bg-[var(--accent)] rounded-xl font-bold text-white hover:brightness-110">Get Magic Code</button>
+    <div id="auth-screen" class="fixed inset-0 z-[200] bg-black flex items-center justify-center p-6">
+        <div class="w-full max-w-md space-y-6 text-center">
+            <h1 class="text-5xl font-bold tracking-tighter text-white">🧞 ALADDIN v3.0</h1>
+            <div id="step-1" class="space-y-4">
+                <input type="text" id="user-name" placeholder="Full Name" class="w-full p-4 glass rounded-2xl outline-none focus:border-[var(--accent)]">
+                <input type="text" id="user-country" placeholder="Country" class="w-full p-4 glass rounded-2xl outline-none focus:border-[var(--accent)]">
+                <input type="email" id="user-email" placeholder="Email Address" class="w-full p-4 glass rounded-2xl outline-none focus:border-[var(--accent)]">
+                <button onclick="sendOTP()" id="otp-btn" class="w-full py-4 bg-[var(--accent)] rounded-2xl font-bold hover:scale-95 transition">Send Magic Code</button>
             </div>
-            <div id="otp-form" class="hidden">
-                <input type="text" id="otp-code" placeholder="Enter Code" class="w-full p-4 bg-[#1a1a1a] border border-white/10 rounded-xl mb-4 text-center text-2xl tracking-[10px] focus:border-[var(--accent)] outline-none">
-                <button onclick="verifyAccess()" class="w-full py-4 bg-white text-black rounded-xl font-bold">Login</button>
+            <div id="step-2" class="hidden space-y-4">
+                <input type="text" id="otp-input" placeholder="Enter 6-digit Code" class="w-full p-4 glass rounded-2xl text-center text-2xl tracking-widest outline-none">
+                <button onclick="verifyOTP()" class="w-full py-4 bg-white text-black rounded-2xl font-bold">Login to Lamp</button>
             </div>
         </div>
     </div>
 
-    <aside id="sidebar" class="bg-[var(--sidebar)] w-[260px] flex flex-col p-3 border-r border-white/5">
-        <button onclick="resetChat()" class="flex items-center gap-3 p-3 border border-white/10 rounded-lg hover:bg-white/5 transition mb-6 text-sm">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg> New Chat
+    <aside id="sidebar" class="w-[280px] bg-[var(--sidebar)] flex flex-col p-4 border-r border-white/10">
+        <button onclick="newChat()" class="flex items-center gap-3 p-4 glass rounded-xl hover:bg-white/5 transition mb-6">
+            <span>➕</span> New Chat
         </button>
         
-        <div id="chat-list" class="flex-1 overflow-y-auto space-y-2 text-xs"></div>
-
-        <div class="mt-auto border-t border-white/10 pt-4 space-y-4">
-            <div class="flex justify-center gap-3">
-                <div onclick="setTheme('green')" class="w-6 h-6 rounded-full bg-[#10a37f] cursor-pointer"></div>
-                <div onclick="setTheme('blue')" class="w-6 h-6 rounded-full bg-blue-500 cursor-pointer"></div>
-                <div onclick="setTheme('purple')" class="w-6 h-6 rounded-full bg-purple-500 cursor-pointer"></div>
-                <div onclick="setTheme('red')" class="w-6 h-6 rounded-full bg-red-500 cursor-pointer"></div>
+        <div id="chat-history" class="flex-1 overflow-y-auto space-y-2 text-sm text-gray-400">
             </div>
-            <div class="flex items-center gap-3 p-3 hover:bg-white/5 rounded-xl cursor-pointer">
-                <div class="w-10 h-10 rounded-full bg-gray-700 overflow-hidden relative">
-                    <img id="pfp-view" class="w-full h-full object-cover hidden">
-                    <input type="file" id="pfp-input" class="absolute inset-0 opacity-0 cursor-pointer" onchange="updatePFP(this)">
+
+        <div class="pt-4 border-t border-white/10 space-y-4 relative">
+            <div id="user-popup" class="bottom-menu glass rounded-xl p-2 animate-bounce-in">
+                <button onclick="openSettings()" class="w-full text-left p-3 hover:bg-white/5 rounded-lg">⚙️ Settings</button>
+                <button onclick="logout()" class="w-full text-left p-3 hover:bg-red-500/10 text-red-400 rounded-lg">🚪 Logout</button>
+            </div>
+            
+            <div class="flex items-center justify-between">
+                <div onclick="toggleUserMenu()" class="flex items-center gap-3 cursor-pointer p-2 hover:bg-white/5 rounded-xl transition">
+                    <div class="w-10 h-10 rounded-full bg-gray-800 overflow-hidden relative">
+                        <img id="pfp-display" class="w-full h-full object-cover hidden">
+                        <input type="file" id="pfp-upload" class="absolute inset-0 opacity-0 cursor-pointer" onchange="uploadPFP(this)">
+                    </div>
+                    <div>
+                        <p class="text-sm font-bold" id="nav-name">Master</p>
+                        <p class="text-[10px] text-gray-500">Premium Account</p>
+                    </div>
                 </div>
-                <div class="flex-1 overflow-hidden">
-                    <p class="text-sm font-semibold truncate" id="display-name">Master User</p>
-                    <button onclick="logout()" class="text-[10px] text-red-500">Sign out</button>
+                <div class="flex gap-1">
+                    <div onclick="setTheme('green')" class="w-3 h-3 rounded-full bg-green-500 cursor-pointer"></div>
+                    <div onclick="setTheme('blue')" class="w-3 h-3 rounded-full bg-blue-500 cursor-pointer"></div>
+                    <div onclick="setTheme('red')" class="w-3 h-3 rounded-full bg-red-500 cursor-pointer"></div>
                 </div>
             </div>
         </div>
     </aside>
 
-    <main class="flex-1 flex flex-col relative bg-[var(--bg)]">
-        <header class="md:hidden flex items-center justify-between p-4 border-b border-white/10">
-            <button onclick="document.getElementById('sidebar').classList.toggle('open')" class="p-2">☰</button>
-            <span class="font-bold text-sm tracking-widest">ALADDIN v3.0</span>
-            <div class="w-8"></div>
+    <main class="flex-1 flex flex-col relative">
+        <header class="p-4 glass md:hidden flex justify-between items-center">
+            <button onclick="document.getElementById('sidebar').classList.toggle('open')">☰</button>
+            <span class="font-bold">ALADDIN v3.0</span>
+            <div class="w-6"></div>
         </header>
 
-        <div id="chat-window" class="flex-1 overflow-y-auto p-4 md:p-10">
-            <div id="intro-hero" class="h-full flex flex-col items-center justify-center text-center opacity-40">
-                <h1 id="dynamic-greet" class="text-4xl md:text-5xl font-bold mb-4 tracking-tighter">🧞</h1>
-                <p class="text-sm md:text-base">What's on your agenda today?</p>
+        <div class="flex justify-center gap-2 p-4 text-[10px] font-bold uppercase tracking-widest">
+            <button onclick="setLevel('Basic')" id="lvl-Basic" class="px-4 py-2 rounded-full border border-white/10 transition">Basic</button>
+            <button onclick="setLevel('Pro')" id="lvl-Pro" class="px-4 py-2 rounded-full border border-white/10 transition">Pro</button>
+            <button onclick="setLevel('Ultra')" id="lvl-Ultra" class="px-4 py-2 rounded-full border border-white/10 transition">Ultra</button>
+            <button onclick="setLevel('Legend')" id="lvl-Legend" class="px-4 py-2 rounded-full border border-[var(--accent)] bg-[var(--accent)]/10">Legend</button>
+        </div>
+
+        <div id="chat-container" class="flex-1 overflow-y-auto p-4 md:p-12 space-y-8">
+            <div id="welcome-msg" class="h-full flex flex-col items-center justify-center text-center opacity-50">
+                <span class="text-6xl mb-4">🧞</span>
+                <h2 id="greet-text" class="text-2xl font-bold"></h2>
             </div>
-            <div id="conversation" class="max-w-3xl mx-auto flex flex-col"></div>
+            <div id="chat-flow" class="max-w-3xl mx-auto"></div>
         </div>
 
         <div class="p-4 md:p-10 bg-gradient-to-t from-[var(--bg)]">
-            <div class="max-w-3xl mx-auto relative">
-                <div id="upload-status" class="flex gap-2 mb-3"></div>
-                <div class="bg-[#2f2f2f] rounded-2xl p-2 border border-white/10 focus-within:border-white/30 transition shadow-2xl">
-                    <div class="flex items-end gap-3 px-3">
-                        <label class="p-2 text-gray-400 hover:text-white cursor-pointer">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
-                            <input type="file" id="file-uploader" multiple class="hidden" onchange="handleFiles(this)">
-                        </label>
-                        <textarea id="user-input" rows="1" placeholder="Type your magic command..." 
-                                  class="flex-1 bg-transparent border-none outline-none py-3 text-[16px] resize-none max-h-60 h-auto"></textarea>
-                        <button id="send-btn" onclick="processMagic()" class="p-2.5 bg-white text-black rounded-xl hover:bg-gray-200 transition mb-1 disabled:opacity-20">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-                        </button>
-                    </div>
+            <div class="max-w-3xl mx-auto relative glass rounded-3xl p-2 border-white/10">
+                <div id="file-preview" class="flex gap-2 p-2 hidden"></div>
+                <div class="flex items-end gap-2 px-4 py-2">
+                    <label class="p-2 cursor-pointer opacity-50 hover:opacity-100">
+                        📎 <input type="file" id="file-input" class="hidden" multiple onchange="previewFiles(this)">
+                    </label>
+                    <textarea id="user-input" rows="1" placeholder="Ask Aladdin anything..." 
+                              class="flex-1 bg-transparent border-none outline-none py-2 text-[16px] resize-none max-h-[200px]"></textarea>
+                    <button id="send-btn" onclick="handleMagic()" class="p-2 bg-white text-black rounded-xl font-bold hover:scale-110 transition">
+                        ➤
+                    </button>
                 </div>
             </div>
+            <p class="text-[10px] text-center mt-4 opacity-30">Aladdin AI can make mistakes. Check important info.</p>
         </div>
     </main>
 
     <script>
-        const GROQ_KEY = "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";
+        // Configuration
         const MAIL_KEYS = { service: "service_d7q8v4o", template: "template_9nrhdsl", public: "5IDeLAjB6gy610xIB" };
+        const GROQ_KEY = "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";
         
-        let otpMaster = null;
+        let currentOTP = null;
+        let activeLevel = "Legend";
         let activeChatId = null;
         let chatLogs = JSON.parse(localStorage.getItem('aladdin_history')) || [];
-        let currentFiles = [];
-
-        // --- Greetings Logic (100+ variants) ---
-        const GREETS = [
-            "Welcome back, {name}! Ready to create magic? 🧞",
-            "Hey {name}, how can I lighten up your day? ✨",
-            "Greetings, Master {name}. Your wish is my command. 🌟",
-            "The Lamp is active. What are we building, {name}? 💻",
-            "Assalamu Alaikum, {name}. How can I help? 🕊️",
-            "Nice to see you, {name}! Let's solve some bugs. 🐞",
-            "Ready for high-level thinking, {name}? 🧠",
-            "Good to have you here. What's the plan? 🔥"
-        ];
-
-        window.onload = () => {
-            emailjs.init(MAIL_KEYS.public);
-            if(localStorage.getItem('auth_v3')) {
-                document.getElementById('auth-wall').style.display = 'none';
-                initSession();
-            }
-            updateGreeting();
-        };
 
         // --- Authentication ---
-        async function sendVerification() {
-            const email = document.getElementById('target-email').value;
-            if(!email.includes('@')) return alert("Invalid Email");
+        window.onload = () => {
+            emailjs.init(MAIL_KEYS.public);
+            if(localStorage.getItem('auth_complete')) {
+                document.getElementById('auth-screen').style.display = 'none';
+                loadUserData();
+            }
+        };
+
+        async function sendOTP() {
+            const name = document.getElementById('user-name').value;
+            const email = document.getElementById('user-email').value;
+            const country = document.getElementById('user-country').value;
             
-            otpMaster = Math.floor(100000 + Math.random() * 900000);
-            const btn = document.getElementById('auth-btn');
-            btn.disabled = true; btn.innerText = "Processing...";
+            if(!name || !email) return alert("Please fill all fields!");
+            
+            currentOTP = Math.floor(100000 + Math.random() * 900000);
+            const btn = document.getElementById('otp-btn');
+            btn.innerText = "Sending Code..."; btn.disabled = true;
 
             try {
-                await emailjs.send(MAIL_KEYS.service, MAIL_KEYS.template, { email: email, otp: otpMaster });
-                document.getElementById('email-form').classList.add('hidden');
-                document.getElementById('otp-form').classList.remove('hidden');
+                await emailjs.send(MAIL_KEYS.service, MAIL_KEYS.template, { 
+                    email: email, 
+                    user_name: name,
+                    country: country,
+                    otp: currentOTP 
+                });
+                document.getElementById('step-1').classList.add('hidden');
+                document.getElementById('step-2').classList.remove('hidden');
             } catch(e) {
-                alert("Email failed. Demo Mode: Use 123456");
-                otpMaster = "123456";
-                document.getElementById('email-form').classList.add('hidden');
-                document.getElementById('otp-form').classList.remove('hidden');
+                alert("Email service error. Use '123456' for testing.");
+                currentOTP = "123456";
+                document.getElementById('step-1').classList.add('hidden');
+                document.getElementById('step-2').classList.remove('hidden');
             }
         }
 
-        function verifyAccess() {
-            if(document.getElementById('otp-code').value == otpMaster) {
-                localStorage.setItem('auth_v3', 'true');
-                localStorage.setItem('user_identity', document.getElementById('target-email').value);
+        function verifyOTP() {
+            if(document.getElementById('otp-input').value == currentOTP) {
+                localStorage.setItem('auth_complete', 'true');
+                localStorage.setItem('user_name', document.getElementById('user-name').value);
+                localStorage.setItem('user_country', document.getElementById('user-country').value);
                 location.reload();
-            } else alert("Invalid Code!");
+            } else alert("Wrong Code!");
         }
 
-        // --- UI Initialization ---
-        function initSession() {
-            const email = localStorage.getItem('user_identity');
-            document.getElementById('display-name').innerText = email.split('@')[0];
+        // --- Core UI Logic ---
+        function loadUserData() {
+            const name = localStorage.getItem('user_name');
+            document.getElementById('nav-name').innerText = name;
+            document.getElementById('greet-text').innerText = getCustomGreeting(name);
+            
             const pfp = localStorage.getItem('aladdin_pfp');
             if(pfp) {
-                const img = document.getElementById('pfp-view');
+                const img = document.getElementById('pfp-display');
                 img.src = pfp; img.classList.remove('hidden');
             }
-            setTheme(localStorage.getItem('aladdin_theme') || 'green');
-            refreshSidebar();
+            renderHistory();
         }
 
-        function setTheme(c) {
-            document.body.className = 'theme-' + c;
-            localStorage.setItem('aladdin_theme', c);
+        function getCustomGreeting(name) {
+            const country = localStorage.getItem('user_country');
+            const greetings = [
+                `Welcome back, ${name}! Ready for some magic in ${country}? ✨`,
+                `Assalamu Alaikum ${name}. How can the Legend assist you today? 🕊️`,
+                `Greetings Master ${name}. The lamp is glowing! 🌟`,
+                `Hey ${name}, let's build something extraordinary from ${country}! 💻`,
+                `The Legend is online. Your command is my priority, ${name}. 🔥`
+            ];
+            // Added 100+ logic placeholder - can be expanded
+            return greetings[Math.floor(Math.random() * greetings.length)];
         }
 
-        function updateGreeting() {
-            const name = localStorage.getItem('user_identity')?.split('@')[0] || "Master";
-            const pick = GREETS[Math.floor(Math.random() * GREETS.length)];
-            document.getElementById('dynamic-greet').innerText = pick.replace("{name}", name);
-        }
-
-        // --- Chat Logic ---
-        async function processMagic() {
+        async function handleMagic() {
             const input = document.getElementById('user-input');
-            const text = input.value.trim();
-            if(!text && currentFiles.length === 0) return;
+            const prompt = input.value.trim();
+            if(!prompt) return;
 
-            if(!activeChatId) createNewChat(text.substring(0, 30));
-            const active = chatLogs.find(c => c.id === activeChatId);
+            if(!activeChatId) createChat(prompt);
             
-            const userMsg = { role: 'user', content: text, attachments: [...currentFiles] };
-            active.messages.push(userMsg);
-            renderUI();
-            
+            addMessage('user', prompt);
             input.value = ""; input.style.height = "auto";
-            currentFiles = []; document.getElementById('upload-status').innerHTML = "";
-
-            // AI Thinking Animation
-            const aiBox = createPlaceholder();
             
+            const aiMsgBox = addMessage('assistant', '<div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>');
+
             try {
-                const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-                    method: "POST",
-                    headers: { "Authorization": `Bearer ${GROQ_KEY}`, "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        model: "llama-3.3-70b-versatile",
-                        messages: [{role: "system", content: "You are Aladdin AI Legend. Give concise, premium answers. If asked for image, confirm and show them."}, ...active.messages]
-                    })
-                });
-                const data = await res.json();
-                let result = data.choices[0].message.content;
-
-                // Image Logic (Generate 2 images)
-                if(text.toLowerCase().match(/image|picture|ছবি|photo/)) {
-                    const prompt = encodeURIComponent(text);
-                    result += `\n\n<div class='grid grid-cols-2 gap-2 mt-4'>
-                        <img src='https://pollinations.ai/p/${prompt}?width=1080&seed=1' class='gen-img'>
-                        <img src='https://pollinations.ai/p/${prompt}?width=1080&seed=2' class='gen-img'>
-                    </div>`;
+                // Image Generation Logic (2 Images)
+                if(prompt.toLowerCase().includes('create image') || prompt.toLowerCase().includes('ছবি')) {
+                    const img1 = `https://pollinations.ai/p/${encodeURIComponent(prompt)}?width=1024&height=1024&seed=${Math.random()}`;
+                    const img2 = `https://pollinations.ai/p/${encodeURIComponent(prompt)}?width=1024&height=1024&seed=${Math.random()}`;
+                    
+                    const response = `I've generated two versions of your request:\n\n![Image 1](${img1})\n\n![Image 2](${img2})`;
+                    aiMsgBox.innerHTML = marked.parse(response);
+                    saveMessage('assistant', response);
+                } else {
+                    // Chat Response Logic
+                    const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+                        method: "POST",
+                        headers: { "Authorization": `Bearer ${GROQ_KEY}`, "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                            model: "llama-3.3-70b-versatile",
+                            messages: [{role: "system", content: `You are Aladdin AI v3.0, a Premium Legend. Your thinking level is ${activeLevel}. Answer concisely and elegantly.`}, {role: "user", content: prompt}]
+                        })
+                    });
+                    const data = await res.json();
+                    const text = data.choices[0].message.content;
+                    aiMsgBox.innerHTML = marked.parse(text);
+                    saveMessage('assistant', text);
                 }
-
-                active.messages.push({ role: 'assistant', content: result });
-                aiBox.innerHTML = marked.parse(result);
-                save();
             } catch(e) {
-                aiBox.innerHTML = "Error connecting to the lamp. Please check your internet connection.";
+                aiMsgBox.innerHTML = "Error connecting to the lamp. Check internet connection.";
             }
+            scroll();
         }
 
-        function createPlaceholder() {
-            const holder = document.createElement('div');
-            holder.className = "msg-ai";
-            holder.innerHTML = `<div class="text-[var(--accent)] font-bold text-xs mb-2 uppercase tracking-widest">Aladdin AI</div><div class="thinking"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>`;
-            document.getElementById('conversation').appendChild(holder);
-            scrollDown();
-            return holder;
+        // --- Helper Functions ---
+        function addMessage(role, content) {
+            document.getElementById('welcome-msg').classList.add('hidden');
+            const div = document.createElement('div');
+            div.className = `p-6 rounded-3xl ${role === 'user' ? 'bg-white/5 ml-auto max-w-[80%]' : 'mr-auto w-full border-b border-white/5'}`;
+            div.innerHTML = `<div class="text-[10px] font-bold mb-2 opacity-40 uppercase">${role === 'assistant' ? '🧞 Aladdin AI' : '👤 You'}</div><div class="prose prose-invert max-w-none text-[15px]">${role === 'assistant' ? content : marked.parse(content)}</div>`;
+            document.getElementById('chat-flow').appendChild(div);
+            scroll();
+            return div.querySelector('.prose');
         }
 
-        function renderUI() {
-            const chat = chatLogs.find(c => c.id === activeChatId);
-            const flow = document.getElementById('conversation');
-            flow.innerHTML = "";
-            document.getElementById('intro-hero').style.display = "none";
-
-            chat.messages.forEach(m => {
-                const div = document.createElement('div');
-                div.className = m.role === 'user' ? 'msg-user' : 'msg-ai';
-                div.innerHTML = `
-                    <div class="${m.role === 'assistant' ? 'text-[var(--accent)] font-bold text-xs mb-2 uppercase tracking-widest' : 'hidden'}">Aladdin AI</div>
-                    <div class="prose prose-invert max-w-none text-[15px] leading-relaxed">${marked.parse(m.content)}</div>
-                    ${m.attachments ? `<div class="mt-2 flex flex-wrap gap-2">${m.attachments.map(f => `<span class='text-[10px] bg-white/10 px-2 py-1 rounded'>📎 ${f.name}</span>`).join('')}</div>` : ''}
-                `;
-                flow.appendChild(div);
-            });
-            scrollDown();
+        function toggleUserMenu() { document.getElementById('user-popup').classList.toggle('active'); }
+        function setLevel(l) { 
+            activeLevel = l; 
+            document.querySelectorAll('[id^="lvl-"]').forEach(b => b.classList.remove('bg-[var(--accent)]/10', 'border-[var(--accent)]'));
+            document.getElementById(`lvl-${l}`).classList.add('bg-[var(--accent)]/10', 'border-[var(--accent)]');
         }
-
-        function createNewChat(title = "New Conversation") {
+        function setTheme(c) { 
+            const colors = { green: '#10a37f', blue: '#3b82f6', red: '#ef4444' };
+            document.documentElement.style.setProperty('--accent', colors[c]);
+        }
+        function uploadPFP(input) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                localStorage.setItem('aladdin_pfp', e.target.result);
+                document.getElementById('pfp-display').src = e.target.result;
+                document.getElementById('pfp-display').classList.remove('hidden');
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
+        function createChat(title) {
             activeChatId = Date.now();
             chatLogs.unshift({ id: activeChatId, title, messages: [] });
-            save(); refreshSidebar();
+            renderHistory();
         }
-
-        function refreshSidebar() {
-            const list = document.getElementById('chat-list');
-            list.innerHTML = chatLogs.map(c => `
-                <div onclick="switchChat(${c.id})" class="p-3 rounded-xl cursor-pointer truncate transition ${c.id === activeChatId ? 'bg-white/10' : 'hover:bg-white/5'}">
+        function saveMessage(role, content) {
+            const chat = chatLogs.find(c => c.id === activeChatId);
+            chat.messages.push({role, content});
+            localStorage.setItem('aladdin_history', JSON.stringify(chatLogs));
+        }
+        function renderHistory() {
+            document.getElementById('chat-history').innerHTML = chatLogs.map(c => `
+                <div onclick="loadChat(${c.id})" class="p-3 hover:bg-white/5 rounded-xl cursor-pointer truncate transition">
                     💬 ${c.title}
                 </div>
             `).join('');
         }
-
-        function switchChat(id) { activeChatId = id; renderUI(); refreshSidebar(); }
-        function save() { localStorage.setItem('aladdin_history', JSON.stringify(chatLogs)); }
+        function scroll() { const c = document.getElementById('chat-container'); c.scrollTo(0, c.scrollHeight); }
         function logout() { localStorage.clear(); location.reload(); }
-        function scrollDown() { const w = document.getElementById('chat-window'); w.scrollTo(0, w.scrollHeight); }
-        function resetChat() { activeChatId = null; document.getElementById('conversation').innerHTML = ""; document.getElementById('intro-hero').style.display = "flex"; }
+        function newChat() { location.reload(); }
 
-        function handleFiles(input) {
-            Array.from(input.files).forEach(f => {
-                currentFiles.push({ name: f.name, type: f.type });
-                const chip = document.createElement('div');
-                chip.className = "bg-[var(--accent)] text-[10px] px-2 py-1 rounded-full text-white";
-                chip.innerText = f.name;
-                document.getElementById('upload-status').appendChild(chip);
-            });
-        }
-
-        function updatePFP(input) {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                localStorage.setItem('aladdin_pfp', e.target.result);
-                const img = document.getElementById('pfp-view');
-                img.src = e.target.result; img.classList.remove('hidden');
-            };
-            reader.readAsDataURL(input.files[0]);
-        }
-
-        // Handle Enter key for Send
-        document.getElementById('user-input').addEventListener('keydown', (e) => {
+        // Enter to Send Fix
+        document.getElementById('user-input').addEventListener('keypress', (e) => {
             if(e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
-                processMagic();
+                handleMagic();
             }
         });
     </script>
