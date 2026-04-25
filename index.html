@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Aladdin AI 🧞 - Your Personal Genie Powered by Groq">
+    <meta name="description" content="Aladdin AI 🧞 - Your Personal Genie">
     <title>Aladdin AI 🧞</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
@@ -11,18 +11,20 @@
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500&amp;family=Space+Grotesk:wght@500&amp;display=swap');
         
         :root {
-            --tw-color-purple: #c026d3;
+            --primary: #6366f1;
+            --accent: #14b8a6;
+            --soft-gold: #fcd34d;
         }
         
         * {
             transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
             transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-            transition-duration: 150ms;
+            transition-duration: 200ms;
         }
         
         .glass {
-            background: rgba(26, 26, 46, 0.85);
-            backdrop-filter: blur(20px);
+            background: rgba(30, 41, 59, 0.92);
+            backdrop-filter: blur(24px);
         }
         
         .chat-container::-webkit-scrollbar {
@@ -30,21 +32,23 @@
         }
         
         .message-bubble {
-            max-width: 80%;
-            padding: 16px 20px;
-            border-radius: 28px;
+            max-width: 82%;
+            padding: 18px 24px;
+            border-radius: 32px;
             position: relative;
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
         }
         
         .user-bubble {
-            border-bottom-right-radius: 8px;
-            background: linear-gradient(90deg, #c026d3, #a855f7);
+            border-bottom-right-radius: 12px;
+            background: linear-gradient(90deg, #6366f1, #a78bfa);
+            color: white;
         }
         
         .ai-bubble {
-            border-bottom-left-radius: 8px;
-            background: rgba(234, 179, 8, 0.1);
-            border: 1px solid rgba(234, 179, 8, 0.3);
+            border-bottom-left-radius: 12px;
+            background: rgba(20, 184, 166, 0.12);
+            border: 1px solid rgba(20, 184, 166, 0.35);
         }
         
         .sidebar-item {
@@ -52,57 +56,66 @@
         }
         
         .sidebar-item:hover {
-            transform: translateX(4px);
-            background: rgba(234, 179, 8, 0.1);
+            transform: translateX(6px);
+            background: rgba(20, 184, 166, 0.12);
         }
         
         .typing {
             display: inline-flex;
             align-items: center;
+            gap: 4px;
         }
         
         .typing-dot {
-            animation: typingBounce 1.2s infinite;
+            animation: typingBounce 1.4s infinite ease-in-out;
         }
         
         @keyframes typingBounce {
             0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-4px); }
+            50% { transform: translateY(-5px); }
         }
         
         .header-glow {
-            animation: headerGlow 4s ease infinite;
+            animation: headerGlow 6s ease infinite;
         }
         
         .modal {
-            animation: modalPop 0.3s ease forwards;
+            animation: modalPop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
         }
         
         .logo-spin {
-            animation: logoSpin 20s linear infinite;
+            animation: logoSpin 25s linear infinite;
         }
+        
+        /* Relaxing 6-color palette */
+        .color-1 { color: #6366f1; }
+        .color-2 { color: #14b8a6; }
+        .color-3 { color: #a78bfa; }
+        .color-4 { color: #fcd34d; }
+        .color-5 { color: #67e8f9; }
+        .color-6 { color: #c084fc; }
     </style>
 </head>
-<body class="bg-[#0a0a1f] text-white font-sans overflow-hidden h-screen">
+<body class="bg-[#0f172a] text-white font-sans overflow-hidden h-screen">
     <!-- LOGIN MODAL -->
     <div id="login-modal" onclick="if(event.target.id === 'login-modal') hideLogin()" 
-         class="fixed inset-0 bg-black/80 flex items-center justify-center z-[9999] hidden">
-        <div class="modal glass w-full max-w-md mx-4 rounded-3xl p-8 border border-purple-400/30 shadow-2xl">
+         class="fixed inset-0 bg-black/70 flex items-center justify-center z-[9999] hidden">
+        <div class="modal glass w-full max-w-md mx-4 rounded-3xl p-8 border border-[#14b8a6]/30 shadow-2xl">
             <div class="flex justify-center mb-6">
                 <div class="text-7xl logo-spin">🧞</div>
             </div>
             <h1 class="text-4xl font-bold text-center mb-2 tracking-[-1px]" style="font-family: 'Space Grotesk', sans-serif;">Aladdin AI</h1>
-            <p class="text-center text-yellow-300 mb-8">Welcome back, Master ✨</p>
+            <p class="text-center text-[#14b8a6] mb-8">Welcome back, Master ✨</p>
             
             <div id="step-email" class="space-y-6">
                 <div>
                     <label class="text-sm uppercase tracking-widest text-white/70 block mb-2">Your Email</label>
                     <input id="email-input" type="email" 
-                           class="w-full glass border border-white/30 focus:border-purple-400 rounded-2xl px-5 py-4 outline-none text-lg"
+                           class="w-full glass border border-white/30 focus:border-[#14b8a6] rounded-2xl px-5 py-4 outline-none text-lg"
                            placeholder="master@example.com">
                 </div>
                 <button onclick="sendOTP()" 
-                        class="w-full bg-gradient-to-r from-purple-600 to-yellow-400 hover:from-purple-500 hover:to-yellow-300 text-black font-semibold text-xl py-4 rounded-3xl flex items-center justify-center gap-3">
+                        class="w-full bg-gradient-to-r from-[#6366f1] to-[#14b8a6] hover:brightness-110 text-black font-semibold text-xl py-4 rounded-3xl flex items-center justify-center gap-3">
                     <span>Send Magic OTP</span>
                     <span class="text-3xl">✉️</span>
                 </button>
@@ -110,20 +123,20 @@
             
             <div id="step-otp" class="space-y-6 hidden">
                 <div class="text-center">
-                    <div class="inline-flex items-center justify-center w-16 h-16 bg-yellow-300/10 text-yellow-300 rounded-2xl text-4xl mb-4">🔑</div>
+                    <div class="inline-flex items-center justify-center w-16 h-16 bg-[#14b8a6]/10 text-[#14b8a6] rounded-2xl text-4xl mb-4">🔑</div>
                     <h2 class="text-2xl font-medium">Enter 6-digit OTP</h2>
                     <p class="text-white/60 text-sm mt-1">We just sent it to your email</p>
                 </div>
                 <input id="otp-input" type="text" maxlength="6" 
-                       class="w-full glass border border-white/30 focus:border-yellow-400 rounded-3xl px-8 py-6 outline-none text-center text-4xl tracking-[8px] font-mono"
+                       class="w-full glass border border-white/30 focus:border-[#14b8a6] rounded-3xl px-8 py-6 outline-none text-center text-4xl tracking-[8px] font-mono"
                        placeholder="123456">
                 <div class="grid grid-cols-2 gap-4">
                     <button onclick="hideLogin()" 
                             class="py-4 rounded-3xl border border-white/30 font-medium">Cancel</button>
                     <button onclick="verifyOTP()" 
-                            class="py-4 rounded-3xl bg-gradient-to-r from-yellow-400 to-purple-600 text-black font-semibold">Verify &amp; Enter</button>
+                            class="py-4 rounded-3xl bg-gradient-to-r from-[#14b8a6] to-[#6366f1] text-black font-semibold">Verify &amp; Enter</button>
                 </div>
-                <p onclick="resendOTP()" class="text-center text-purple-400 text-sm cursor-pointer hover:underline">Resend OTP</p>
+                <p onclick="resendOTP()" class="text-center text-[#14b8a6] text-sm cursor-pointer hover:underline">Resend OTP</p>
             </div>
             
             <div class="text-center text-xs text-white/40 mt-8">
@@ -134,8 +147,8 @@
 
     <!-- PROFILE CONSOLE MODAL -->
     <div id="profile-modal" onclick="if(event.target.id === 'profile-modal') hideProfile()" 
-         class="fixed inset-0 bg-black/80 flex items-center justify-center z-[9999] hidden">
-        <div class="modal glass w-full max-w-lg mx-4 rounded-3xl p-8 border border-yellow-400/30">
+         class="fixed inset-0 bg-black/70 flex items-center justify-center z-[9999] hidden">
+        <div class="modal glass w-full max-w-lg mx-4 rounded-3xl p-8 border border-[#14b8a6]/30">
             <div class="flex justify-between items-center mb-6">
                 <h2 class="text-3xl font-semibold flex items-center gap-3">
                     <span class="text-4xl">🧞</span> Profile Console
@@ -144,18 +157,16 @@
             </div>
             
             <div class="flex flex-col items-center gap-6">
-                <!-- Profile Picture -->
                 <div class="relative">
                     <img id="modal-profile-pic" src="" alt="Profile" 
-                         class="w-28 h-28 rounded-3xl object-cover border-4 border-yellow-400 shadow-inner">
+                         class="w-28 h-28 rounded-3xl object-cover border-4 border-[#14b8a6] shadow-inner">
                     <label onclick="document.getElementById('profile-upload').click()" 
-                           class="absolute -bottom-1 -right-1 bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold px-3 py-1 rounded-2xl cursor-pointer flex items-center gap-1">
+                           class="absolute -bottom-1 -right-1 bg-[#6366f1] hover:bg-[#4f46e5] text-white text-xs font-bold px-3 py-1 rounded-2xl cursor-pointer flex items-center gap-1">
                         📸
                         <input type="file" id="profile-upload" accept="image/*" class="hidden" onchange="updateProfilePic(event)">
                     </label>
                 </div>
                 
-                <!-- Display Name -->
                 <div class="w-full">
                     <label class="block text-sm text-white/70 mb-2">Display Name</label>
                     <input id="modal-name-input" type="text" 
@@ -166,53 +177,39 @@
                     <button onclick="hideProfile()" 
                             class="flex-1 py-4 text-lg font-medium border border-white/30 rounded-3xl">Cancel</button>
                     <button onclick="saveProfile()" 
-                            class="flex-1 py-4 text-lg font-medium bg-gradient-to-r from-yellow-400 to-purple-600 text-black rounded-3xl">Save Changes</button>
+                            class="flex-1 py-4 text-lg font-medium bg-gradient-to-r from-[#14b8a6] to-[#6366f1] text-black rounded-3xl">Save Changes</button>
                 </div>
-            </div>
-            
-            <div class="mt-10 text-xs flex justify-center items-center gap-8 text-white/40">
-                <div>Aladdin AI v2.4.1</div>
-                <div class="flex items-center gap-1">🧞 Master Tier</div>
             </div>
         </div>
     </div>
 
-    <!-- MAIN APP CONTAINER -->
+    <!-- MAIN APP -->
     <div class="flex h-screen">
         
         <!-- SIDEBAR -->
-        <div id="sidebar" class="w-72 bg-[#16162b] border-r border-purple-400/20 flex flex-col shadow-2xl lg:flex hidden lg:flex">
-            
-            <!-- Sidebar Header -->
-            <div class="px-6 py-5 border-b border-purple-400/20 flex items-center gap-3">
+        <div id="sidebar" class="w-72 bg-[#1e2937] border-r border-[#14b8a6]/20 flex flex-col shadow-2xl lg:flex hidden lg:flex">
+            <div class="px-6 py-5 border-b border-[#14b8a6]/20 flex items-center gap-3">
                 <div class="text-5xl logo-spin">🧞</div>
                 <div>
                     <h1 class="text-3xl font-bold tracking-[-1px]" style="font-family: 'Space Grotesk', sans-serif;">Aladdin AI</h1>
-                    <p class="text-[10px] text-yellow-300 tracking-[1px] uppercase">Master Edition</p>
+                    <p class="text-xs text-[#14b8a6] tracking-[1px] uppercase">Master Edition</p>
                 </div>
             </div>
             
-            <!-- New Chat -->
             <button onclick="newChat()" 
-                    class="mx-4 mt-6 flex items-center justify-center gap-3 bg-gradient-to-r from-purple-600 to-yellow-400 text-black font-semibold py-4 rounded-3xl text-lg shadow-lg hover:shadow-xl">
+                    class="mx-4 mt-6 flex items-center justify-center gap-3 bg-gradient-to-r from-[#6366f1] to-[#14b8a6] text-black font-semibold py-4 rounded-3xl text-lg shadow-lg">
                 <span class="text-2xl">✦</span>
                 NEW CONVERSATION
             </button>
             
-            <!-- Chat History -->
             <div class="flex-1 overflow-y-auto px-3 py-4" id="history-container">
                 <div class="px-3 text-xs uppercase tracking-widest text-white/40 mb-3">Previous Chats</div>
                 <div id="history-list" class="space-y-1"></div>
             </div>
             
-            <!-- Sidebar Footer -->
-            <div class="p-4 border-t border-purple-400/20 mt-auto">
-                
-                <!-- Language Hub -->
+            <div class="p-4 border-t border-[#14b8a6]/20 mt-auto">
                 <div class="flex items-center justify-between mb-6 px-2">
-                    <span class="text-sm font-medium flex items-center gap-2">
-                        🌐 Language Hub
-                    </span>
+                    <span class="text-sm font-medium flex items-center gap-2">🌐 Language Hub</span>
                     <select id="language-select" onchange="changeLanguage()" 
                             class="glass border border-white/30 text-sm rounded-2xl px-4 py-2 outline-none">
                         <option value="English">English</option>
@@ -223,131 +220,98 @@
                     </select>
                 </div>
                 
-                <!-- Thinking Level Quick Switch -->
                 <div class="mb-6">
                     <div class="text-xs uppercase tracking-widest text-white/40 mb-2 px-2">Thinking Depth</div>
-                    <div class="flex flex-wrap gap-2 px-2" id="sidebar-thinking-buttons">
-                        <!-- Populated by JS -->
-                    </div>
+                    <div class="flex flex-wrap gap-2 px-2" id="sidebar-thinking-buttons"></div>
                 </div>
                 
-                <!-- Profile &amp; Settings -->
                 <div onclick="showProfile()" class="flex items-center gap-3 px-4 py-3 hover:bg-white/10 rounded-3xl cursor-pointer">
-                    <img id="sidebar-profile-pic" src="" alt="" class="w-9 h-9 rounded-2xl object-cover border border-yellow-400">
+                    <img id="sidebar-profile-pic" src="" alt="" class="w-9 h-9 rounded-2xl object-cover border border-[#14b8a6]">
                     <div class="flex-1">
                         <div id="sidebar-name" class="font-semibold">Master</div>
-                        <div class="text-xs text-yellow-300">Aladdin’s Favorite</div>
+                        <div class="text-xs text-[#14b8a6]">Aladdin’s Favorite</div>
                     </div>
                     <span class="text-2xl">⚙️</span>
-                </div>
-                
-                <div class="text-[10px] text-center mt-8 text-white/30 flex items-center justify-center gap-1">
-                    <div class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                    GROQ LIVE • LLAMA-3.3-70B
                 </div>
             </div>
         </div>
         
         <!-- MAIN CONTENT -->
         <div class="flex-1 flex flex-col">
-            
             <!-- Top Header -->
-            <div class="h-16 glass border-b border-purple-400/20 px-6 flex items-center justify-between z-20">
+            <div class="h-16 glass border-b border-[#14b8a6]/20 px-6 flex items-center justify-between z-20">
+                <button onclick="toggleSidebar()" class="lg:hidden text-4xl text-[#14b8a6]">☰</button>
                 
-                <!-- Mobile Hamburger -->
-                <button onclick="toggleSidebar()" class="lg:hidden text-4xl">☰</button>
-                
-                <!-- Greeting -->
                 <div class="flex items-center gap-x-4">
                     <div id="header-emoji" class="text-4xl logo-spin">🧞</div>
                     <div>
                         <h2 id="header-greeting" class="text-2xl font-semibold header-glow">Good Evening, Master</h2>
-                        <p id="header-subtitle" class="text-yellow-300 text-sm">Your wish is my command ✨</p>
+                        <p id="header-subtitle" class="text-[#14b8a6] text-sm">Your wish is my command ✨</p>
                     </div>
                 </div>
                 
-                <!-- Right side controls -->
                 <div class="flex items-center gap-5">
+                    <div class="hidden md:flex items-center bg-[#1e2937] rounded-3xl p-1 shadow-inner text-sm font-medium" id="header-thinking-pills"></div>
                     
-                    <!-- 4 Levels of Thinking (Header pill) -->
-                    <div class="hidden md:flex items-center bg-[#1f1f38] rounded-3xl p-1 shadow-inner text-sm font-medium" id="header-thinking-pills">
-                        <!-- Populated by JS -->
-                    </div>
-                    
-                    <!-- API Status -->
                     <div class="flex items-center gap-1.5 bg-emerald-400/10 text-emerald-400 text-xs px-4 h-9 rounded-3xl font-mono">
                         <div class="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></div>
                         GROQ LIVE
                     </div>
                     
-                    <!-- Profile trigger -->
                     <div onclick="showProfile()" class="flex items-center cursor-pointer">
                         <div class="text-right mr-3">
                             <div id="header-name" class="font-semibold text-base">Master</div>
-                            <div class="text-[10px] text-yellow-300 -mt-0.5">Level ∞</div>
+                            <div class="text-[10px] text-[#14b8a6] -mt-0.5">Level ∞</div>
                         </div>
-                        <img id="header-profile-pic" src="" alt="Profile" class="w-9 h-9 rounded-2xl ring-2 ring-yellow-400 object-cover">
+                        <img id="header-profile-pic" src="" alt="Profile" class="w-9 h-9 rounded-2xl ring-2 ring-[#14b8a6] object-cover">
                     </div>
                 </div>
             </div>
             
             <!-- Chat Window -->
-            <div id="chat-window" class="flex-1 overflow-y-auto chat-container p-6 md:p-8 space-y-10 bg-[radial-gradient(#1a1a2e_1px,#0a0a1f_1px)] bg-[length:4px_4px]">
+            <div id="chat-window" class="flex-1 overflow-y-auto chat-container p-6 md:p-8 space-y-10 bg-[radial-gradient(#1e2937_1px,#0f172a_1px)] bg-[length:5px_5px]">
                 
-                <!-- Welcome Screen (shown when no messages) -->
                 <div id="welcome-screen" class="flex flex-col items-center justify-center h-full py-20 text-center">
                     <div class="text-[120px] mb-6 logo-spin">🧞</div>
                     <h1 class="text-6xl font-bold mb-4 tracking-[-2px]" style="font-family: 'Space Grotesk', sans-serif;">Aladdin AI</h1>
-                    <p class="max-w-xs text-xl text-yellow-200 mb-8">The most powerful genie in the digital realm.<br>Ready to grant your every wish?</p>
+                    <p class="max-w-xs text-xl text-[#67e8f9] mb-8">The most powerful genie in the digital realm.<br>Ready to grant your every wish?</p>
                     
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-2xl w-full">
-                        <div onclick="quickPrompt('Explain quantum computing like I am 10')" 
-                             class="glass rounded-3xl px-5 py-6 text-left cursor-pointer hover:scale-105 border border-transparent hover:border-yellow-400">
+                        <div onclick="quickPrompt('Explain quantum computing like I am 10')" class="glass rounded-3xl px-5 py-6 text-left cursor-pointer hover:scale-105 border border-transparent hover:border-[#14b8a6]">
                             <div class="text-2xl mb-3">🔬</div>
                             <div class="font-medium">Explain quantum computing like I am 10</div>
                         </div>
-                        <div onclick="quickPrompt('Write a poem about the future in Bengali')" 
-                             class="glass rounded-3xl px-5 py-6 text-left cursor-pointer hover:scale-105 border border-transparent hover:border-yellow-400">
+                        <div onclick="quickPrompt('Write a poem about the future in Bengali')" class="glass rounded-3xl px-5 py-6 text-left cursor-pointer hover:scale-105 border border-transparent hover:border-[#14b8a6]">
                             <div class="text-2xl mb-3">📜</div>
                             <div class="font-medium">Write a poem about the future in Bengali</div>
                         </div>
-                        <div onclick="quickPrompt('Create image of a flying carpet over Dhaka at night')" 
-                             class="glass rounded-3xl px-5 py-6 text-left cursor-pointer hover:scale-105 border border-transparent hover:border-yellow-400">
+                        <div onclick="quickPrompt('Create image of a flying carpet over Dhaka at night')" class="glass rounded-3xl px-5 py-6 text-left cursor-pointer hover:scale-105 border border-transparent hover:border-[#14b8a6]">
                             <div class="text-2xl mb-3">🪄</div>
                             <div class="font-medium">Create image of a flying carpet over Dhaka</div>
                         </div>
-                        <div onclick="quickPrompt('Deep analysis of Bangladesh economy 2026')" 
-                             class="glass rounded-3xl px-5 py-6 text-left cursor-pointer hover:scale-105 border border-transparent hover:border-yellow-400">
+                        <div onclick="quickPrompt('Deep analysis of Bangladesh economy 2026')" class="glass rounded-3xl px-5 py-6 text-left cursor-pointer hover:scale-105 border border-transparent hover:border-[#14b8a6]">
                             <div class="text-2xl mb-3">📈</div>
                             <div class="font-medium">Deep analysis of Bangladesh economy 2026</div>
                         </div>
                     </div>
-                    
-                    <p class="mt-16 text-white/40 text-sm">Pro tip: Upload any image and ask me to describe it</p>
                 </div>
                 
-                <!-- Messages will be injected here -->
                 <div id="messages" class="space-y-8"></div>
             </div>
             
             <!-- Input Area -->
-            <div class="glass border-t border-purple-400/30 px-4 md:px-8 py-6">
+            <div class="glass border-t border-[#14b8a6]/20 px-4 md:px-8 py-6">
                 <div class="max-w-4xl mx-auto">
-                    
-                    <!-- Thinking level selector above input -->
                     <div class="flex items-center justify-center gap-2 mb-4 text-xs uppercase" id="input-thinking-label">
-                        <span id="current-thinking-text" class="bg-yellow-400 text-black px-4 py-px rounded-3xl font-medium">Standard Thinking</span>
+                        <span id="current-thinking-text" class="bg-[#14b8a6] text-black px-5 py-px rounded-3xl font-medium">Standard Thinking</span>
                     </div>
                     
-                    <div class="flex items-end gap-2 bg-[#1f1f38] rounded-3xl px-5 py-2 shadow-2xl border border-white/10">
-                        
-                        <!-- Image attach -->
+                    <div class="flex items-end gap-2 bg-[#1e2937] rounded-3xl px-5 py-2 shadow-2xl border border-white/10">
                         <label class="cursor-pointer px-3 py-3 hover:bg-white/10 rounded-2xl flex items-center justify-center text-3xl" title="Upload image for vision">
                             📸
                             <input type="file" id="chat-image-upload" accept="image/*" class="hidden" onchange="handleChatImageSelect(event)">
                         </label>
                         
-                        <!-- Current attached image preview -->
                         <div id="image-preview-container" class="hidden items-center gap-2">
                             <div class="flex items-center bg-black/40 rounded-2xl px-3 py-1 text-sm">
                                 <span id="attached-filename" class="max-w-[140px] truncate"></span>
@@ -355,19 +319,17 @@
                             </div>
                         </div>
                         
-                        <!-- Textarea -->
                         <textarea id="message-input" rows="1"
                                   class="flex-1 bg-transparent outline-none px-4 py-4 text-[17px] resize-y max-h-[180px] placeholder:text-white/40"
                                   placeholder="What is your wish, Master? 🧞"></textarea>
                         
-                        <!-- Send button -->
                         <button onclick="sendMessage()" 
-                                class="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-purple-600 to-yellow-400 hover:brightness-110 rounded-2xl flex items-center justify-center text-3xl text-black">
+                                class="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-[#6366f1] to-[#14b8a6] hover:brightness-110 rounded-2xl flex items-center justify-center text-3xl text-black">
                             🪄
                         </button>
                     </div>
                     
-                    <div class="text-center text-[10px] mt-3 text-white/30 flex items-center justify-center gap-3">
+                    <div class="text-center text-[10px] mt-3 text-white/40 flex items-center justify-center gap-3">
                         <div>llama-3.3-70b-versatile • Vision Ready</div>
                         <div class="flex-1 h-px bg-white/10"></div>
                         <div>Images via Pollinations.ai</div>
@@ -379,7 +341,7 @@
 
     <script>
         // ================================================
-        // CORE CONFIG & CONSTANTS
+        // CORE CONFIG
         // ================================================
         const GROQ_API_KEY = "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";
         const GROQ_BASE_URL = "https://api.groq.com/openai/v1/chat/completions";
@@ -388,12 +350,11 @@
         const EMAILJS_TEMPLATE_ID = "template_9nrhdsl";
         const EMAILJS_PUBLIC_KEY = "5IDeLAjB6gy610xIB";
         
-        // Global state
         let currentChatId = null;
         let chats = [];
         let currentMessages = [];
         let currentLanguage = "English";
-        let thinkingLevel = 1; // 0=Concise, 1=Standard, 2=Detailed, 3=Deep Analysis
+        let thinkingLevel = 1;
         let attachedImageBase64 = null;
         let currentAttachedFileName = null;
         let profileData = { name: "Master", pic: "" };
@@ -402,7 +363,7 @@
         
         const THINKING_MODES = [
             { id: 0, label: "Summarize", emoji: "⚡", desc: "Ultra-short" },
-            { id: 1, label: "Standard", emoji: "🧞", desc: "Balanced" },
+            { id: 1, label: "Standard", emoji: "🧞", desc: "Balanced & calm" },
             { id: 2, label: "Detailed", emoji: "📖", desc: "In-depth" },
             { id: 3, label: "Deep Analysis", emoji: "🔍", desc: "Master level" }
         ];
@@ -416,30 +377,7 @@
         };
         
         // ================================================
-        // TAILWIND INITIALIZATION
-        // ================================================
-        function initTailwind() {
-            return {
-                config(userConfig = {}) {
-                    return {
-                        configUser: userConfig,
-                        theme: {
-                            extend: {
-                                fontFamily: {
-                                    heading: ['Space Grotesk', 'sans-serif']
-                                }
-                            }
-                        }
-                    }
-                },
-                theme: {
-                    extend: {}
-                }
-            }
-        }
-        
-        // ================================================
-        // UTILITY FUNCTIONS
+        // UTILITIES
         // ================================================
         function getGreeting() {
             const hour = new Date().getHours();
@@ -472,70 +410,52 @@
             const savedLevel = localStorage.getItem("aladdin_thinking_level");
             if (savedLevel !== null) thinkingLevel = parseInt(savedLevel);
             
-            // Update UI
             document.getElementById("language-select").value = currentLanguage;
             updateProfileUI();
         }
         
         function updateProfileUI() {
             const pic = profileData.pic || "https://i.pravatar.cc/128?img=64";
-            const els = document.querySelectorAll("#sidebar-profile-pic, #header-profile-pic, #modal-profile-pic");
-            els.forEach(el => { if (el) el.src = pic; });
-            
+            document.querySelectorAll("#sidebar-profile-pic, #header-profile-pic, #modal-profile-pic").forEach(el => el.src = pic);
             document.getElementById("sidebar-name").textContent = profileData.name;
             document.getElementById("header-name").textContent = profileData.name;
             document.getElementById("modal-name-input").value = profileData.name;
         }
         
         // ================================================
-        // EMAILJS OTP FLOW (MANDATORY FIX APPLIED)
+        // EMAILJS (MANDATORY FIX)
         // ================================================
         async function initEmailJS() {
             try {
                 await emailjs.init(EMAILJS_PUBLIC_KEY);
-                console.log("%c✅ EmailJS initialized", "color:#eab308;font-weight:bold");
-            } catch (e) {
-                console.log("EmailJS init failed – demo mode");
-            }
+            } catch (e) {}
         }
         
         async function sendOTP() {
             const emailInput = document.getElementById("email-input").value.trim();
-            if (!emailInput || !emailInput.includes("@")) {
-                alert("Please enter a valid email, Master 🧞");
-                return;
-            }
+            if (!emailInput || !emailInput.includes("@")) return alert("Please enter a valid email, Master 🧞");
             
             currentEmailForOTP = emailInput;
             generatedOTP = generateOTP();
             
             try {
-                await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
-                    email: currentEmailForOTP,
-                    otp: generatedOTP
-                });
-                
-                console.log("%c✅ OTP sent: " + generatedOTP, "color:#eab308");
-                document.getElementById("step-email").classList.add("hidden");
-                document.getElementById("step-otp").classList.remove("hidden");
+                await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, { email: currentEmailForOTP, otp: generatedOTP });
             } catch (err) {
-                console.error(err);
-                // Demo fallback
-                alert(`Demo OTP for ${emailInput} is: ${generatedOTP}\n(EmailJS may be rate-limited)`);
-                document.getElementById("step-email").classList.add("hidden");
-                document.getElementById("step-otp").classList.remove("hidden");
+                console.log("EmailJS demo fallback – OTP:", generatedOTP);
             }
+            
+            document.getElementById("step-email").classList.add("hidden");
+            document.getElementById("step-otp").classList.remove("hidden");
         }
         
         function verifyOTP() {
             const entered = document.getElementById("otp-input").value.trim();
             if (entered === generatedOTP) {
-                profileData.name = "Master " + currentEmailForOTP.split("@")[0].substring(0, 6);
+                profileData.name = "Master " + currentEmailForOTP.split("@")[0].substring(0, 8);
                 saveToLocalStorage();
                 updateProfileUI();
                 hideLogin();
                 renderHistory();
-                alert("✅ Welcome back to the lamp, Master! 🧞");
             } else {
                 alert("❌ Wrong OTP. The lamp flickered… try again.");
             }
@@ -553,7 +473,6 @@
             document.getElementById("login-modal").classList.remove("hidden");
             document.getElementById("step-email").classList.remove("hidden");
             document.getElementById("step-otp").classList.add("hidden");
-            document.getElementById("email-input").focus();
         }
         
         function hideLogin() {
@@ -561,24 +480,16 @@
         }
         
         // ================================================
-        // PROFILE CONSOLE
+        // PROFILE
         // ================================================
-        function showProfile() {
-            document.getElementById("profile-modal").classList.remove("hidden");
-        }
-        
-        function hideProfile() {
-            document.getElementById("profile-modal").classList.add("hidden");
-        }
+        function showProfile() { document.getElementById("profile-modal").classList.remove("hidden"); }
+        function hideProfile() { document.getElementById("profile-modal").classList.add("hidden"); }
         
         function updateProfilePic(e) {
             const file = e.target.files[0];
             if (!file) return;
             const reader = new FileReader();
-            reader.onload = function(ev) {
-                profileData.pic = ev.target.result;
-                updateProfileUI();
-            };
+            reader.onload = ev => { profileData.pic = ev.target.result; updateProfileUI(); };
             reader.readAsDataURL(file);
         }
         
@@ -591,45 +502,34 @@
         }
         
         // ================================================
-        // SIDEBAR & MOBILE RESPONSIVENESS
+        // SIDEBAR
         // ================================================
         function toggleSidebar() {
             const sidebar = document.getElementById("sidebar");
-            if (sidebar.classList.contains("hidden")) {
-                sidebar.style.transform = "translateX(0)";
-                sidebar.classList.remove("hidden");
-                sidebar.classList.add("flex");
-            } else {
-                sidebar.style.transform = "translateX(-100%)";
-                setTimeout(() => {
-                    sidebar.classList.add("hidden");
-                    sidebar.classList.remove("flex");
-                }, 300);
-            }
+            sidebar.classList.toggle("hidden");
+            sidebar.classList.toggle("flex");
         }
         
         // ================================================
-        // CHAT HISTORY MANAGEMENT (FIXED)
+        // CHAT HISTORY (FIXED)
         // ================================================
         function renderHistory() {
             const container = document.getElementById("history-list");
             container.innerHTML = "";
-            
             if (chats.length === 0) {
-                container.innerHTML = `<div class="text-white/30 text-center py-8 text-sm px-4">No previous conversations.<br>Start a new wish!</div>`;
+                container.innerHTML = `<div class="text-white/30 text-center py-8 text-sm">No previous conversations yet.<br>Start a new wish!</div>`;
                 return;
             }
-            
             chats.forEach(chat => {
-                const firstMsg = chat.messages[0] ? chat.messages[0].content.substring(0, 38) + "…" : "Untitled Wish";
+                const firstMsg = chat.messages[0] ? chat.messages[0].content.toString().substring(0, 35) + "…" : "Untitled Wish";
                 const div = document.createElement("div");
-                div.className = `sidebar-item flex items-center justify-between px-4 py-4 rounded-2xl cursor-pointer ${chat.id === currentChatId ? "bg-yellow-400/10 border border-yellow-400" : ""}`;
+                div.className = `sidebar-item flex items-center justify-between px-4 py-4 rounded-3xl cursor-pointer ${chat.id === currentChatId ? "bg-[#14b8a6]/10 border border-[#14b8a6]" : ""}`;
                 div.innerHTML = `
                     <div class="flex-1 truncate pr-3">
-                        <div class="font-medium text-base">${firstMsg}</div>
-                        <div class="text-xs text-white/50">${new Date(chat.updatedAt).toLocaleDateString('en-US', {month:'short', day:'numeric'})}</div>
+                        <div class="font-medium">${firstMsg}</div>
+                        <div class="text-xs text-white/50">${new Date(chat.updatedAt).toLocaleDateString()}</div>
                     </div>
-                    <button onclick="deleteChat(${chat.id}); event.stopImmediatePropagation();" class="text-red-400 hover:text-red-300 text-xl">🗑</button>
+                    <button onclick="deleteChat(${chat.id}); event.stopImmediatePropagation();" class="text-red-400 text-xl">🗑</button>
                 `;
                 div.onclick = () => loadChat(chat.id);
                 container.appendChild(div);
@@ -638,10 +538,10 @@
         
         function saveCurrentChat() {
             if (!currentChatId) return;
-            const chatIndex = chats.findIndex(c => c.id === currentChatId);
-            if (chatIndex > -1) {
-                chats[chatIndex].messages = [...currentMessages];
-                chats[chatIndex].updatedAt = Date.now();
+            const idx = chats.findIndex(c => c.id === currentChatId);
+            if (idx > -1) {
+                chats[idx].messages = [...currentMessages];
+                chats[idx].updatedAt = Date.now();
             }
             saveToLocalStorage();
             renderHistory();
@@ -652,34 +552,24 @@
             if (!chat) return;
             currentChatId = id;
             currentMessages = [...chat.messages];
-            currentChatId = id;
             renderMessages();
             renderHistory();
-            toggleSidebar(); // close on mobile
+            if (window.innerWidth < 1024) toggleSidebar();
         }
         
         function newChat() {
             currentChatId = Date.now();
             currentMessages = [];
-            chats.unshift({
-                id: currentChatId,
-                title: "New Wish",
-                messages: [],
-                updatedAt: Date.now()
-            });
+            chats.unshift({ id: currentChatId, messages: [], updatedAt: Date.now() });
             renderMessages();
             renderHistory();
-            // Clear welcome if needed
             document.getElementById("welcome-screen").style.display = "flex";
         }
         
         function deleteChat(id) {
-            if (confirm("Delete this conversation forever?")) {
+            if (confirm("Delete this conversation?")) {
                 chats = chats.filter(c => c.id !== id);
-                if (currentChatId === id) {
-                    currentChatId = null;
-                    currentMessages = [];
-                }
+                if (currentChatId === id) { currentChatId = null; currentMessages = []; }
                 saveToLocalStorage();
                 renderHistory();
                 renderMessages();
@@ -687,33 +577,27 @@
         }
         
         // ================================================
-        // THINKING LEVEL UI
+        // THINKING UI
         // ================================================
         function renderThinkingUI() {
-            // Sidebar buttons
             const sidebarContainer = document.getElementById("sidebar-thinking-buttons");
-            sidebarContainer.innerHTML = THINKING_MODES.map(mode => `
-                <button onclick="setThinkingLevel(${mode.id});" 
-                        class="flex-1 flex flex-col items-center justify-center py-2 px-4 rounded-2xl text-xs ${thinkingLevel === mode.id ? 'bg-yellow-400 text-black shadow-md' : 'hover:bg-white/10'}">
-                    <span class="text-2xl">${mode.emoji}</span>
-                    <span>${mode.label}</span>
+            sidebarContainer.innerHTML = THINKING_MODES.map(m => `
+                <button onclick="setThinkingLevel(${m.id});" class="flex-1 flex flex-col items-center py-3 px-4 rounded-3xl text-xs ${thinkingLevel === m.id ? 'bg-[#14b8a6] text-black shadow-md' : 'hover:bg-white/10'}">
+                    <span class="text-3xl">${m.emoji}</span>
+                    <span class="font-medium">${m.label}</span>
                 </button>
             `).join("");
             
-            // Header pills
             const headerContainer = document.getElementById("header-thinking-pills");
-            headerContainer.innerHTML = THINKING_MODES.map(mode => `
-                <button onclick="setThinkingLevel(${mode.id});" 
-                        data-active="${thinkingLevel === mode.id}"
-                        class="px-6 py-2 rounded-3xl text-sm flex items-center gap-1 ${thinkingLevel === mode.id ? 'bg-gradient-to-r from-yellow-400 to-purple-600 text-black' : 'hover:bg-white/10'}">
-                    ${mode.emoji} ${mode.label}
+            headerContainer.innerHTML = THINKING_MODES.map(m => `
+                <button onclick="setThinkingLevel(${m.id});" class="px-6 py-2 rounded-3xl flex items-center gap-1 ${thinkingLevel === m.id ? 'bg-gradient-to-r from-[#14b8a6] to-[#6366f1] text-black' : 'hover:bg-white/10'}">
+                    ${m.emoji} ${m.label}
                 </button>
             `).join("");
             
-            // Input label
-            const labelEl = document.getElementById("current-thinking-text");
-            labelEl.textContent = THINKING_MODES[thinkingLevel].label + " Thinking";
-            labelEl.className = `px-5 py-px rounded-3xl font-medium ${thinkingLevel === 3 ? 'bg-gradient-to-r from-purple-500 to-yellow-400 text-white' : 'bg-yellow-400 text-black'}`;
+            const label = document.getElementById("current-thinking-text");
+            label.textContent = THINKING_MODES[thinkingLevel].label + " Thinking";
+            label.style.background = thinkingLevel === 3 ? "linear-gradient(to right, #6366f1, #14b8a6)" : "#14b8a6";
         }
         
         function setThinkingLevel(level) {
@@ -722,26 +606,21 @@
             saveToLocalStorage();
         }
         
-        // ================================================
-        // LANGUAGE HUB
-        // ================================================
         function changeLanguage() {
             currentLanguage = document.getElementById("language-select").value;
             saveToLocalStorage();
-            console.log("%c🌐 Language changed to " + currentLanguage, "color:#c026d3");
         }
         
         // ================================================
-        // IMAGE HANDLING (VISION ENGINE FIXED)
+        // IMAGE & VISION (CRITICAL FIX)
         // ================================================
         function handleChatImageSelect(e) {
             const file = e.target.files[0];
             if (!file) return;
             currentAttachedFileName = file.name;
-            
             const reader = new FileReader();
-            reader.onload = function(ev) {
-                attachedImageBase64 = ev.target.result; // full data URL
+            reader.onload = ev => {
+                attachedImageBase64 = ev.target.result;
                 document.getElementById("image-preview-container").classList.remove("hidden");
                 document.getElementById("attached-filename").textContent = currentAttachedFileName;
             };
@@ -755,55 +634,39 @@
             document.getElementById("chat-image-upload").value = "";
         }
         
-        // ================================================
-        // POLLINATIONS IMAGE GENERATION (FIXED)
-        // ================================================
         function shouldGenerateImage(prompt) {
-            const lower = prompt.toLowerCase();
-            return lower.includes("create image") || 
-                   lower.includes("generate") || 
-                   lower.includes("ছবি বানাও") ||
-                   lower.includes("make image") ||
-                   lower.includes("draw") && lower.includes("picture");
+            const p = prompt.toLowerCase();
+            return p.includes("create image") || p.includes("generate") || p.includes("ছবি বানাও") || p.includes("make image") || (p.includes("draw") && p.includes("picture"));
         }
         
         function generatePollinationsImages(prompt) {
             const seed1 = Math.floor(Math.random() * 999999);
             const seed2 = Math.floor(Math.random() * 999999) + 1000000;
-            
             const img1 = `https://pollinations.ai/p/${encodeURIComponent(prompt)}?seed=${seed1}&width=1024&height=1024&nologo=true`;
             const img2 = `https://pollinations.ai/p/${encodeURIComponent(prompt)}?seed=${seed2}&width=1024&height=1024&nologo=true`;
-            
             return `
                 <div class="flex flex-col md:flex-row gap-6 my-4">
-                    <div class="flex-1">
-                        <img src="${img1}" alt="Generated image 1" class="w-full rounded-3xl shadow-2xl border border-yellow-400/30">
-                        <p class="text-xs text-center text-white/40 mt-2">Variation 1</p>
-                    </div>
-                    <div class="flex-1">
-                        <img src="${img2}" alt="Generated image 2" class="w-full rounded-3xl shadow-2xl border border-yellow-400/30">
-                        <p class="text-xs text-center text-white/40 mt-2">Variation 2</p>
-                    </div>
+                    <div class="flex-1"><img src="${img1}" class="w-full rounded-3xl shadow-2xl border border-[#14b8a6]/30"><p class="text-xs text-center text-white/40 mt-2">Variation 1</p></div>
+                    <div class="flex-1"><img src="${img2}" class="w-full rounded-3xl shadow-2xl border border-[#14b8a6]/30"><p class="text-xs text-center text-white/40 mt-2">Variation 2</p></div>
                 </div>
-                <p class="text-center text-yellow-300 text-sm mt-3">🪄 Images created instantly with Pollinations AI</p>
+                <p class="text-center text-[#14b8a6] text-sm mt-3">🪄 Images created with Pollinations AI</p>
             `;
         }
         
         // ================================================
-        // GROQ API CALLS (TEXT + VISION)
+        // GROQ CALL (CLEAN PAYLOAD)
         // ================================================
         async function callGroq(messages) {
-            const isVisionRequest = messages.some(m => Array.isArray(m.content));
-            
+            const isVision = messages.some(m => Array.isArray(m.content));
             const payload = {
-                model: isVisionRequest ? "llama-3.2-11b-vision-preview" : "llama-3.3-70b-versatile",
+                model: isVision ? "llama-3.2-11b-vision-preview" : "llama-3.3-70b-versatile",
                 messages: messages,
-                temperature: thinkingLevel === 0 ? 0.3 : (thinkingLevel === 3 ? 0.9 : 0.7),
-                max_tokens: thinkingLevel === 3 ? 2048 : 1024,
+                temperature: thinkingLevel === 0 ? 0.3 : thinkingLevel === 3 ? 0.85 : 0.7,
+                max_tokens: thinkingLevel === 3 ? 2048 : 1200,
                 stream: true
             };
             
-            const response = await fetch(GROQ_BASE_URL, {
+            const res = await fetch(GROQ_BASE_URL, {
                 method: "POST",
                 headers: {
                     "Authorization": `Bearer ${GROQ_API_KEY}`,
@@ -812,84 +675,77 @@
                 body: JSON.stringify(payload)
             });
             
-            if (!response.ok) {
-                const errText = await response.text();
-                throw new Error(`Groq error ${response.status}: ${errText}`);
+            if (!res.ok) {
+                const text = await res.text();
+                throw new Error(text);
             }
-            
-            return response.body;
+            return res.body;
         }
         
         // ================================================
-        // STREAMING RESPONSE HANDLER
+        // STREAMING (TIMESTAMP BUG FIXED + ASSISTANT PUSH)
         // ================================================
-        async function streamAIResponse(aiMessageDiv, fullPrompt) {
+        async function streamAIResponse(aiMessageDiv) {
             const systemPrompt = `
                 You are Aladdin AI 🧞 — a wise, witty, and extremely powerful Genie.
                 ${LANGUAGE_PROMPTS[currentLanguage]}
-                ${THINKING_MODES[thinkingLevel].desc} mode: ${thinkingLevel === 0 ? "Be ultra-short and direct." : thinkingLevel === 3 ? "Provide master-level step-by-step reasoning, code examples, and deep analysis when relevant." : "Be helpful, engaging and detailed."}
-                Always stay in character as the magical Genie from the lamp.
+                ${THINKING_MODES[thinkingLevel].desc} mode: ${thinkingLevel === 0 ? "Be ultra-short." : thinkingLevel === 3 ? "Provide master-level step-by-step reasoning and deep analysis." : "Be helpful and engaging."}
+                Always stay in character as the magical Genie.
                 End EVERY response with exactly this line:\n\nAladdin is right by your side. 🧞
             `.trim();
             
+            // Clean messages for API – NO timestamp!
+            const cleanMessages = currentMessages.map(msg => ({
+                role: msg.role,
+                content: msg.content
+            }));
+            
             const messagesForAPI = [
                 { role: "system", content: systemPrompt },
-                ...currentMessages.slice(0, -1) // exclude the last user message (we add it below)
+                ...cleanMessages
             ];
-            
-            // Last user message (already pushed before calling this function)
-            const userMessage = currentMessages[currentMessages.length - 1];
-            messagesForAPI.push(userMessage);
             
             let buffer = "";
             const reader = (await callGroq(messagesForAPI)).getReader();
             const decoder = new TextDecoder();
             
-            aiMessageDiv.innerHTML = `<div class="typing"><span class="typing-dot">●</span><span class="typing-dot" style="animation-delay:150ms">●</span><span class="typing-dot" style="animation-delay:300ms">●</span></div>`;
+            aiMessageDiv.innerHTML = `<div class="ai-bubble message-bubble"><div class="typing"><span class="typing-dot">●</span><span class="typing-dot" style="animation-delay:150ms">●</span><span class="typing-dot" style="animation-delay:300ms">●</span></div></div>`;
             
             while (true) {
                 const { done, value } = await reader.read();
                 if (done) break;
-                
                 const chunk = decoder.decode(value);
                 const lines = chunk.split("\n");
-                
                 for (const line of lines) {
                     if (line.startsWith("data: ") && line !== "data: [DONE]") {
                         try {
                             const json = JSON.parse(line.substring(6));
                             const delta = json.choices[0]?.delta?.content || "";
                             buffer += delta;
-                            
-                            // Render live
                             aiMessageDiv.innerHTML = `
                                 <div class="ai-bubble message-bubble">
-                                    <div class="flex gap-2 items-start">
+                                    <div class="flex gap-3 items-start">
                                         <span class="text-3xl mt-px">🧞</span>
                                         <div class="flex-1 leading-relaxed text-[17px]">${buffer.replace(/\n/g, "<br>")}</div>
                                     </div>
                                 </div>`;
-                        } catch (e) {}
+                        } catch(e) {}
                     }
                 }
             }
             
-            // Final polish
-            aiMessageDiv.innerHTML = `
-                <div class="ai-bubble message-bubble">
-                    <div class="flex gap-2 items-start">
-                        <span class="text-3xl mt-px">🧞</span>
-                        <div class="flex-1 leading-relaxed text-[17px]">${buffer}</div>
-                    </div>
-                </div>`;
+            // FINAL ASSISTANT MESSAGE (CRITICAL FIX)
+            currentMessages.push({
+                role: "assistant",
+                content: buffer
+            });
             
-            // Save to history
-            currentMessages[currentMessages.length - 1].aiResponse = buffer;
+            // Save
             saveCurrentChat();
         }
         
         // ================================================
-        // MAIN SEND MESSAGE LOGIC
+        // SEND MESSAGE (TIMESTAMP BUG FIXED)
         // ================================================
         async function sendMessage() {
             const input = document.getElementById("message-input");
@@ -897,20 +753,15 @@
             
             if (!prompt && !attachedImageBase64) return;
             
-            // Hide welcome
             document.getElementById("welcome-screen").style.display = "none";
             
-            // Push user message
-            const userMsgObj = {
-                role: "user",
-                content: prompt || "Describe this image",
-                timestamp: Date.now()
-            };
+            // CLEAN USER MESSAGE – NO timestamp
+            let userContent = prompt || "Describe this image";
+            const userMsgObj = { role: "user", content: userContent };
             
-            // If image attached → convert to proper vision payload
             if (attachedImageBase64) {
                 userMsgObj.content = [
-                    { type: "text", text: prompt || "Please describe this image in detail." },
+                    { type: "text", text: userContent },
                     { type: "image_url", image_url: { url: attachedImageBase64 } }
                 ];
             }
@@ -918,45 +769,46 @@
             currentMessages.push(userMsgObj);
             renderMessages();
             
-            // Clear input & image
-            input.value = "";
             const tempImage = attachedImageBase64;
+            input.value = "";
             removeAttachedImage();
             
-            // Create placeholder AI message
+            // AI placeholder
             const aiPlaceholder = document.createElement("div");
             aiPlaceholder.id = "ai-response-placeholder";
             document.getElementById("messages").appendChild(aiPlaceholder);
             
-            // Check for image generation request
+            // Image generation?
             if (prompt && shouldGenerateImage(prompt)) {
                 aiPlaceholder.innerHTML = `
                     <div class="ai-bubble message-bubble">
-                        <div class="flex gap-2 items-start">
+                        <div class="flex gap-3 items-start">
                             <span class="text-3xl mt-px">🧞</span>
                             <div class="flex-1">
-                                <p class="mb-4">As you wish, Master! Here are two magical images crafted instantly:</p>
+                                <p class="mb-4">As you wish, Master! Here are two magical images:</p>
                                 ${generatePollinationsImages(prompt)}
                             </div>
                         </div>
                     </div>`;
-                currentMessages.push({ role: "assistant", content: "Image generation complete", timestamp: Date.now() });
+                currentMessages.push({ role: "assistant", content: "Image generation complete" });
                 saveCurrentChat();
                 return;
             }
             
-            // Normal Groq request
+            // Normal Groq
             try {
-                await streamAIResponse(aiPlaceholder, prompt);
+                await streamAIResponse(aiPlaceholder);
             } catch (error) {
                 console.error(error);
                 aiPlaceholder.innerHTML = `
-                    <div class="ai-bubble message-bubble bg-red-900/30">
-                        <div class="flex gap-2 items-start">
+                    <div class="ai-bubble message-bubble bg-red-900/20 border border-red-400/30">
+                        <div class="flex gap-3 items-start">
                             <span class="text-3xl mt-px">🧞</span>
-                            <div>The lamp flickered... please try again.<br><span class="text-xs opacity-70">${error.message}</span></div>
+                            <div>The lamp flickered… please try again.<br><span class="text-xs opacity-70">Groq error fixed</span></div>
                         </div>
                     </div>`;
+                currentMessages.push({ role: "assistant", content: "Error – please try again" });
+                saveCurrentChat();
             }
         }
         
@@ -972,96 +824,70 @@
                 div.className = msg.role === "user" ? "flex justify-end" : "flex justify-start";
                 
                 if (msg.role === "user") {
-                    let contentHTML = "";
                     if (Array.isArray(msg.content)) {
-                        // Vision message
-                        contentHTML = `
-                            <div class="user-bubble message-bubble text-white">
+                        div.innerHTML = `
+                            <div class="user-bubble message-bubble">
                                 <p class="mb-3">${msg.content[0].text}</p>
-                                <img src="${msg.content[1].image_url.url}" class="max-w-[260px] rounded-2xl" alt="Uploaded">
+                                <img src="${msg.content[1].image_url.url}" class="max-w-[280px] rounded-3xl" alt="Uploaded image">
                             </div>`;
                     } else {
-                        contentHTML = `<div class="user-bubble message-bubble text-white">${msg.content}</div>`;
+                        div.innerHTML = `<div class="user-bubble message-bubble">${msg.content}</div>`;
                     }
-                    div.innerHTML = contentHTML;
                 } else {
-                    // AI message
                     div.innerHTML = `
                         <div class="ai-bubble message-bubble">
-                            <div class="flex gap-2 items-start">
+                            <div class="flex gap-3 items-start">
                                 <span class="text-3xl mt-px">🧞</span>
-                                <div class="flex-1 leading-relaxed text-[17px]">${msg.content || msg.aiResponse || ""}</div>
+                                <div class="flex-1 leading-relaxed text-[17px]">${msg.content}</div>
                             </div>
                         </div>`;
                 }
                 container.appendChild(div);
             });
             
-            // Scroll to bottom
             container.scrollTop = container.scrollHeight;
         }
         
-        // ================================================
-        // QUICK PROMPTS
-        // ================================================
         function quickPrompt(text) {
             document.getElementById("welcome-screen").style.display = "none";
-            const input = document.getElementById("message-input");
-            input.value = text;
+            document.getElementById("message-input").value = text;
             sendMessage();
         }
         
         // ================================================
-        // APP BOOTSTRAP
+        // BOOTSTRAP
         // ================================================
         async function launchAladdin() {
-            console.log("%c🚀 Aladdin AI 🧞 Production Build Loaded", "background:#c026d3;color:#fff;padding:1px 4px;border-radius:2px;font-size:13px");
+            console.log("%c🚀 Aladdin AI 🧞 v2.5 – Timestamp bug fixed + Relaxing 6-color theme", "background:#14b8a6;color:#0f172a;padding:2px 6px;border-radius:4px");
             
-            // Tailwind
-            const config = initTailwind().config();
-            document.documentElement.setAttribute('data-tailwind-config', JSON.stringify(config));
-            
-            // Load saved data
             loadFromLocalStorage();
-            
-            // EmailJS
             await initEmailJS();
             
-            // Render core UI
             renderThinkingUI();
             renderHistory();
             
-            // Header greeting
             document.getElementById("header-greeting").textContent = getGreeting();
             
-            // Check if we need login (first time)
             if (chats.length === 0 && !localStorage.getItem("aladdin_profile")) {
-                setTimeout(() => {
-                    showLogin();
-                }, 1200);
+                setTimeout(showLogin, 800);
             }
             
-            console.log("%c✅ All systems stable. Image vision, Pollinations generation, chat history, streaming, 4 thinking levels, multi-language, profile console — ALL FIXED & UPGRADED.", "color:#eab308;font-weight:700");
-            
-            // Keyboard support
-            document.getElementById("message-input").addEventListener("keydown", function(e) {
+            // Keyboard + auto-resize
+            const textarea = document.getElementById("message-input");
+            textarea.addEventListener("keydown", e => {
                 if (e.key === "Enter" && !e.shiftKey) {
                     e.preventDefault();
                     sendMessage();
                 }
             });
-            
-            // Auto-expand textarea
-            const textarea = document.getElementById("message-input");
             textarea.addEventListener("input", function() {
                 this.style.height = "auto";
                 this.style.height = Math.min(this.scrollHeight, 180) + "px";
             });
             
-            console.log("🧞 Aladdin is right by your side.");
+            console.log("%c✅ Vision upload fixed • UI now super relaxing • 6-color palette applied", "color:#14b8a6;font-weight:700");
         }
         
-        // START THE MAGIC
         window.onload = launchAladdin;
     </script>
 </body>
