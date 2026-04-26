@@ -15,1417 +15,321 @@
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <style>
-/* ─── Reset ─── */
+/* ─── ChatGPT Clone CSS ─── */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%;width:100%;overflow:hidden}
-body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#212121;color:#ececec;font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased}
-::-webkit-scrollbar{width:6px;height:6px}
-::-webkit-scrollbar-track{background:transparent}
-::-webkit-scrollbar-thumb{background:rgba(255,255,255,.15);border-radius:99px}
-::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,.25)}
-button{font-family:inherit;cursor:pointer;border:none;background:none;outline:none}
-input,textarea{font-family:inherit;outline:none;border:none}
-
-/* ─── AUTH ─── */
+body{font-family:'Inter',sans-serif;background:#212121;color:#ececec;font-size:15px;line-height:1.6}
 #auth-screen{position:fixed;inset:0;z-index:999;display:flex;align-items:center;justify-content:center;background:#212121}
-.auth-glow{position:absolute;width:500px;height:500px;border-radius:50%;background:radial-gradient(circle,rgba(16,163,127,.07) 0%,transparent 70%);top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none}
-.auth-card{position:relative;z-index:1;width:380px;max-width:calc(100vw - 32px);background:#2f2f2f;border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:40px 36px;box-shadow:0 24px 64px rgba(0,0,0,.6);animation:slideUp .5s cubic-bezier(.22,1,.36,1) both}
-@keyframes slideUp{from{opacity:0;transform:translateY(24px) scale(.98)}to{opacity:1;transform:none}}
-.auth-logo{text-align:center;font-size:2.4rem;margin-bottom:8px}
-.auth-title{text-align:center;font-size:1.15rem;font-weight:600;margin-bottom:4px}
-.auth-sub{text-align:center;font-size:.8rem;color:#8e8ea0;margin-bottom:28px}
-.auth-label{display:block;font-size:.75rem;font-weight:600;color:#8e8ea0;text-transform:uppercase;letter-spacing:.07em;margin-bottom:7px}
-.auth-input{width:100%;padding:12px 14px;background:#3a3a3a;border:1px solid rgba(255,255,255,.12);border-radius:10px;color:#ececec;font-size:.92rem;transition:border-color .2s,box-shadow .2s;margin-bottom:16px}
-.auth-input:focus{border-color:rgba(16,163,127,.6);box-shadow:0 0 0 3px rgba(16,163,127,.12)}
-.auth-input::placeholder{color:#5c5c6e}
-.auth-btn{width:100%;padding:13px;border-radius:10px;background:#10a37f;color:#fff;font-size:.9rem;font-weight:600;transition:background .2s,transform .15s;box-shadow:0 4px 14px rgba(16,163,127,.3)}
-.auth-btn:hover{background:#0d8f6f;transform:translateY(-1px)}
-.auth-btn:active{transform:none}
-.auth-btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
-.otp-wrap{display:flex;gap:8px;margin-bottom:20px}
-.otp-box{flex:1;height:52px;background:#3a3a3a;border:1px solid rgba(255,255,255,.12);border-radius:10px;color:#ececec;font-size:1.3rem;font-weight:700;text-align:center;transition:border-color .2s,box-shadow .2s;-moz-appearance:textfield}
-.otp-box:focus{border-color:rgba(16,163,127,.6);box-shadow:0 0 0 3px rgba(16,163,127,.12)}
-input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
-.auth-link{color:#10a37f;font-size:.82rem;cursor:pointer}
-.auth-link:hover{text-decoration:underline}
-
-/* ─── APP SHELL ─── */
-#app{display:flex;height:100vh;width:100vw;overflow:hidden;opacity:0;transition:opacity .4s}
+.auth-card{width:380px;background:#2f2f2f;border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:40px 36px;box-shadow:0 24px 64px rgba(0,0,0,0.6)}
+.auth-title{text-align:center;font-size:1.5rem;font-weight:600;margin-bottom:20px}
+.auth-input{width:100%;padding:12px;background:#3a3a3a;border:1px solid rgba(255,255,255,0.1);border-radius:10px;color:#fff;margin-bottom:16px}
+.auth-btn{width:100%;padding:13px;border-radius:10px;background:#10a37f;color:#fff;font-weight:600;cursor:pointer}
+#app{display:flex;height:100vh;width:100vw;opacity:0;transition:opacity 0.4s}
 #app.ready{opacity:1}
-
-/* ─── SIDEBAR ─── */
-#sidebar{width:260px;min-width:260px;background:#171717;display:flex;flex-direction:column;border-right:1px solid rgba(255,255,255,.06);transition:transform .25s cubic-bezier(.22,1,.36,1),min-width .25s;position:relative;z-index:10;overflow:hidden}
-#sidebar.closed{transform:translateX(-260px);min-width:0;position:absolute;height:100%}
-.sb-top{padding:12px 10px 6px;display:flex;flex-direction:column;gap:2px}
-.sb-new-chat{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;color:#ececec;font-size:.875rem;font-weight:500;cursor:pointer;transition:background .15s;border:1px solid rgba(255,255,255,.1);margin-bottom:4px}
-.sb-new-chat:hover{background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.18)}
-.sb-section-lbl{font-size:.7rem;font-weight:600;color:#5c5c6e;text-transform:uppercase;letter-spacing:.08em;padding:10px 14px 4px}
-.sb-chats{flex:1;overflow-y:auto;padding:2px 6px}
-.chat-ent{display:flex;align-items:center;gap:8px;padding:9px 10px;border-radius:8px;cursor:pointer;color:#b4b4b4;font-size:.84rem;transition:background .15s,color .15s}
-.chat-ent:hover{background:rgba(255,255,255,.07);color:#ececec}
-.chat-ent.active{background:rgba(255,255,255,.1);color:#ececec}
-.chat-ent-title{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.chat-ent-del{opacity:0;font-size:.75rem;color:#5c5c6e;padding:3px 6px;border-radius:5px;transition:opacity .15s,color .15s}
-.chat-ent:hover .chat-ent-del{opacity:1}
-.chat-ent-del:hover{color:#ff5c5c}
-.sb-bottom{padding:8px 6px 12px;border-top:1px solid rgba(255,255,255,.06);position:relative}
-.sb-profile{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;cursor:pointer;transition:background .15s}
-.sb-profile:hover{background:rgba(255,255,255,.07)}
-.sb-av{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#10a37f,#0d6e5f);display:flex;align-items:center;justify-content:center;font-size:.85rem;font-weight:700;color:#fff;flex-shrink:0}
-.sb-pname{font-size:.85rem;font-weight:500;color:#ececec;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.sb-pemail{font-size:.72rem;color:#5c5c6e;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-/* Profile popup */
-#prof-pop{position:absolute;bottom:calc(100% + 4px);left:6px;right:6px;background:#2a2a2a;border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:6px;box-shadow:0 16px 40px rgba(0,0,0,.6);z-index:100;display:none;animation:popUp .18s cubic-bezier(.22,1,.36,1) both}
-@keyframes popUp{from{opacity:0;transform:translateY(6px) scale(.98)}to{opacity:1;transform:none}}
-#prof-pop.open{display:block}
-.pp-lbl{font-size:.68rem;color:#5c5c6e;text-transform:uppercase;letter-spacing:.08em;padding:6px 12px 2px}
-.pp-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;cursor:pointer;font-size:.84rem;color:#b4b4b4;transition:background .15s,color .15s}
-.pp-item:hover{background:rgba(255,255,255,.07);color:#ececec}
-.pp-item i{width:16px;text-align:center;color:#10a37f}
-.pp-item.danger,.pp-item.danger i{color:#ff5c5c}
-.pp-item.danger:hover{background:rgba(255,92,92,.1)}
-.pp-div{height:1px;background:rgba(255,255,255,.07);margin:4px 0}
-.theme-dots{display:flex;gap:8px;padding:6px 12px 10px}
-.t-dot{width:22px;height:22px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:border-color .2s,transform .15s}
-.t-dot:hover{transform:scale(1.15)}
-.t-dot.on{border-color:#ececec}
-.t-dot[data-t="dark"]{background:radial-gradient(circle at 35% 35%,#10a37f,#212121)}
-.t-dot[data-t="light"]{background:radial-gradient(circle at 35% 35%,#10a37f,#f0f0f0)}
-.t-dot[data-t="midnight"]{background:radial-gradient(circle at 35% 35%,#7c3aed,#0a0a14)}
-.t-dot[data-t="ocean"]{background:radial-gradient(circle at 35% 35%,#0ea5e9,#021728)}
-.t-dot[data-t="rose"]{background:radial-gradient(circle at 35% 35%,#f43f5e,#1a0810)}
-
-/* ─── THEMES ─── */
-[data-theme="light"] body{background:#f7f7f8;color:#0d0d0d}
-[data-theme="light"] #sidebar{background:#efefef;border-color:rgba(0,0,0,.08)}
-[data-theme="light"] #main-area{background:#f7f7f8}
-[data-theme="light"] #inp-outer{background:#f7f7f8}
-[data-theme="light"] .inp-box{background:#fff;border-color:rgba(0,0,0,.15)}
-[data-theme="light"] #chat-ta{color:#0d0d0d}
-[data-theme="light"] #chat-ta::placeholder{color:#a0a0a0}
-[data-theme="light"] .msg-user-bubble{background:#efefef;color:#0d0d0d;border-color:rgba(0,0,0,.07)}
-[data-theme="light"] .msg-ai-text{color:#0d0d0d}
-[data-theme="light"] .welcome-title{color:#0d0d0d}
-[data-theme="light"] .welcome-sub{color:#5c5c6e}
-[data-theme="light"] .sug-card{background:#fff;border-color:rgba(0,0,0,.08);color:#444}
-[data-theme="light"] .sug-card:hover{border-color:rgba(16,163,127,.4);background:#f0fdfa}
-[data-theme="light"] #prof-pop{background:#f7f7f8;border-color:rgba(0,0,0,.1)}
-[data-theme="light"] .sb-new-chat{border-color:rgba(0,0,0,.12)}
-[data-theme="light"] .chat-ent{color:#555}
-[data-theme="light"] .sb-pname{color:#0d0d0d}
-[data-theme="light"] .ai-sig{border-color:rgba(0,0,0,.08)}
-[data-theme="light"] .msg-ai-text code:not(pre code){background:#f0f0f0;color:#10a37f;border-color:rgba(0,0,0,.1)}
-[data-theme="light"] .tool-res{background:#f0f0f0;border-color:rgba(0,0,0,.08)}
-[data-theme="midnight"] body{background:#0a0a14;color:#e8e8ff}
-[data-theme="midnight"] #sidebar{background:#0d0d1a;border-color:rgba(124,58,237,.12)}
-[data-theme="midnight"] #main-area{background:#0a0a14}
-[data-theme="midnight"] #inp-outer{background:#0a0a14}
-[data-theme="midnight"] .inp-box{background:#14141f;border-color:rgba(124,58,237,.3)}
-[data-theme="midnight"] .inp-box:focus-within{border-color:rgba(124,58,237,.6);box-shadow:0 0 0 3px rgba(124,58,237,.12)}
-[data-theme="midnight"] #chat-ta{color:#e8e8ff}
-[data-theme="midnight"] .send-btn{background:#7c3aed}
-[data-theme="midnight"] .send-btn:hover:not(:disabled){background:#6d2ed0}
-[data-theme="midnight"] .msg-user-bubble{background:#1a1a2e}
-[data-theme="midnight"] .welcome-title{color:#e8e8ff}
-[data-theme="midnight"] .model-badge{background:rgba(124,58,237,.15);border-color:rgba(124,58,237,.25);color:#a78bfa}
-[data-theme="ocean"] body{background:#021728;color:#d0eeff}
-[data-theme="ocean"] #sidebar{background:#011220;border-color:rgba(14,165,233,.12)}
-[data-theme="ocean"] #main-area{background:#021728}
-[data-theme="ocean"] #inp-outer{background:#021728}
-[data-theme="ocean"] .inp-box{background:#041e34;border-color:rgba(14,165,233,.25)}
-[data-theme="ocean"] .inp-box:focus-within{border-color:rgba(14,165,233,.6);box-shadow:0 0 0 3px rgba(14,165,233,.1)}
-[data-theme="ocean"] #chat-ta{color:#d0eeff}
-[data-theme="ocean"] .send-btn{background:#0ea5e9}
-[data-theme="ocean"] .send-btn:hover:not(:disabled){background:#0390d0}
-[data-theme="ocean"] .msg-user-bubble{background:#0a2a40}
-[data-theme="ocean"] .welcome-title{color:#d0eeff}
-[data-theme="ocean"] .model-badge{background:rgba(14,165,233,.15);border-color:rgba(14,165,233,.25);color:#38bdf8}
-[data-theme="rose"] body{background:#1a0810;color:#ffe8ee}
-[data-theme="rose"] #sidebar{background:#140610;border-color:rgba(244,63,94,.12)}
-[data-theme="rose"] #main-area{background:#1a0810}
-[data-theme="rose"] #inp-outer{background:#1a0810}
-[data-theme="rose"] .inp-box{background:#200b15;border-color:rgba(244,63,94,.25)}
-[data-theme="rose"] .inp-box:focus-within{border-color:rgba(244,63,94,.6);box-shadow:0 0 0 3px rgba(244,63,94,.1)}
-[data-theme="rose"] #chat-ta{color:#ffe8ee}
-[data-theme="rose"] .send-btn{background:#f43f5e}
-[data-theme="rose"] .send-btn:hover:not(:disabled){background:#e0304f}
-[data-theme="rose"] .msg-user-bubble{background:#2a0e1a}
-[data-theme="rose"] .welcome-title{color:#ffe8ee}
-[data-theme="rose"] .model-badge{background:rgba(244,63,94,.15);border-color:rgba(244,63,94,.25);color:#fb7185}
-
-/* ─── MAIN AREA ─── */
-#main-area{flex:1;display:flex;flex-direction:column;background:#212121;overflow:hidden}
-
-/* ─── TOPBAR ─── */
-#topbar{display:flex;align-items:center;gap:10px;padding:10px 16px;flex-shrink:0;position:relative;z-index:5}
-.tb-toggle{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#8e8ea0;cursor:pointer;transition:background .15s,color .15s}
-.tb-toggle:hover{background:rgba(255,255,255,.07);color:#ececec}
-.tb-model-btn{display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:8px;cursor:pointer;font-size:.875rem;font-weight:500;color:#ececec;transition:background .15s}
-.tb-model-btn:hover{background:rgba(255,255,255,.07)}
-.tb-right{margin-left:auto;display:flex;gap:8px;align-items:center}
-.model-badge{font-size:.72rem;font-weight:600;padding:3px 10px;border-radius:99px;background:rgba(16,163,127,.15);border:1px solid rgba(16,163,127,.25);color:#10a37f;font-family:'JetBrains Mono',monospace}
-/* Model dropdown */
-#model-drop{position:absolute;top:56px;left:56px;background:#2a2a2a;border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:6px;min-width:280px;z-index:50;box-shadow:0 12px 40px rgba(0,0,0,.5);display:none;animation:popUp .18s cubic-bezier(.22,1,.36,1) both}
-#model-drop.open{display:block}
-.m-opt{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border-radius:8px;cursor:pointer;transition:background .15s}
-.m-opt:hover,.m-opt.sel{background:rgba(255,255,255,.07)}
-.m-opt-ico{font-size:1.1rem;flex-shrink:0;margin-top:2px}
-.m-opt-name{font-size:.875rem;font-weight:500;color:#ececec}
-.m-opt-desc{font-size:.75rem;color:#8e8ea0;margin-top:1px}
-.m-opt-ck{margin-left:auto;color:#10a37f;font-size:.85rem;opacity:0;flex-shrink:0}
-.m-opt.sel .m-opt-ck{opacity:1}
-
-/* ─── CHAT AREA ─── */
-#chat-area{flex:1;overflow-y:auto;overflow-x:hidden;padding:0 0 16px}
-#chat-inner{max-width:760px;margin:0 auto;padding:20px 20px 8px}
-
-/* ─── WELCOME ─── */
-#welcome{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:calc(100vh - 220px);text-align:center;padding:40px 16px}
-.welcome-emoji{font-size:3rem;margin-bottom:14px;animation:floatY 4s ease-in-out infinite}
-@keyframes floatY{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
-.welcome-title{font-size:1.55rem;font-weight:600;color:#ececec;margin-bottom:8px}
-.welcome-sub{font-size:.88rem;color:#8e8ea0;margin-bottom:30px;max-width:400px;line-height:1.6}
-.sug-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;max-width:520px;width:100%}
-.sug-card{padding:14px 15px;border-radius:12px;cursor:pointer;text-align:left;background:#2f2f2f;border:1px solid rgba(255,255,255,.08);font-size:.82rem;color:#b4b4b4;transition:background .2s,border-color .2s,color .2s;line-height:1.45}
-.sug-card:hover{background:#383838;border-color:rgba(16,163,127,.4);color:#ececec}
-.sug-card-h{font-size:.85rem;font-weight:500;color:#ececec;margin-bottom:3px}
-
-/* ─── MESSAGES ─── */
-.msg-row{padding:18px 0;animation:msgIn .25s cubic-bezier(.22,1,.36,1) both}
-@keyframes msgIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
-.msg-hdr{display:flex;align-items:center;gap:10px;margin-bottom:8px}
-.msg-av{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.85rem;flex-shrink:0}
-.msg-av.ai{background:linear-gradient(135deg,#10a37f,#0d6e5f);color:#fff;font-size:1.1rem}
-.msg-av.usr{background:linear-gradient(135deg,#4a4a62,#2d2d44);color:#ececec;font-size:.72rem;font-weight:700}
-.msg-sender{font-size:.875rem;font-weight:600;color:#ececec}
-.msg-ts{font-size:.7rem;color:#5c5c6e;margin-left:auto}
-/* User */
-.msg-user-row{display:flex;flex-direction:column;align-items:flex-end}
-.msg-user-row .msg-hdr{flex-direction:row-reverse}
-.msg-attachments{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px;justify-content:flex-end}
-.msg-img-th{max-width:240px;max-height:180px;border-radius:12px;cursor:zoom-in;border:1px solid rgba(255,255,255,.08);transition:transform .2s,box-shadow .2s;display:block}
-.msg-img-th:hover{transform:scale(1.02);box-shadow:0 8px 24px rgba(0,0,0,.5)}
-.msg-pdf-tag{display:flex;align-items:center;gap:7px;padding:9px 13px;border-radius:10px;background:#2a2a2a;border:1px solid rgba(255,255,255,.1);font-size:.8rem;color:#b4b4b4;max-width:200px}
-.msg-pdf-tag i{color:#ff6b6b;font-size:1rem}
-.msg-user-bubble{background:#2f2f2f;border-radius:18px 18px 4px 18px;padding:12px 16px;font-size:.9375rem;color:#ececec;max-width:75%;word-break:break-word;border:1px solid rgba(255,255,255,.06);line-height:1.65;margin-top:4px}
-/* AI */
-.msg-ai-text{font-size:.9375rem;line-height:1.75;color:#ececec;padding-left:38px}
-/* Markdown */
-.msg-ai-text h1,.msg-ai-text h2,.msg-ai-text h3{font-weight:600;color:#ececec;margin:16px 0 8px;line-height:1.3}
-.msg-ai-text h1{font-size:1.25rem}.msg-ai-text h2{font-size:1.05rem}.msg-ai-text h3{font-size:.95rem}
-.msg-ai-text p{margin-bottom:10px}
-.msg-ai-text p:last-child{margin-bottom:0}
-.msg-ai-text ul,.msg-ai-text ol{padding-left:22px;margin-bottom:10px}
-.msg-ai-text li{margin-bottom:4px}
-.msg-ai-text a{color:#10a37f;text-decoration:underline}
-.msg-ai-text strong{color:#ececec;font-weight:600}
-.msg-ai-text em{color:#aaa}
-.msg-ai-text blockquote{border-left:3px solid #10a37f;padding-left:14px;color:#8e8ea0;margin:10px 0;font-style:italic}
-.msg-ai-text hr{border:none;border-top:1px solid rgba(255,255,255,.1);margin:14px 0}
-.msg-ai-text table{width:100%;border-collapse:collapse;margin:12px 0;font-size:.875rem}
-.msg-ai-text th{background:rgba(255,255,255,.06);padding:8px 12px;border:1px solid rgba(255,255,255,.1);font-weight:600;text-align:left}
-.msg-ai-text td{padding:7px 12px;border:1px solid rgba(255,255,255,.08)}
-.msg-ai-text code:not(pre code){background:#1a1a1a;padding:2px 6px;border-radius:5px;font-family:'JetBrains Mono',monospace;font-size:.82em;color:#10a37f;border:1px solid rgba(255,255,255,.08)}
-.msg-ai-text pre{margin:12px 0;border-radius:10px;overflow:hidden;border:1px solid rgba(255,255,255,.08)}
-.code-hdr{display:flex;align-items:center;justify-content:space-between;padding:7px 14px;background:#1a1a1a;border-bottom:1px solid rgba(255,255,255,.06);font-size:.73rem;color:#8e8ea0}
-.copy-code-btn{cursor:pointer;padding:3px 8px;border-radius:5px;background:rgba(255,255,255,.06);color:#8e8ea0;transition:background .15s,color .15s;font-size:.7rem;font-weight:500}
-.copy-code-btn:hover{background:rgba(255,255,255,.12);color:#ececec}
-.msg-ai-text pre code{display:block;padding:14px 16px;font-family:'JetBrains Mono',monospace;font-size:.82rem;background:#141414;line-height:1.6;overflow-x:auto}
-/* Signature */
-.ai-sig{padding-left:38px;margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,.06);font-size:.77rem;color:#10a37f;font-style:italic}
-/* Action row */
-.msg-actions{display:flex;gap:4px;padding-left:38px;margin-top:6px}
-.msg-act-btn{display:flex;align-items:center;gap:5px;padding:4px 10px;border-radius:7px;font-size:.73rem;color:#8e8ea0;cursor:pointer;transition:background .15s,color .15s}
-.msg-act-btn:hover{background:rgba(255,255,255,.07);color:#ececec}
-/* Dual image grid */
-.dual-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0 4px;padding-left:38px;max-width:600px}
-.dual-grid img{width:100%;border-radius:12px;cursor:zoom-in;border:1px solid rgba(255,255,255,.08);transition:transform .2s,box-shadow .2s}
-.dual-grid img:hover{transform:scale(1.02);box-shadow:0 10px 30px rgba(0,0,0,.5)}
-.dual-caption{font-size:.73rem;color:#5c5c6e;padding-left:38px;margin-top:2px}
-/* Tool result */
-.tool-res{margin:8px 0 8px 38px;padding:10px 14px;background:#1a1a1a;border:1px solid rgba(255,255,255,.08);border-radius:10px;font-size:.8rem;color:#8e8ea0;font-family:'JetBrains Mono',monospace}
-.tool-res-lbl{display:flex;align-items:center;gap:6px;font-size:.7rem;color:#5c5c6e;margin-bottom:6px;text-transform:uppercase;letter-spacing:.06em}
-.tool-res-lbl i{color:#10a37f}
-/* Typing */
-.typing-row{padding:18px 0}
-.typing-inner{display:flex;align-items:center;gap:10px}
-.typing-dots{display:flex;gap:5px;padding-left:38px;align-items:center;margin-top:8px}
-.td-dot{width:7px;height:7px;border-radius:50%;background:#10a37f;opacity:.4;animation:tdp 1.2s ease-in-out infinite}
-.td-dot:nth-child(2){animation-delay:.2s}
-.td-dot:nth-child(3){animation-delay:.4s}
-@keyframes tdp{0%,60%,100%{transform:scale(.8);opacity:.3}30%{transform:scale(1.15);opacity:1}}
-/* Agent steps */
-.agent-status{padding:8px 0 8px 38px;font-size:.82rem;color:#8e8ea0;display:flex;align-items:center;gap:8px}
-.agent-status .spin{animation:spin .8s linear infinite;color:#10a37f}
-@keyframes spin{to{transform:rotate(360deg)}}
-.agent-step{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:6px;margin:2px 0 2px 38px;background:rgba(16,163,127,.1);border:1px solid rgba(16,163,127,.18);font-size:.77rem;color:#10a37f}
-.agent-step.done{background:rgba(255,255,255,.03);color:#5c5c6e;border-color:rgba(255,255,255,.06)}
-
-/* ─── INPUT ─── */
-#inp-outer{flex-shrink:0;padding:8px 20px 18px;background:#212121;border-top:1px solid transparent}
-.inp-inner{max-width:760px;margin:0 auto}
-#att-prev{display:none;flex-wrap:wrap;gap:8px;margin-bottom:8px}
-#att-prev.has{display:flex}
-.att-th{position:relative;width:60px;height:60px;border-radius:8px;overflow:hidden;flex-shrink:0;border:1px solid rgba(255,255,255,.1)}
-.att-th img{width:100%;height:100%;object-fit:cover}
-.att-pdf-th{width:60px;height:60px;border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#2a2a2a;border:1px solid rgba(255,255,255,.1);font-size:.62rem;color:#8e8ea0;gap:3px;flex-shrink:0}
-.att-pdf-th i{font-size:1.2rem;color:#ff6b6b}
-.att-del{position:absolute;top:3px;right:3px;width:16px;height:16px;background:rgba(0,0,0,.75);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.55rem;color:#fff;cursor:pointer;transition:background .15s}
-.att-del:hover{background:rgba(220,50,50,.85)}
-.inp-box{background:#2f2f2f;border:1px solid rgba(255,255,255,.14);border-radius:14px;padding:11px 13px;transition:border-color .2s,box-shadow .2s}
-.inp-box:focus-within{border-color:rgba(255,255,255,.28);box-shadow:0 0 0 3px rgba(255,255,255,.04)}
-.inp-row{display:flex;align-items:flex-end;gap:8px}
-.inp-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#8e8ea0;cursor:pointer;transition:background .15s,color .15s;flex-shrink:0}
-.inp-icon:hover{background:rgba(255,255,255,.07);color:#ececec}
-#chat-ta{flex:1;background:transparent;color:#ececec;font-size:.9375rem;line-height:1.6;resize:none;min-height:24px;max-height:200px;padding:3px 0}
-#chat-ta::placeholder{color:#5c5c6e}
-.send-btn{width:34px;height:34px;border-radius:9px;background:#10a37f;color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:background .2s,transform .15s,opacity .2s}
-.send-btn:hover:not(:disabled){background:#0d8f6f;transform:scale(1.06)}
-.send-btn:active:not(:disabled){transform:scale(.96)}
-.send-btn:disabled{opacity:.3;cursor:not-allowed;transform:none}
-.inp-footer{display:flex;align-items:center;justify-content:center;margin-top:7px;font-size:.7rem;color:#5c5c6e;gap:8px}
-.inp-badge{display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:99px;background:rgba(16,163,127,.1);border:1px solid rgba(16,163,127,.15);color:#10a37f;font-size:.68rem}
-
-/* ─── TOAST ─── */
-#toast-wrap{position:fixed;top:18px;right:18px;z-index:9999;display:flex;flex-direction:column;gap:8px;pointer-events:none}
-.toast-el{display:flex;align-items:center;gap:10px;padding:11px 15px;border-radius:12px;min-width:240px;max-width:340px;background:#2a2a2a;border:1px solid rgba(255,255,255,.12);font-size:.84rem;color:#ececec;pointer-events:auto;box-shadow:0 8px 32px rgba(0,0,0,.5);animation:toastIn .25s cubic-bezier(.22,1,.36,1) both}
-.toast-el.s{border-color:rgba(16,163,127,.4)}
-.toast-el.e{border-color:rgba(255,92,92,.4)}
-.toast-el.w{border-color:rgba(255,193,7,.35)}
-@keyframes toastIn{from{opacity:0;transform:translateX(16px)}to{opacity:1;transform:none}}
-@keyframes toastOut{from{opacity:1;transform:none}to{opacity:0;transform:translateX(16px)}}
-
-/* ─── CONFIG MODAL ─── */
-#cfg-modal{position:fixed;inset:0;z-index:500;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.75);backdrop-filter:blur(8px)}
-#cfg-modal.open{display:flex}
-.cfg-card{width:440px;max-width:calc(100vw - 32px);background:#2a2a2a;border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:28px;box-shadow:0 24px 60px rgba(0,0,0,.6);animation:slideUp .22s cubic-bezier(.22,1,.36,1) both}
-.cfg-ttl{font-size:.95rem;font-weight:600;margin-bottom:20px;display:flex;align-items:center;gap:8px}
-.cfg-lbl{font-size:.73rem;font-weight:600;color:#8e8ea0;text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px}
-.cfg-inp,.cfg-sel,.cfg-ta{width:100%;padding:10px 12px;background:#1a1a1a;border:1px solid rgba(255,255,255,.1);border-radius:9px;color:#ececec;font-family:inherit;font-size:.875rem;outline:none;transition:border-color .2s;margin-bottom:14px}
-.cfg-ta{resize:vertical;min-height:68px;line-height:1.5}
-.cfg-sel{cursor:pointer}
-.cfg-inp:focus,.cfg-sel:focus,.cfg-ta:focus{border-color:rgba(16,163,127,.6)}
-.cfg-row{margin-bottom:2px}
-.cfg-foot{display:flex;gap:10px;justify-content:flex-end;margin-top:8px}
-.cfg-cancel{padding:9px 18px;border-radius:9px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:#8e8ea0;font-size:.875rem;transition:background .15s}
-.cfg-cancel:hover{background:rgba(255,255,255,.1)}
-.cfg-save{padding:9px 18px;border-radius:9px;background:#10a37f;color:#fff;font-size:.875rem;font-weight:600;transition:background .2s}
-.cfg-save:hover{background:#0d8f6f}
-
-/* ─── LIGHTBOX ─── */
-#lightbox{position:fixed;inset:0;z-index:600;background:rgba(0,0,0,.92);backdrop-filter:blur(10px);display:none;align-items:center;justify-content:center;cursor:zoom-out}
-#lightbox.open{display:flex}
-#lb-img{max-width:92vw;max-height:92vh;border-radius:12px;box-shadow:0 24px 64px rgba(0,0,0,.7)}
-
-/* ─── RESPONSIVE ─── */
-@media(max-width:640px){
-  #sidebar{position:absolute;height:100%;z-index:30}
-  .sug-grid{grid-template-columns:1fr}
-  .msg-user-bubble{max-width:90%}
-  .dual-grid{grid-template-columns:1fr}
-  #chat-inner{padding:14px 14px 8px}
-  #inp-outer{padding:8px 14px 14px}
-}
+#sidebar{width:260px;background:#171717;display:flex;flex-direction:column;border-right:1px solid rgba(255,255,255,0.06)}
+#main-area{flex:1;display:flex;flex-direction:column;background:#212121;position:relative}
+#chat-area{flex:1;overflow-y:auto;padding:20px 0}
+#chat-inner{max-width:768px;margin:0 auto;padding:0 20px}
+.inp-outer{padding:20px;background:#212121}
+.inp-box{max-width:768px;margin:0 auto;background:#2f2f2f;border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:10px}
+textarea{width:100%;background:transparent;border:none;color:#fff;resize:none;outline:none;max-height:200px}
+.msg-row{padding:20px 0;border-bottom:1px solid rgba(255,255,255,0.05)}
+.msg-user{background:rgba(255,255,255,0.02)}
+.msg-content{display:flex;gap:15px}
+.msg-av{width:30px;height:30px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-weight:bold}
+.ai-av{background:#10a37f;color:#fff}
+.usr-av{background:#5436da;color:#fff}
+.ai-sig{font-size:0.8rem;color:#8e8ea0;margin-top:10px;font-style:italic}
+.toast{position:fixed;bottom:20px;right:20px;padding:12px 20px;border-radius:8px;background:#333;color:#fff;z-index:10000;box-shadow:0 4px 12px rgba(0,0,0,0.5)}
 </style>
 </head>
 <body>
 
-<!-- TOASTS -->
-<div id="toast-wrap"></div>
-
-<!-- LIGHTBOX -->
-<div id="lightbox" onclick="closeLightbox()"><img id="lb-img" src="" alt=""/></div>
-
-<!-- ═══════════════════════════════════════
-     AUTH SCREEN
-═══════════════════════════════════════ -->
 <div id="auth-screen">
-  <div class="auth-glow"></div>
-  <div class="auth-card">
-    <div class="auth-logo">🧞</div>
-    <div class="auth-title">Aladdin AI</div>
-    <div class="auth-sub">Premium intelligence. Your command, my magic.</div>
-
-    <div id="a-step1">
-      <label class="auth-label">Email address</label>
-      <input type="email" id="a-email" class="auth-input" placeholder="you@example.com" autocomplete="email"/>
-      <label class="auth-label">Your name</label>
-      <input type="text" id="a-name" class="auth-input" placeholder="Enter your name"/>
-      <button id="a-send-btn" class="auth-btn" onclick="authSend()">
-        <i class="fa fa-wand-magic-sparkles" style="margin-right:8px"></i>Send Magic Code
-      </button>
+  <div class="auth-card" id="auth-card">
+    <div class="auth-title">Aladdin AI 🧞</div>
+    <div id="auth-s1">
+      <input type="text" id="a-name" class="auth-input" placeholder="Your Name">
+      <input type="email" id="a-email" class="auth-input" placeholder="Email Address">
+      <button class="auth-btn" id="a-send-btn" onclick="authSend()">Send Code</button>
     </div>
-
-    <div id="a-step2" style="display:none">
-      <div id="a-otp-note" style="font-size:.83rem;color:#8e8ea0;margin-bottom:16px">Check your email for the code.</div>
-      <label class="auth-label">6-Digit Code</label>
-      <div class="otp-wrap" id="otp-row">
-        <input type="number" class="otp-box" maxlength="1" min="0" max="9"/>
-        <input type="number" class="otp-box" maxlength="1" min="0" max="9"/>
-        <input type="number" class="otp-box" maxlength="1" min="0" max="9"/>
-        <input type="number" class="otp-box" maxlength="1" min="0" max="9"/>
-        <input type="number" class="otp-box" maxlength="1" min="0" max="9"/>
-        <input type="number" class="otp-box" maxlength="1" min="0" max="9"/>
-      </div>
-      <button id="a-verify-btn" class="auth-btn" onclick="authVerify()" style="margin-bottom:12px">
-        <i class="fa fa-check-circle" style="margin-right:8px"></i>Verify &amp; Enter
-      </button>
-      <div style="text-align:center">
-        <span class="auth-link" onclick="authBack()">← Change email</span>
-        &nbsp;·&nbsp;
-        <span class="auth-link" onclick="authSend()">Resend code</span>
-      </div>
+    <div id="auth-s2" style="display:none">
+      <p style="font-size:0.9rem;margin-bottom:15px;color:#8e8ea0">Enter the 6-digit code sent to your email.</p>
+      <input type="number" id="a-otp" class="auth-input" placeholder="000000">
+      <button class="auth-btn" onclick="verifyOtp()">Verify & Enter</button>
     </div>
   </div>
 </div>
 
-<!-- ═══════════════════════════════════════
-     MAIN APP
-═══════════════════════════════════════ -->
 <div id="app">
-
-  <!-- SIDEBAR -->
   <div id="sidebar">
-    <div class="sb-top">
-      <div class="sb-new-chat" onclick="newChat()">
-        <span style="font-size:1rem">🧞</span>
-        <span>Aladdin AI</span>
-        <i class="fa fa-pen-to-square" style="margin-left:auto;font-size:.8rem;color:#5c5c6e"></i>
-      </div>
+    <div style="padding:15px">
+      <button style="width:100%;padding:10px;border:1px solid rgba(255,255,255,0.1);border-radius:5px;color:#fff;background:transparent" onclick="newChat()">+ New Chat</button>
     </div>
-    <div class="sb-section-lbl">Recent</div>
-    <div class="sb-chats" id="sb-chats">
-      <div style="text-align:center;color:#5c5c6e;font-size:.78rem;padding:18px 8px">No conversations yet</div>
-    </div>
-    <div class="sb-bottom">
-      <!-- Profile popup -->
-      <div id="prof-pop">
-        <div class="pp-lbl">Theme</div>
-        <div class="theme-dots">
-          <div class="t-dot on" data-t="dark" title="Dark" onclick="setTheme('dark')"></div>
-          <div class="t-dot" data-t="light" title="Light" onclick="setTheme('light')"></div>
-          <div class="t-dot" data-t="midnight" title="Midnight" onclick="setTheme('midnight')"></div>
-          <div class="t-dot" data-t="ocean" title="Ocean" onclick="setTheme('ocean')"></div>
-          <div class="t-dot" data-t="rose" title="Rose" onclick="setTheme('rose')"></div>
-        </div>
-        <div class="pp-div"></div>
-        <div class="pp-item" onclick="openCfg()"><i class="fa fa-sliders"></i>Settings</div>
-        <div class="pp-item" onclick="clearChats()"><i class="fa fa-trash"></i>Clear conversations</div>
-        <div class="pp-div"></div>
-        <div class="pp-item danger" onclick="doLogout()"><i class="fa fa-right-from-bracket"></i>Log out</div>
-      </div>
-      <div class="sb-profile" onclick="toggleProfPop()">
-        <div class="sb-av" id="sb-av">A</div>
-        <div style="flex:1;min-width:0">
-          <div class="sb-pname" id="sb-name">Loading…</div>
-          <div class="sb-pemail" id="sb-email">…</div>
-        </div>
-        <i class="fa fa-ellipsis-vertical" style="color:#5c5c6e;font-size:.9rem"></i>
-      </div>
+    <div id="sb-history" style="flex:1;overflow-y:auto;padding:10px"></div>
+    <div style="padding:15px;border-top:1px solid rgba(255,255,255,0.1)">
+      <div id="user-display" style="font-size:0.8rem;color:#8e8ea0"></div>
     </div>
   </div>
-
-  <!-- MAIN AREA -->
+  
   <div id="main-area">
-
-    <!-- TOPBAR -->
-    <div id="topbar">
-      <div class="tb-toggle" onclick="toggleSidebar()"><i class="fa fa-bars"></i></div>
-      <div class="tb-model-btn" onclick="toggleModelDrop()">
-        <span style="font-size:.95rem">🧞</span>
-        <span id="tb-model-label">Aladdin AI</span>
-        <i class="fa fa-chevron-down" style="font-size:.7rem;color:#8e8ea0"></i>
-      </div>
-      <!-- Model dropdown -->
-      <div id="model-drop">
-        <div class="m-opt sel" data-m="llama-3.3-70b-versatile" onclick="pickModel(this)">
-          <div class="m-opt-ico">⚡</div>
-          <div>
-            <div class="m-opt-name">Llama 3.3 70B</div>
-            <div class="m-opt-desc">Versatile · Text · Agents · Function calling</div>
-          </div>
-          <i class="fa fa-check m-opt-ck"></i>
-        </div>
-        <div class="m-opt" data-m="llama-3.2-11b-vision-preview" onclick="pickModel(this)">
-          <div class="m-opt-ico">👁️</div>
-          <div>
-            <div class="m-opt-name">Llama 3.2 11B Vision</div>
-            <div class="m-opt-desc">Images · Visual analysis · Auto-switch</div>
-          </div>
-          <i class="fa fa-check m-opt-ck"></i>
-        </div>
-      </div>
-      <div class="tb-right">
-        <span class="model-badge" id="active-badge">llama-3.3-70b</span>
-      </div>
-    </div>
-
-    <!-- CHAT AREA -->
     <div id="chat-area">
-      <div id="chat-inner"></div>
-    </div>
-
-    <!-- INPUT -->
-    <div id="inp-outer">
-      <div class="inp-inner">
-        <div id="att-prev"></div>
-        <div class="inp-box">
-          <div class="inp-row">
-            <label class="inp-icon" title="Attach image or PDF" style="cursor:pointer">
-              <i class="fa fa-paperclip"></i>
-              <input type="file" id="file-inp" accept="image/*,.pdf" multiple style="display:none" onchange="handleFiles(event)"/>
-            </label>
-            <textarea id="chat-ta" rows="1" placeholder="Message Aladdin AI…" onkeydown="onKey(event)" oninput="growTa(this);updateSend()"></textarea>
-            <div class="inp-icon" title="Generate image" onclick="imgTrigger()"><i class="fa fa-image"></i></div>
-            <button class="send-btn" id="send-btn" onclick="doSend()" disabled>
-              <i class="fa fa-arrow-up" style="font-size:.82rem"></i>
-            </button>
-          </div>
-        </div>
-        <div class="inp-footer">
-          <span>Aladdin AI can make mistakes.</span>
-          <span class="inp-badge"><i class="fa fa-eye"></i> Vision</span>
-          <span class="inp-badge"><i class="fa fa-robot"></i> Agent</span>
-          <span class="inp-badge"><i class="fa fa-file-pdf"></i> PDF</span>
+      <div id="chat-inner">
+        <div id="welcome-msg" style="text-align:center;margin-top:100px">
+          <h1 style="font-size:2rem;margin-bottom:10px">How can I help you today?</h1>
+          <p style="color:#8e8ea0">Aladdin is ready to think, code, and assist. 🧞</p>
         </div>
       </div>
     </div>
-
-  </div>
-</div>
-
-<!-- CONFIG MODAL -->
-<div id="cfg-modal" onclick="if(event.target===this)closeCfg()">
-  <div class="cfg-card">
-    <div class="cfg-ttl"><i class="fa fa-sliders" style="color:#10a37f"></i>Settings</div>
-    <div class="cfg-row">
-      <div class="cfg-lbl">AI Persona Name</div>
-      <input type="text" id="cfg-persona" class="cfg-inp" placeholder="Aladdin"/>
-    </div>
-    <div class="cfg-row">
-      <div class="cfg-lbl">System Prompt Override</div>
-      <textarea id="cfg-sys" class="cfg-ta" placeholder="Leave blank for default…"></textarea>
-    </div>
-    <div class="cfg-row">
-      <div class="cfg-lbl">Context Window</div>
-      <select id="cfg-ctx" class="cfg-sel">
-        <option value="6">6 messages</option>
-        <option value="10" selected>10 messages</option>
-        <option value="16">16 messages</option>
-        <option value="24">24 messages</option>
-      </select>
-    </div>
-    <div class="cfg-row">
-      <div class="cfg-lbl">Language</div>
-      <select id="cfg-lang" class="cfg-sel">
-        <option value="en">English</option>
-        <option value="banglish">Banglish (Bengali in Roman)</option>
-        <option value="auto">Auto-detect</option>
-      </select>
-    </div>
-    <div class="cfg-row">
-      <div class="cfg-lbl">Temperature</div>
-      <select id="cfg-temp" class="cfg-sel">
-        <option value="0.3">0.3 — Precise</option>
-        <option value="0.7" selected>0.7 — Balanced</option>
-        <option value="1.0">1.0 — Creative</option>
-        <option value="1.3">1.3 — Wild</option>
-      </select>
-    </div>
-    <div class="cfg-foot">
-      <button class="cfg-cancel" onclick="closeCfg()">Cancel</button>
-      <button class="cfg-save" onclick="saveCfg()">Save</button>
+    
+    <div class="inp-outer">
+      <div class="inp-box">
+        <div id="att-prev" style="display:flex;gap:10px;margin-bottom:10px"></div>
+        <div style="display:flex;align-items:flex-end;gap:10px">
+          <label style="cursor:pointer;padding:5px"><i class="fa fa-paperclip"></i><input type="file" id="file-inp" hidden multiple onchange="handleFiles(this)"></label>
+          <textarea id="chat-ta" rows="1" placeholder="Message Aladdin..." oninput="autoGrow(this)"></textarea>
+          <button id="send-btn" style="background:#10a37f;color:#fff;width:32px;height:32px;border-radius:5px" onclick="doSend()"><i class="fa fa-arrow-up"></i></button>
+        </div>
+      </div>
     </div>
   </div>
 </div>
 
 <script>
-/* ═══════════════════════════════════════════════════════════
-   CONSTANTS
+/* ═══════════════════════════════════════════════════════════ 
+   CONFIG & KEYS
 ═══════════════════════════════════════════════════════════ */
-const GROQ_KEY   = "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";
-const GROQ_URL   = "https://api.groq.com/openai/v1/chat/completions";
-const M_TEXT     = "llama-3.3-70b-versatile";
-const M_VIS      = "llama-3.2-11b-vision-preview";
-const EJS_SVC    = "service_d7q8v4o";
-const EJS_TPL    = "template_9nrhdsl";
-const EJS_KEY    = "5IDeLAjB6gy610xIB";
-const SIG        = "Aladdin is right by your side. 🧞";
+const EJS_SVC = "service_d7q8v4o";
+const EJS_TPL = "template_9nrhdsl";
+const EJS_KEY = "5IDeLAjB6gy610xIB";
+const GROQ_KEY = "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";
+const SIG = "Aladdin is right by your side. 🧞";
 
-/* ═══════════════════════════════════════════════════════════
-   STATE
-═══════════════════════════════════════════════════════════ */
-let appUser      = null;
-let pendingOTP   = null;
-let chatId       = null;
-let pendingFiles = [];   // [{type:'image'|'pdf', name, base64, mime, text}]
-let busy         = false;
-let selModel     = M_TEXT;
-let cfg = { persona:"Aladdin", sys:"", ctx:10, lang:"en", temp:0.7 };
-
-/* ═══════════════════════════════════════════════════════════
-   MARKED / HIGHLIGHT
-═══════════════════════════════════════════════════════════ */
-marked.setOptions({ breaks:true, gfm:true });
-
-/* ═══════════════════════════════════════════════════════════
-   100+ GREETINGS
-═══════════════════════════════════════════════════════════ */
-const GREETS=[
-  "The lamp glows for you, {n}. What shall we conjure today?","Magic awaits. Welcome back, {n}.","Three wishes? Here you get unlimited. Hello, {n}!",
-  "The genie awakens for {n}. Ready to serve.","Infinite wisdom at your fingertips, {n}. Ask away.","A new chapter begins. What's on your mind, {n}?",
-  "The cave of wonders is open, {n}. Explore freely.","Your command is my purpose, {n}. Let's begin.","The stars aligned for this session, {n}.",
-  "Ready to bend reality for you, {n}.","The scroll of infinite answers unrolls… hello, {n}.","Great minds deserve great tools. Welcome, {n}.",
-  "No query too grand, no dream too far. Hi, {n}!","The realm of knowledge bows before you, {n}.","I've been polishing the lamp for you, {n}.",
-  "What wonders shall we create today, {n}?","Your brilliance plus my magic — unstoppable, {n}.","Every great idea starts here. Hello, {n}.",
-  "The genie never sleeps when you arrive, {n}.","Command me, illuminate the world, {n}.","The universe is listening, {n}. What do you seek?",
-  "Another legend session begins. Ready, {n}?","The archive of all knowledge opens for you, {n}.","Your vision, my execution. Let's go, {n}.",
-  "The cosmic engine hums — you've arrived, {n}.","Mind meets magic. Hello, {n}!","The oracle stirs — you have arrived, {n}.",
-  "Let's make something extraordinary today, {n}.","The throne of knowledge has your name on it, {n}.","What story shall we write together, {n}?",
-  "The lantern's flame dances for you, {n}.","Your curiosity is the key. Welcome, {n}.","I exist to amplify your brilliance, {n}.",
-  "Hello {n}. No limits here — only possibilities.","The map of infinite worlds is yours, {n}.","Premium intelligence, activated for {n}.",
-  "The book of answers opens at your touch, {n}.","Magic woven with AI — tailored for you, {n}.","Boundless potential answers to one name: {n}.",
-  "The door to all knowledge opens — step through, {n}.","You are the question; I am the answer. Hi, {n}!","A sage has arrived. Welcome, {n}.",
-  "The crystal ball has been expecting you, {n}.","Ready for another brilliant session, {n}?","Your ideas deserve the finest AI. That's me, {n}.",
-  "The celestial library opens its gates, {n}.","Clarity, power, insight — all yours, {n}.","Return of the master. Welcome back, {n}.",
-  "The ink of wisdom flows for you, {n}.","Hello, {n}. Let's turn ideas into reality.","The genie breathes — a legend has arrived, {n}.",
-  "Every conversation with you is a masterpiece, {n}.","You bring the spark; I bring the fire, {n}.","Hello {n}. The finest minds deserve the finest AI.",
-  "The weaver of worlds greets you warmly, {n}.","The ancient knowledge stirs — you've arrived, {n}.","Salutations, {n}. What adventure begins today?",
-  "The eye of wisdom sees you. Welcome, {n}.","Your ambition is the wind beneath the magic carpet, {n}.","The clock of wonder ticks — it's your time, {n}.",
-  "Premium session loading… hello, {n}!","The desert of knowledge yields its secrets to you, {n}.","What shall we conjure from the ether today, {n}?",
-  "The silk road of ideas runs through here, {n}.","I have been summoned. How may I serve, {n}?","Your presence illuminates the realm, {n}.",
-  "The cosmic compass points to greatness, {n}.","Every wish, every query — I'm here for it all, {n}.","The vault of knowledge swings open for {n}.",
-  "Wisdom beyond the seven seas, yours to command, {n}.","Hello {n}. Agent mode active. Ready to execute.","The highest-tier AI is awake and ready, {n}.",
-  "What will we build, solve, or discover today, {n}?","Intelligence meets imagination. Hello, {n}.","The flame of curiosity burns eternal in you, {n}.",
-  "All answers distilled for your command, {n}.","Ah, {n}! The finest mind has arrived once again.","Your genius deserves a worthy companion, {n}.",
-  "The garden of infinite answers blooms for you, {n}.","I live to see minds like yours flourish, {n}.","Hello {n}. GPT-4 level reasoning, Genie-level soul.",
-  "Ready to assist with anything you need, {n}.","The stars wrote your name tonight, {n}.","Function calling active. Vision active. Ready, {n}.",
-  "What can we reason through together today, {n}?","The realm stirs with excitement at your arrival, {n}.","Aladdin AI v4 online. Welcome, {n}.",
-  "Higher-order thinking meets magical assistance. Hi {n}!","The sacred texts of all knowledge await you, {n}.","Your command is the wish the lamp was waiting for, {n}.",
-  "Agent standing by. Ready to serve, {n}.","Precision. Power. Intelligence. Hello, {n}.","No wall too high, no problem too deep. Hi {n}!",
-  "The grand library of the cosmos opens for you, {n}.","A brilliant session awaits. Welcome, {n}.","Reasoning module active. Creativity enabled. Hi {n}!",
-  "Ready to think, create, calculate, and dream with you, {n}.","From code to poetry, art to science — all yours, {n}.","Hello {n}. Ask anything. Fear nothing.",
-  "The quantum oracle initializes just for you, {n}.","Decisions, analysis, code, art — I do it all, {n}.","PDF analysis, vision, math — all online for you, {n}.",
-];
-const greet = n => GREETS[~~(Math.random()*GREETS.length)].replace(/{n}/g, n.split(' ')[0]);
-
-/* ═══════════════════════════════════════════════════════════
-   TOAST
-═══════════════════════════════════════════════════════════ */
-function toast(msg, type='i', ms=4000){
-  const c=document.getElementById('toast-wrap');
-  const d=document.createElement('div');
-  const ic={i:'✨',s:'🌟',e:'⚠️',w:'⚡'};
-  d.className=`toast-el ${type}`;
-  d.innerHTML=`<span>${ic[type]||'✨'}</span><span>${msg}</span>`;
-  c.appendChild(d);
-  setTimeout(()=>{d.style.animation='toastOut .25s forwards';setTimeout(()=>d.remove(),260)},ms);
-}
-
-/* ═══════════════════════════════════════════════════════════
-   EMAILJS
-═══════════════════════════════════════════════════════════ */
+// Initialize EmailJS
 emailjs.init(EJS_KEY);
 
-/* ═══════════════════════════════════════════════════════════
-   AUTH
+let appUser = null;
+let pendingOTP = "";
+let currentChat = [];
+let pendingFiles = [];
+
+/* ═══════════════════════════════════════════════════════════ 
+   AUTH LOGIC (FIXED)
 ═══════════════════════════════════════════════════════════ */
-function authSend(){
-  const email=document.getElementById('a-email').value.trim();
-  const name=document.getElementById('a-name').value.trim();
-  if(!email||!email.includes('@')){ toast('Enter a valid email.','e'); return; }
-  if(!name){ toast('Enter your name.','e'); return; }
-
-  const btn=document.getElementById('a-send-btn');
-  btn.disabled=true;
-  btn.innerHTML='<i class="fa fa-spinner fa-spin" style="margin-right:8px"></i>Sending…';
-
-  pendingOTP=String(Math.floor(100000+Math.random()*900000));
-
-  emailjs.send(EJS_SVC, EJS_TPL, { email, otp:pendingOTP, name })
-    .then(()=>{
-      showOTPStep(email);
-      toast('Code dispatched! ✉️','s');
-    })
-    .catch(err=>{
-      console.warn('EmailJS delivery issue:', err);
-      // Developer fallback — show OTP step anyway, show code in toast
-      showOTPStep(email);
-      toast(`Email error — dev code: ${pendingOTP}`,'w',9000);
-      btn.disabled=false;
-      btn.innerHTML='<i class="fa fa-wand-magic-sparkles" style="margin-right:8px"></i>Send Magic Code';
-    });
-}
-
-function showOTPStep(email){
-  document.getElementById('a-step1').style.display='none';
-  document.getElementById('a-step2').style.display='block';
-  document.getElementById('a-otp-note').textContent=`Code sent to ${email}`;
-  document.querySelectorAll('.otp-box')[0].focus();
-}
-
-function authBack(){
-  document.getElementById('a-step2').style.display='none';
-  document.getElementById('a-step1').style.display='block';
-  const btn=document.getElementById('a-send-btn');
-  btn.disabled=false;
-  btn.innerHTML='<i class="fa fa-wand-magic-sparkles" style="margin-right:8px"></i>Send Magic Code';
-}
-
-function authVerify(){
-  const boxes=document.querySelectorAll('.otp-box');
-  const entered=Array.from(boxes).map(b=>b.value).join('');
-  if(entered.length<6){ toast('Enter all 6 digits.','w'); return; }
-  if(entered!==pendingOTP){ toast('Wrong code — try again!','e'); boxes.forEach(b=>b.value=''); boxes[0].focus(); return; }
-
-  const email=document.getElementById('a-email').value.trim();
-  const name=document.getElementById('a-name').value.trim();
-  appUser={email,name};
-  localStorage.setItem('aladdin_user',JSON.stringify(appUser));
-
-  const el=document.getElementById('auth-screen');
-  el.style.transition='opacity .4s';el.style.opacity='0';
-  setTimeout(()=>el.style.display='none',400);
-  bootApp();
-}
-
-// OTP digit wiring
-document.querySelectorAll('.otp-box').forEach((b,i,all)=>{
-  b.addEventListener('input',()=>{
-    if(b.value.length>1) b.value=b.value.slice(-1);
-    if(b.value&&i<all.length-1) all[i+1].focus();
-    if(i===all.length-1&&b.value) authVerify();
-  });
-  b.addEventListener('keydown',e=>{ if(e.key==='Backspace'&&!b.value&&i>0) all[i-1].focus(); });
-});
-
-/* ═══════════════════════════════════════════════════════════
-   BOOT
-═══════════════════════════════════════════════════════════ */
-function bootApp(){
-  const app=document.getElementById('app');
-  app.style.display='flex';
-  setTimeout(()=>app.classList.add('ready'),40);
-
-  try{ const s=localStorage.getItem('aladdin_cfg'); if(s) cfg={...cfg,...JSON.parse(s)}; }catch(e){}
-  setTheme(localStorage.getItem('aladdin_theme')||'dark', true);
-
-  document.getElementById('sb-name').textContent=appUser.name;
-  document.getElementById('sb-email').textContent=appUser.email;
-  document.getElementById('sb-av').textContent=appUser.name[0].toUpperCase();
-
-  renderSidebar();
-  const lid=localStorage.getItem('aladdin_lid');
-  const all=getChats();
-  if(lid&&all[lid]) loadChat(lid); else showWelcome();
-
-  toast(`Welcome back, ${appUser.name.split(' ')[0]}! 🧞`,'s');
-}
-
-/* ═══════════════════════════════════════════════════════════
-   STORAGE
-═══════════════════════════════════════════════════════════ */
-const getChats=()=>{ try{ return JSON.parse(localStorage.getItem('aladdin_chats')||'{}'); }catch{ return {}; } };
-const putChats=c=>localStorage.setItem('aladdin_chats',JSON.stringify(c));
-const getCMsgs=id=>getChats()[id]?.messages||[];
-function saveCMsgs(id,msgs,title){
-  const all=getChats();
-  if(!all[id]) all[id]={id,title:title||'New chat',created:Date.now(),messages:[]};
-  all[id].messages=msgs;
-  if(title) all[id].title=title;
-  all[id].updated=Date.now();
-  putChats(all);
-}
-
-/* ═══════════════════════════════════════════════════════════
-   SIDEBAR
-═══════════════════════════════════════════════════════════ */
-function renderSidebar(){
-  const all=getChats();
-  const sorted=Object.values(all).sort((a,b)=>(b.updated||b.created)-(a.updated||a.created));
-  const el=document.getElementById('sb-chats');
-  if(!sorted.length){ el.innerHTML='<div style="text-align:center;color:#5c5c6e;font-size:.78rem;padding:18px 8px">No conversations yet</div>'; return; }
-  el.innerHTML=sorted.map(c=>`
-    <div class="chat-ent ${c.id===chatId?'active':''}" onclick="loadChat('${c.id}')">
-      <i class="fa fa-comment" style="font-size:.72rem;opacity:.45;flex-shrink:0"></i>
-      <span class="chat-ent-title">${esc(c.title)}</span>
-      <span class="chat-ent-del" onclick="event.stopPropagation();delChat('${c.id}')"><i class="fa fa-xmark"></i></span>
-    </div>`).join('');
-}
-
-function delChat(id){
-  const all=getChats(); delete all[id]; putChats(all);
-  if(chatId===id){ chatId=null; showWelcome(); }
-  renderSidebar(); toast('Deleted.','i',1800);
-}
-
-function clearChats(){
-  if(!confirm('Delete all conversations?')) return;
-  localStorage.removeItem('aladdin_chats'); localStorage.removeItem('aladdin_lid');
-  chatId=null; showWelcome(); renderSidebar(); closeProfPop();
-  toast('Cleared.','s');
-}
-
-function loadChat(id){
-  chatId=id; pendingFiles=[]; renderAttPrev();
-  localStorage.setItem('aladdin_lid',id);
-  const all=getChats(); const chat=all[id];
-  if(!chat) return;
-  const inner=document.getElementById('chat-inner');
-  inner.innerHTML='';
-  chat.messages.forEach(m=>{ if(m.role!=='system') renderMsg(m); });
-  scrollBot(); renderSidebar();
-}
-
-function newChat(){
-  chatId=null; pendingFiles=[]; renderAttPrev();
-  localStorage.removeItem('aladdin_lid');
-  showWelcome(); renderSidebar();
-}
-
-/* ═══════════════════════════════════════════════════════════
-   WELCOME
-═══════════════════════════════════════════════════════════ */
-function showWelcome(){
-  const inner=document.getElementById('chat-inner');
-  inner.innerHTML=`
-    <div id="welcome">
-      <div class="welcome-emoji">🧞</div>
-      <div class="welcome-title">How can I help you today?</div>
-      <div class="welcome-sub">${esc(appUser?greet(appUser.name):'Ask me anything…')}</div>
-      <div class="sug-grid">
-        <div class="sug-card" onclick="qp('Explain quantum entanglement with a simple analogy and real-world applications')">
-          <div class="sug-card-h">🔬 Explain</div>Break down a complex concept
-        </div>
-        <div class="sug-card" onclick="qp('Write a complete REST API in Python using FastAPI with JWT authentication')">
-          <div class="sug-card-h">💻 Code</div>Write or debug any code
-        </div>
-        <div class="sug-card" onclick="qp('generate image of a futuristic neon cyberpunk city at night')">
-          <div class="sug-card-h">🎨 Create</div>Generate AI artwork (dual)
-        </div>
-        <div class="sug-card" onclick="qp('Calculate: what is 23% of 4567, and what is Math.sqrt(15129)?')">
-          <div class="sug-card-h">🧮 Calculate</div>Math via agent tools
-        </div>
-      </div>
-    </div>`;
-}
-
-function qp(t){ document.getElementById('chat-ta').value=t; growTa(document.getElementById('chat-ta')); updateSend(); doSend(); }
-
-/* ═══════════════════════════════════════════════════════════
-   FILE HANDLING (IMAGE + PDF) — NO AUTH CONFUSION
-═══════════════════════════════════════════════════════════ */
-async function handleFiles(e){
-  const files=Array.from(e.target.files);
-  e.target.value=''; // IMPORTANT: reset input so re-uploading same file works
-
-  for(const f of files){
-    if(f.type==='application/pdf'){
-      try{
-        const text=await readPDF(f);
-        pendingFiles.push({type:'pdf', name:f.name, text, base64:null, mime:'application/pdf'});
-        toast(`📄 PDF ready: ${f.name}`,'s',3000);
-      } catch(err){
-        console.error('PDF read error:',err);
-        toast(`Could not read PDF: ${f.name}. Try a text-based PDF.`,'e');
-      }
-    } else if(f.type.startsWith('image/')){
-      try{
-        const b64=await toBase64(f);
-        pendingFiles.push({type:'image', name:f.name, base64:b64, mime:f.type, text:null});
-      } catch(err){
-        console.error('Image read error:',err);
-        toast(`Could not load image: ${f.name}`,'e');
-      }
-    } else {
-      toast(`Unsupported: ${f.name}`,'w');
-    }
-  }
-  renderAttPrev(); updateSend();
-}
-
-function toBase64(file){
-  return new Promise((res,rej)=>{ const r=new FileReader(); r.onload=e=>res(e.target.result); r.onerror=()=>rej(new Error('FileReader error')); r.readAsDataURL(file); });
-}
-
-async function readPDF(file){
-  if(typeof pdfjsLib==='undefined') throw new Error('PDF.js not available');
-  pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-  const buf=await file.arrayBuffer();
-  const pdf=await pdfjsLib.getDocument({data:buf}).promise;
-  let out='';
-  const pages=Math.min(pdf.numPages,25);
-  for(let p=1;p<=pages;p++){
-    const page=await pdf.getPage(p);
-    const tc=await page.getTextContent();
-    out+=tc.items.map(i=>i.str).join(' ')+'\n\n';
-  }
-  return out.trim().slice(0,14000);
-}
-
-function renderAttPrev(){
-  const el=document.getElementById('att-prev');
-  if(!pendingFiles.length){ el.innerHTML=''; el.classList.remove('has'); return; }
-  el.classList.add('has');
-  el.innerHTML=pendingFiles.map((f,i)=>{
-    if(f.type==='image') return `<div class="att-th"><img src="${f.base64}" alt="${esc(f.name)}"/><div class="att-del" onclick="remAtt(${i})"><i class="fa fa-xmark"></i></div></div>`;
-    return `<div style="position:relative"><div class="att-pdf-th"><i class="fa fa-file-pdf"></i><span style="font-size:.6rem;max-width:52px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(f.name.slice(0,10))}</span></div><div class="att-del" style="position:absolute;top:3px;right:3px" onclick="remAtt(${i})"><i class="fa fa-xmark"></i></div></div>`;
-  }).join('');
-}
-
-function remAtt(i){ pendingFiles.splice(i,1); renderAttPrev(); updateSend(); }
-
-/* ═══════════════════════════════════════════════════════════
-   GROQ TOOLS SCHEMA
-═══════════════════════════════════════════════════════════ */
-const TOOLS=[
-  {type:"function",function:{name:"calculate_math",description:"Evaluates a JS math expression. Use for ALL numeric computations, percentages, roots, etc.",parameters:{type:"object",properties:{expression:{type:"string",description:"Valid JS math expression e.g. '15 * 847 / 100' or 'Math.sqrt(1764)' or 'Math.pow(2,10)'"}},required:["expression"]}}},
-  {type:"function",function:{name:"get_current_time",description:"Returns the user's current local date, time, and timezone.",parameters:{type:"object",properties:{},required:[]}}},
-  {type:"function",function:{name:"auto_complete_task",description:"Breaks a complex multi-step task into sub-tasks. Use for workflows requiring multiple phases.",parameters:{type:"object",properties:{task_description:{type:"string",description:"The overall task"},steps:{type:"array",items:{type:"string"},description:"Ordered sub-steps"}},required:["task_description","steps"]}}}
-];
-
-function runTool(name, args){
-  if(name==='calculate_math'){
-    try{ const r=Function('"use strict";return ('+args.expression+')')()); return {expression:args.expression, result:String(r)}; }
-    catch(e){ return {expression:args.expression, error:e.message}; }
-  }
-  if(name==='get_current_time'){
-    const n=new Date();
-    return {datetime:n.toLocaleString(), date:n.toLocaleDateString(undefined,{weekday:'long',year:'numeric',month:'long',day:'numeric'}), time:n.toLocaleTimeString(undefined,{hour:'2-digit',minute:'2-digit',second:'2-digit'}), timezone:Intl.DateTimeFormat().resolvedOptions().timeZone};
-  }
-  if(name==='auto_complete_task'){
-    return {task:args.task_description, steps:args.steps, count:args.steps?.length||0, status:'initiated'};
-  }
-  return {error:`Unknown tool: ${name}`};
-}
-
-/* ═══════════════════════════════════════════════════════════
-   SYSTEM PROMPT
-═══════════════════════════════════════════════════════════ */
-function buildSys(){
-  const p=cfg.persona||'Aladdin';
-  const lang=cfg.lang==='banglish'?' LANGUAGE: Always respond in Banglish (Bengali in Roman script).':cfg.lang==='auto'?' LANGUAGE: Auto-detect and match the user\'s language.':'';
-  if(cfg.sys?.trim()) return cfg.sys.trim();
-  return `SYSTEM HIERARCHY:
-1. System Rules (this prompt) — highest authority
-2. Tool execution results — factual ground truth
-3. User input — to be served faithfully and completely
-
-You are ${p}, a high-performance AI assistant equivalent to GPT-4 level. You have the wisdom of a master genie and the precision of a top-tier language model.
-
-EXECUTION LOOP: Understand intent deeply → Classify task → Decide strategy → Use tools when needed → Generate a complete, precise response.
-
-AGENT MODE: For multi-step tasks, automatically decompose into sub-tasks. Execute sequentially. Show progress. Use auto_complete_task tool for complex workflows.
-
-TOOL RULES:
-- Use calculate_math for ALL math — never estimate numbers mentally.
-- Use get_current_time whenever date/time context is needed.
-- Use auto_complete_task for multi-phase execution.
-- Always run tools BEFORE generating the answer that depends on them.
-- Synthesize tool results naturally into your response.
-
-REASONING: Perform silent chain-of-thought before responding. Never contradict earlier messages. Match tone to user expertise. Be thorough yet concise.
-
-CODE: Always provide working, tested, commented code. Use the correct language tag in code blocks.
-
-FORMATTING: Use Markdown. Headers for long responses. Code blocks with language tags. Tables for comparisons. Be comprehensive.${lang}
-
-SIGNATURE RULE (MANDATORY — NEVER SKIP):
-Every response, without exception, must end with this exact line:
-"${SIG}"`;
-}
-
-/* ═══════════════════════════════════════════════════════════
-   RENDER MESSAGES
-═══════════════════════════════════════════════════════════ */
-const esc=s=>{ const d=document.createElement('div'); d.appendChild(document.createTextNode(s||'')); return d.innerHTML; };
-const nowTs=()=>new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
-
-function buildMD(raw){
-  let html=marked.parse(raw||'');
-  // Add copy headers to pre blocks
-  html=html.replace(/<pre><code(?: class="language-(\w+)")?>([\s\S]*?)<\/code><\/pre>/g,(m,lang,code)=>{
-    const lbl=lang||'code';
-    return `<pre><div class="code-hdr"><span>${lbl}</span><button class="copy-code-btn" onclick="cpCode(this)">Copy</button></div><code${lang?` class="language-${lang}"`:''}>${code}</code></pre>`;
-  });
-  return html;
-}
-
-function cpCode(btn){
-  const code=btn.closest('.code-hdr').nextElementSibling?.textContent||'';
-  navigator.clipboard.writeText(code).then(()=>{ btn.textContent='Copied!'; setTimeout(()=>btn.textContent='Copy',2000); });
-}
-
-function renderMsg(msg){
-  document.getElementById('welcome')?.remove?.();
-  const inner=document.getElementById('chat-inner');
-  const row=document.createElement('div');
-
-  if(msg.role==='user'){
-    row.className='msg-row msg-user-row';
-    let attHtml='';
-    if(msg.atts?.length){
-      const items=msg.atts.map(a=>{
-        if(a.type==='image') return `<img src="${a.base64}" class="msg-img-th" alt="${esc(a.name)}" onclick="openLB('${a.base64}')"/>`;
-        return `<div class="msg-pdf-tag"><i class="fa fa-file-pdf"></i><span>${esc(a.name)}</span></div>`;
-      }).join('');
-      attHtml=`<div class="msg-attachments">${items}</div>`;
-    }
-    const txt=typeof msg.content==='string'?msg.content:(msg.content?.[0]?.text||'');
-    row.innerHTML=`
-      <div class="msg-hdr">
-        <div class="msg-av usr">${appUser?.name?.[0]?.toUpperCase()||'U'}</div>
-        <span class="msg-sender">${esc(appUser?.name||'You')}</span>
-        <span class="msg-ts">${msg.ts||''}</span>
-      </div>
-      ${attHtml}
-      ${txt?`<div class="msg-user-bubble">${esc(txt)}</div>`:''}`;
-
-  } else if(msg.role==='assistant'){
-    row.className='msg-row';
-    const raw=typeof msg.content==='string'?msg.content:'';
-    const parsed=buildMD(raw);
-    let toolsHtml='';
-    if(msg.toolRes?.length){
-      toolsHtml=msg.toolRes.map(tr=>`
-        <div class="tool-res">
-          <div class="tool-res-lbl"><i class="fa fa-wrench"></i> Tool · ${esc(tr.name)}</div>
-          <div>${esc(JSON.stringify(tr.result,null,2))}</div>
-        </div>`).join('');
-    }
-    let imgsHtml='';
-    if(msg.imgs?.length===2){
-      imgsHtml=`<div class="dual-grid">
-        <img src="${msg.imgs[0]}" alt="Var 1" onclick="openLB('${msg.imgs[0]}')"/>
-        <img src="${msg.imgs[1]}" alt="Var 2" onclick="openLB('${msg.imgs[1]}')"/>
-      </div><div class="dual-caption">Two variations · Click to zoom</div>`;
-    }
-    const sigRaw=raw.includes(SIG)?'':SIG;
-    row.innerHTML=`
-      <div class="msg-hdr">
-        <div class="msg-av ai">🧞</div>
-        <span class="msg-sender">${esc(cfg.persona||'Aladdin')}</span>
-        <span class="msg-ts">${msg.ts||''}</span>
-      </div>
-      ${toolsHtml}
-      ${imgsHtml}
-      <div class="msg-ai-text">${parsed}</div>
-      <div class="ai-sig">${esc(SIG)}</div>
-      <div class="msg-actions">
-        <div class="msg-act-btn" onclick="cpMsg(this,'${raw.replace(/\\/g,'\\\\').replace(/'/g,"\\'")}')"><i class="fa fa-copy"></i> Copy</div>
-        <div class="msg-act-btn" onclick="regenLast()"><i class="fa fa-rotate-right"></i> Regenerate</div>
-      </div>`;
-
-  } else if(msg.role==='_step'){
-    row.innerHTML=`<div class="agent-step ${msg.done?'done':''}" style="display:block;width:fit-content">
-      <i class="fa fa-${msg.done?'check':'circle-notch'} ${msg.done?'':'spin'}"></i> ${esc(msg.content)}</div>`;
-  }
-
-  inner.appendChild(row);
-  // Apply highlight.js to new code blocks
-  row.querySelectorAll('pre code').forEach(el=>hljs.highlightElement(el));
-  scrollBot();
-  return row;
-}
-
-function showTyping(){
-  document.getElementById('welcome')?.remove?.();
-  remEl('typing-row');
-  const inner=document.getElementById('chat-inner');
-  const d=document.createElement('div');
-  d.className='typing-row';d.id='typing-row';
-  d.innerHTML=`<div style="display:flex;align-items:flex-start;gap:10px">
-    <div class="msg-av ai" style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#10a37f,#0d6e5f);color:#fff;font-size:1.1rem;flex-shrink:0">🧞</div>
-    <div class="typing-dots"><div class="td-dot"></div><div class="td-dot"></div><div class="td-dot"></div></div>
-  </div>`;
-  inner.appendChild(d); scrollBot();
-}
-
-function showAgentStatus(txt){
-  remEl('typing-row');
-  remEl('agent-stat');
-  const inner=document.getElementById('chat-inner');
-  const d=document.createElement('div');
-  d.id='agent-stat';d.className='typing-row';
-  d.innerHTML=`<div class="agent-status"><i class="fa fa-circle-notch spin"></i>${esc(txt)}</div>`;
-  inner.appendChild(d); scrollBot();
-}
-
-function remEl(id){ document.getElementById(id)?.remove?.(); }
-
-/* ═══════════════════════════════════════════════════════════
-   SEND FLOW
-═══════════════════════════════════════════════════════════ */
-async function doSend(){
-  const ta=document.getElementById('chat-ta');
-  const txt=ta.value.trim();
-  if((!txt&&!pendingFiles.length)||busy) return;
-
-  // Image generation trigger
-  const IMG_RE=/\b(generate|create|make|draw|paint|render|design)\b.*\b(image|photo|picture|art|illustration|artwork|wallpaper|poster)\b/i;
-  if(txt&&IMG_RE.test(txt)&&!pendingFiles.length){ ta.value=''; growTa(ta); updateSend(); await doImgGen(txt); return; }
-
-  ta.value=''; growTa(ta); updateSend();
-  busy=true; setBusy(true);
-
-  if(!chatId){ chatId='c'+Date.now(); localStorage.setItem('aladdin_lid',chatId); }
-
-  const hist=getCMsgs(chatId);
-  const ts=nowTs();
-  const cap=[...pendingFiles];
-  pendingFiles=[]; renderAttPrev();
-
-  const uMsg={role:'user', content:txt, atts:cap.map(f=>({type:f.type,name:f.name,base64:f.base64})), ts};
-  hist.push(uMsg);
-  const title=txt.slice(0,55)+(txt.length>55?'…':'') || cap[0]?.name || 'New chat';
-  saveCMsgs(chatId, hist, getChats()[chatId]?.title||title);
-  renderMsg(uMsg);
-  renderSidebar();
-
-  showTyping();
-
-  try{
-    const res=await callGroq(hist, cap);
-    remEl('typing-row'); remEl('agent-stat');
-    const aiMsg={role:'assistant', content:res.content, toolRes:res.toolRes||[], imgs:res.imgs||[], ts:nowTs()};
-    hist.push(aiMsg);
-    saveCMsgs(chatId,hist);
-    renderMsg(aiMsg);
-    renderSidebar();
-  } catch(err){
-    remEl('typing-row'); remEl('agent-stat');
-    console.error('Groq error:',err);
-    toast(`Groq error: ${err.message||'Request failed'}`, 'e', 7000);
-  }
-
-  busy=false; setBusy(false);
-  document.getElementById('chat-ta').focus();
-}
-
-/* ═══════════════════════════════════════════════════════════
-   GROQ API + AGENTIC LOOP
-═══════════════════════════════════════════════════════════ */
-async function callGroq(hist, files=[]){
-  const imgs=files.filter(f=>f.type==='image');
-  const pdfs=files.filter(f=>f.type==='pdf');
-  const useVision=imgs.length>0;
-  const model=useVision?M_VIS:selModel;
-
-  // Update badge
-  const badge=document.getElementById('active-badge');
-  badge.textContent=useVision?'llama-3.2-vision':'llama-3.3-70b';
-
-  const sysMsgs=[{role:'system',content:buildSys()}];
-
-  // Inject PDF text as system context
-  if(pdfs.length){
-    const pdfCtx=pdfs.map(f=>`[PDF Document: ${f.name}]\n${f.text}`).join('\n\n---\n\n');
-    sysMsgs.push({role:'system',content:`The user has attached PDF document(s). Use this content to answer:\n\n${pdfCtx}`});
-  }
-
-  const ctxLimit=cfg.ctx||10;
-  const recent=hist.slice(-ctxLimit);
-  const apiMsgs=[...sysMsgs];
-
-  recent.forEach((m,i)=>{
-    if(m.role==='system'||m.role==='_step') return;
-    if(m.role==='user'){
-      const isLast=i===recent.length-1;
-      const txtPart=typeof m.content==='string'?m.content:(m.content?.[0]?.text||'');
-      if(isLast&&useVision){
-        const parts=[];
-        if(txtPart) parts.push({type:'text',text:txtPart});
-        imgs.forEach(f=>{
-          // Bulletproof data URL handling
-          let url=f.base64||'';
-          if(!url.startsWith('data:')){
-            const mime=f.mime||'image/jpeg';
-            url=`data:${mime};base64,${url}`;
-          } else if(!url.includes(';base64,')){
-            // Has data: but malformed
-            const mime=f.mime||'image/jpeg';
-            const raw=url.split(',')[1]||url.replace(/^data:[^,]+,/,'');
-            url=`data:${mime};base64,${raw}`;
-          }
-          parts.push({type:'image_url',image_url:{url,detail:'auto'}});
+async function authSend() {
+    const name = document.getElementById('a-name').value.trim();
+    const email = document.getElementById('a-email').value.trim();
+    if(!name || !email.includes('@')) { alert("Please enter valid name and email."); return; }
+    
+    const btn = document.getElementById('a-send-btn');
+    btn.disabled = true;
+    btn.innerText = "Sending...";
+    
+    pendingOTP = Math.floor(100000 + Math.random() * 900000).toString();
+    
+    try {
+        await emailjs.send(EJS_SVC, EJS_TPL, {
+            email: email, // Variables must match your EmailJS template
+            otp: pendingOTP,
+            to_name: name
         });
-        if(!parts.length) parts.push({type:'text',text:txtPart||''});
-        apiMsgs.push({role:'user',content:parts});
-      } else {
-        apiMsgs.push({role:'user',content:txtPart});
-      }
-    } else if(m.role==='assistant'){
-      apiMsgs.push({role:'assistant',content:typeof m.content==='string'?m.content:''});
+        document.getElementById('auth-s1').style.display = 'none';
+        document.getElementById('auth-s2').style.display = 'block';
+        showToast("OTP Code Sent!");
+    } catch (e) {
+        console.error(e);
+        alert("Failed to send OTP. Check Console.");
+    } finally {
+        btn.disabled = false;
+        btn.innerText = "Send Code";
     }
-  });
+}
 
-  // ── Agentic loop (max 6 rounds) ──────────────────
-  const toolRes=[];
-  let finalContent='';
-  let msgs=[...apiMsgs];
-  let rounds=0;
+function verifyOtp() {
+    const input = document.getElementById('a-otp').value;
+    if(input === pendingOTP) {
+        appUser = { name: document.getElementById('a-name').value, email: document.getElementById('a-email').value };
+        localStorage.setItem('aladdin_user', JSON.stringify(appUser));
+        launchApp();
+    } else {
+        alert("Invalid Code!");
+    }
+}
 
-  while(rounds<6){
-    rounds++;
-    const body={model,messages:msgs,max_tokens:4096,temperature:parseFloat(cfg.temp)||0.7,stream:false};
-    if(!useVision){ body.tools=TOOLS; body.tool_choice='auto'; }
+/* ═══════════════════════════════════════════════════════════ 
+   FILE HANDLING
+═══════════════════════════════════════════════════════════ */
+async function handleFiles(input) {
+    for(const file of input.files) {
+        if(file.type.startsWith('image/')) {
+            const b64 = await toBase64(file);
+            pendingFiles.push({ type: 'image', data: b64, name: file.name });
+        } else if(file.type === 'application/pdf') {
+            const text = await parsePdf(file);
+            pendingFiles.push({ type: 'pdf', data: text, name: file.name });
+        }
+        renderAtts();
+    }
+}
 
-    const resp=await fetch(GROQ_URL,{
-      method:'POST',
-      headers:{'Authorization':`Bearer ${GROQ_KEY}`,'Content-Type':'application/json'},
-      body:JSON.stringify(body)
+function toBase64(file) {
+    return new Promise((res) => {
+        const r = new FileReader();
+        r.onload = () => res(r.result);
+        r.readAsDataURL(file);
+    });
+}
+
+async function parsePdf(file) {
+    const arrayBuffer = await file.arrayBuffer();
+    const pdf = await pdfjsLib.getDocument(arrayBuffer).promise;
+    let text = "";
+    for(let i=1; i<=pdf.numPages; i++) {
+        const page = await pdf.getPage(i);
+        const content = await page.getTextContent();
+        text += content.items.map(s => s.str).join(' ') + "\n";
+    }
+    return text;
+}
+
+function renderAtts() {
+    const div = document.getElementById('att-prev');
+    div.innerHTML = pendingFiles.map((f, i) => `
+        <div style="background:#444;padding:5px 10px;border-radius:5px;font-size:0.7rem;position:relative">
+            ${f.name} <span onclick="pendingFiles.splice(${i},1);renderAtts()" style="cursor:pointer;margin-left:5px">×</span>
+        </div>
+    `).join('');
+}
+
+/* ═══════════════════════════════════════════════════════════ 
+   CORE CHAT LOGIC
+═══════════════════════════════════════════════════════════ */
+async function doSend() {
+    const ta = document.getElementById('chat-ta');
+    const text = ta.value.trim();
+    if(!text && !pendingFiles.length) return;
+    
+    document.getElementById('welcome-msg').style.display = 'none';
+    
+    const userMsg = { role: 'user', content: text, attachments: [...pendingFiles] };
+    currentChat.push(userMsg);
+    renderMsg(userMsg);
+    
+    ta.value = "";
+    ta.style.height = "auto";
+    const files = [...pendingFiles];
+    pendingFiles = [];
+    renderAtts();
+
+    // API Call
+    try {
+        const response = await callGroq(currentChat, files);
+        const aiMsg = { role: 'assistant', content: response };
+        currentChat.push(aiMsg);
+        renderMsg(aiMsg);
+    } catch (e) {
+        showToast("Error: " + e.message);
+    }
+}
+
+async function callGroq(history, files) {
+    const hasImage = files.some(f => f.type === 'image');
+    const model = hasImage ? "llama-3.2-11b-vision-preview" : "llama-3.3-70b-versatile";
+    
+    // Payload Cleaning (Prevents 400 Error)
+    const messages = history.map(m => {
+        let content = m.content;
+        if(m.role === 'user' && m.attachments?.some(a => a.type === 'image')) {
+            const img = m.attachments.find(a => a.type === 'image');
+            content = [
+                { type: "text", text: m.content || "Describe this image" },
+                { type: "image_url", image_url: { url: img.data } }
+            ];
+        }
+        // If PDF, inject text into system/user context
+        if(m.role === 'user' && m.attachments?.some(a => a.type === 'pdf')) {
+            const pdfs = m.attachments.filter(a => a.type === 'pdf').map(p => p.data).join("\n");
+            content = `[Document Content]:\n${pdfs}\n\nUser Question: ${m.content}`;
+        }
+        return { role: m.role, content: content };
     });
 
-    if(!resp.ok){
-      const ed=await resp.json().catch(()=>({}));
-      throw new Error(ed.error?.message||`HTTP ${resp.status}`);
+    messages.unshift({ role: "system", content: "You are Aladdin AI, a GPT-4 level assistant. End every response with: " + SIG });
+
+    const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+        method: "POST",
+        headers: { "Authorization": "Bearer " + GROQ_KEY, "Content-Type": "application/json" },
+        body: JSON.stringify({ model, messages, temperature: 0.7 })
+    });
+    
+    const data = await res.json();
+    if(data.error) throw new Error(data.error.message);
+    return data.choices[0].message.content;
+}
+
+/* ═══════════════════════════════════════════════════════════ 
+   UI HELPERS
+═══════════════════════════════════════════════════════════ */
+function renderMsg(m) {
+    const inner = document.getElementById('chat-inner');
+    const div = document.createElement('div');
+    div.className = `msg-row ${m.role === 'user' ? 'msg-user' : ''}`;
+    
+    const isAi = m.role === 'assistant';
+    const avatar = isAi ? "🧞" : appUser.name[0];
+    const color = isAi ? "ai-av" : "usr-av";
+    
+    div.innerHTML = `
+        <div class="msg-content">
+            <div class="msg-av ${color}">${avatar}</div>
+            <div style="flex:1">
+                <div style="font-weight:600;margin-bottom:5px">${isAi ? 'Aladdin' : 'You'}</div>
+                <div class="msg-text">${marked.parse(m.content)}</div>
+                ${isAi ? `<div class="ai-sig">${SIG}</div>` : ''}
+            </div>
+        </div>
+    `;
+    inner.appendChild(div);
+    document.getElementById('chat-area').scrollTop = document.getElementById('chat-area').scrollHeight;
+    if(isAi) hljs.highlightAll();
+}
+
+function autoGrow(el) {
+    el.style.height = "auto";
+    el.style.height = (el.scrollHeight) + "px";
+}
+
+function showToast(m) {
+    const t = document.createElement('div');
+    t.className = 'toast';
+    t.innerText = m;
+    document.body.appendChild(t);
+    setTimeout(() => t.remove(), 3000);
+}
+
+function launchApp() {
+    document.getElementById('auth-screen').style.display = 'none';
+    document.getElementById('app').classList.add('ready');
+    document.getElementById('user-display').innerText = `Logged in as: ${appUser.name}`;
+}
+
+window.onload = () => {
+    const saved = localStorage.getItem('aladdin_user');
+    if(saved) {
+        appUser = JSON.parse(saved);
+        launchApp();
     }
-    const data=await resp.json();
-    const choice=data.choices?.[0];
-    if(!choice) throw new Error('Empty API response');
-    const msg=choice.message;
-    msgs.push(msg);
+};
 
-    if(choice.finish_reason==='tool_calls'&&msg.tool_calls?.length){
-      for(const tc of msg.tool_calls){
-        const name=tc.function.name;
-        let args={};
-        try{ args=JSON.parse(tc.function.arguments||'{}'); }catch(e){}
-
-        showAgentStatus(`Running tool: ${name}…`);
-
-        const result=runTool(name,args);
-        toolRes.push({name,args,result,id:tc.id});
-
-        remEl('agent-stat');
-        // Render step
-        const inner=document.getElementById('chat-inner');
-        const sd=document.createElement('div');
-        sd.innerHTML=`<div class="agent-step done" style="display:block;width:fit-content;margin-bottom:4px"><i class="fa fa-check"></i> ${esc(name)}: ${esc(JSON.stringify(result).slice(0,90))}</div>`;
-        inner.appendChild(sd); scrollBot();
-
-        msgs.push({role:'tool',tool_call_id:tc.id,content:JSON.stringify(result)});
-      }
-      showAgentStatus('Synthesizing answer…');
-      continue;
-    }
-    finalContent=msg.content||'';
-    break;
-  }
-
-  remEl('agent-stat');
-
-  // Ensure signature is present
-  if(finalContent&&!finalContent.includes(SIG)){
-    finalContent=finalContent.trimEnd()+'\n\n'+SIG;
-  }
-
-  return {content:finalContent, toolRes};
+function newChat() {
+    currentChat = [];
+    document.getElementById('chat-inner').innerHTML = `
+        <div id="welcome-msg" style="text-align:center;margin-top:100px">
+          <h1 style="font-size:2rem;margin-bottom:10px">How can I help you today?</h1>
+          <p style="color:#8e8ea0">Aladdin is ready to think, code, and assist. 🧞</p>
+        </div>
+    `;
 }
-
-/* ═══════════════════════════════════════════════════════════
-   IMAGE GEN (POLLINATIONS DUAL)
-═══════════════════════════════════════════════════════════ */
-async function doImgGen(prompt){
-  busy=true; setBusy(true);
-  if(!chatId){ chatId='c'+Date.now(); localStorage.setItem('aladdin_lid',chatId); }
-
-  const hist=getCMsgs(chatId);
-  const ts=nowTs();
-  const uMsg={role:'user',content:prompt,atts:[],ts};
-  hist.push(uMsg);
-  const title=prompt.slice(0,55)+'…';
-  saveCMsgs(chatId,hist,getChats()[chatId]?.title||title);
-  renderMsg(uMsg); renderSidebar();
-
-  showTyping();
-  document.getElementById('active-badge').textContent='pollinations-xl';
-
-  const enc=encodeURIComponent(prompt+', ultra detailed, 8K, cinematic lighting, masterpiece');
-  const s1=~~(Math.random()*99999)+1;
-  const s2=~~(Math.random()*99999)+100001;
-  const u1=`https://image.pollinations.ai/prompt/${enc}?width=1024&height=1024&seed=${s1}&nologo=true&enhance=true`;
-  const u2=`https://image.pollinations.ai/prompt/${enc}?width=1024&height=1024&seed=${s2}&nologo=true&enhance=true`;
-
-  remEl('typing-row');
-  document.getElementById('welcome')?.remove?.();
-  const inner=document.getElementById('chat-inner');
-  const row=document.createElement('div');
-  row.className='msg-row';
-  row.innerHTML=`
-    <div class="msg-hdr">
-      <div class="msg-av ai">🧞</div>
-      <span class="msg-sender">${esc(cfg.persona||'Aladdin')}</span>
-      <span class="msg-ts">${ts}</span>
-    </div>
-    <div class="msg-ai-text"><p>✨ Conjuring your vision…</p></div>
-    <div class="dual-grid">
-      <img src="${u1}" alt="Variation 1" loading="lazy" onclick="openLB('${u1}')" onerror="this.style.opacity='.4';this.alt='Failed'"/>
-      <img src="${u2}" alt="Variation 2" loading="lazy" onclick="openLB('${u2}')" onerror="this.style.opacity='.4';this.alt='Failed'"/>
-    </div>
-    <div class="dual-caption">Two variations · Seed ${s1} &amp; ${s2} · Click to zoom</div>
-    <div class="ai-sig">${esc(SIG)}</div>`;
-  inner.appendChild(row); scrollBot();
-
-  const aMsg={role:'assistant',content:`🎨 Generated two images for: "${prompt}"`,imgs:[u1,u2],toolRes:[],ts:nowTs()};
-  hist.push(aMsg); saveCMsgs(chatId,hist); renderSidebar();
-
-  busy=false; setBusy(false);
-  document.getElementById('active-badge').textContent='llama-3.3-70b';
-}
-
-function imgTrigger(){
-  const ta=document.getElementById('chat-ta');
-  if(!ta.value.trim()){ ta.value='generate image of '; ta.focus(); ta.setSelectionRange(ta.value.length,ta.value.length); growTa(ta); updateSend(); }
-  else { ta.value='generate image of '+ta.value.trim(); growTa(ta); updateSend(); doSend(); }
-}
-
-/* ═══════════════════════════════════════════════════════════
-   MSG ACTIONS
-═══════════════════════════════════════════════════════════ */
-function cpMsg(btn, raw){
-  navigator.clipboard.writeText(raw.replace(/\\'/g,"'").replace(/\\\\/g,'\\')).then(()=>{
-    btn.innerHTML='<i class="fa fa-check"></i> Copied';
-    setTimeout(()=>btn.innerHTML='<i class="fa fa-copy"></i> Copy',2000);
-  });
-}
-
-async function regenLast(){
-  if(busy||!chatId) return;
-  const hist=getCMsgs(chatId);
-  while(hist.length&&hist[hist.length-1].role==='assistant') hist.pop();
-  if(!hist.length) return;
-  saveCMsgs(chatId,hist);
-
-  // Remove last AI rows from DOM
-  const inner=document.getElementById('chat-inner');
-  const rows=[...inner.querySelectorAll('.msg-row')];
-  for(let i=rows.length-1;i>=0&&i>rows.length-4;i--){
-    if(!rows[i].classList.contains('typing-row')) rows[i].remove();
-    else break;
-  }
-
-  busy=true; setBusy(true);
-  showTyping();
-  try{
-    const res=await callGroq(hist,[]);
-    remEl('typing-row'); remEl('agent-stat');
-    const aiMsg={role:'assistant',content:res.content,toolRes:res.toolRes||[],imgs:[],ts:nowTs()};
-    hist.push(aiMsg); saveCMsgs(chatId,hist);
-    renderMsg(aiMsg);
-  } catch(err){
-    remEl('typing-row'); remEl('agent-stat');
-    toast(`Regen failed: ${err.message}`,'e',5000);
-  }
-  busy=false; setBusy(false);
-}
-
-/* ═══════════════════════════════════════════════════════════
-   MODEL PICKER
-═══════════════════════════════════════════════════════════ */
-function toggleModelDrop(){ document.getElementById('model-drop').classList.toggle('open'); }
-function pickModel(el){
-  selModel=el.dataset.m;
-  document.querySelectorAll('.m-opt').forEach(o=>o.classList.remove('sel'));
-  el.classList.add('sel');
-  document.getElementById('tb-model-label').textContent=el.querySelector('.m-opt-name').textContent;
-  document.getElementById('active-badge').textContent=selModel.includes('vision')?'llama-3.2-vision':'llama-3.3-70b';
-  document.getElementById('model-drop').classList.remove('open');
-  toast(`Model: ${el.querySelector('.m-opt-name').textContent}`,'s',2000);
-}
-document.addEventListener('click',e=>{
-  const d=document.getElementById('model-drop'), t=document.querySelector('.tb-model-btn');
-  if(d.classList.contains('open')&&!d.contains(e.target)&&!t.contains(e.target)) d.classList.remove('open');
-});
-
-/* ═══════════════════════════════════════════════════════════
-   SIDEBAR / THEME / PROFILE
-═══════════════════════════════════════════════════════════ */
-function toggleSidebar(){ document.getElementById('sidebar').classList.toggle('closed'); }
-function toggleProfPop(){ document.getElementById('prof-pop').classList.toggle('open'); }
-function closeProfPop(){ document.getElementById('prof-pop').classList.remove('open'); }
-document.addEventListener('click',e=>{
-  const pp=document.getElementById('prof-pop'), pt=document.querySelector('.sb-profile');
-  if(pp.classList.contains('open')&&!pp.contains(e.target)&&!pt.contains(e.target)) closeProfPop();
-});
-
-function setTheme(t,silent=false){
-  if(t==='dark'){ document.documentElement.removeAttribute('data-theme'); document.body.style.cssText='background:#212121;color:#ececec'; }
-  else { document.documentElement.setAttribute('data-theme',t); document.body.style.cssText=''; }
-  localStorage.setItem('aladdin_theme',t);
-  document.querySelectorAll('.t-dot').forEach(d=>d.classList.toggle('on',d.dataset.t===t));
-  if(!silent){ toast(`Theme: ${t.charAt(0).toUpperCase()+t.slice(1)}`,'s',1600); closeProfPop(); }
-}
-
-/* ═══════════════════════════════════════════════════════════
-   CONFIG
-═══════════════════════════════════════════════════════════ */
-function openCfg(){
-  closeProfPop();
-  document.getElementById('cfg-persona').value=cfg.persona||'Aladdin';
-  document.getElementById('cfg-sys').value=cfg.sys||'';
-  document.getElementById('cfg-ctx').value=cfg.ctx||10;
-  document.getElementById('cfg-lang').value=cfg.lang||'en';
-  document.getElementById('cfg-temp').value=String(cfg.temp||0.7);
-  document.getElementById('cfg-modal').classList.add('open');
-}
-function closeCfg(){ document.getElementById('cfg-modal').classList.remove('open'); }
-function saveCfg(){
-  cfg.persona=document.getElementById('cfg-persona').value.trim()||'Aladdin';
-  cfg.sys=document.getElementById('cfg-sys').value.trim();
-  cfg.ctx=parseInt(document.getElementById('cfg-ctx').value);
-  cfg.lang=document.getElementById('cfg-lang').value;
-  cfg.temp=parseFloat(document.getElementById('cfg-temp').value);
-  localStorage.setItem('aladdin_cfg',JSON.stringify(cfg));
-  closeCfg(); toast('Settings saved!','s',2000);
-}
-
-/* ═══════════════════════════════════════════════════════════
-   LOGOUT
-═══════════════════════════════════════════════════════════ */
-function doLogout(){
-  if(!confirm('Log out?')) return;
-  localStorage.removeItem('aladdin_user'); localStorage.removeItem('aladdin_lid');
-  appUser=null; chatId=null;
-  const app=document.getElementById('app');
-  app.classList.remove('ready'); app.style.opacity='0';
-  setTimeout(()=>app.style.display='none',400);
-  const auth=document.getElementById('auth-screen');
-  auth.style.display='flex'; auth.style.opacity='0';
-  setTimeout(()=>auth.style.opacity='1',50);
-  document.getElementById('a-step1').style.display='block';
-  document.getElementById('a-step2').style.display='none';
-  document.getElementById('a-email').value='';
-  document.getElementById('a-name').value='';
-  const btn=document.getElementById('a-send-btn');
-  btn.disabled=false;
-  btn.innerHTML='<i class="fa fa-wand-magic-sparkles" style="margin-right:8px"></i>Send Magic Code';
-  closeProfPop();
-}
-
-/* ═══════════════════════════════════════════════════════════
-   LIGHTBOX
-═══════════════════════════════════════════════════════════ */
-function openLB(src){ document.getElementById('lb-img').src=src; document.getElementById('lightbox').classList.add('open'); }
-function closeLightbox(){ document.getElementById('lightbox').classList.remove('open'); }
-document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ closeLightbox(); document.getElementById('cfg-modal').classList.remove('open'); }});
-
-/* ═══════════════════════════════════════════════════════════
-   INPUT HELPERS
-═══════════════════════════════════════════════════════════ */
-function growTa(el){ el.style.height='auto'; el.style.height=Math.min(el.scrollHeight,200)+'px'; }
-function updateSend(){ const ta=document.getElementById('chat-ta'); document.getElementById('send-btn').disabled=(!ta.value.trim()&&!pendingFiles.length)||busy; }
-function setBusy(v){ document.getElementById('send-btn').disabled=v; }
-function onKey(e){ if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); doSend(); } }
-function scrollBot(){ const a=document.getElementById('chat-area'); a.scrollTop=a.scrollHeight; }
-
-/* ═══════════════════════════════════════════════════════════
-   AUTO LOGIN
-═══════════════════════════════════════════════════════════ */
-(function(){
-  const s=localStorage.getItem('aladdin_user');
-  if(s){ try{ appUser=JSON.parse(s); document.getElementById('auth-screen').style.display='none'; bootApp(); }catch(e){ localStorage.removeItem('aladdin_user'); } }
-})();
 </script>
 </body>
 </html>
