@@ -17,413 +17,367 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
         
-        body { font-family: 'Inter', sans-serif; background-color: #212121; color: #ececec; overflow: hidden; }
-        .glass { background: rgba(33, 33, 33, 0.95); backdrop-filter: blur(10px); }
-        .sidebar { background-color: #171717; width: 260px; transition: all 0.3s ease; }
-        .chat-input-container { background: #2f2f2f; border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; }
+        body { font-family: 'Inter', sans-serif; background-color: #212121; color: #ececec; overflow: hidden; height: 100vh; }
+        .sidebar { background-color: #171717; width: 260px; flex-shrink: 0; display: flex; flex-direction: column; border-right: 1px solid rgba(255,255,255,0.05); }
+        .main-content { flex: 1; display: flex; flex-direction: column; background: #212121; position: relative; }
+        .chat-input-container { background: #2f2f2f; border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; margin: 0 auto; width: 100%; max-width: 48rem; }
         
-        /* Markdown Styling */
-        .prose pre { background: #0d0d0d !important; padding: 12px; border-radius: 8px; margin: 10px 0; border: 1px solid #333; }
-        .prose code { font-family: 'JetBrains Mono', monospace; color: #eab308; }
+        /* Message Styles */
+        .prose pre { background: #0d0d0d !important; padding: 16px; border-radius: 12px; margin: 12px 0; border: 1px solid #333; overflow-x: auto; }
+        .prose code { font-family: 'JetBrains Mono', monospace; color: #eab308; background: transparent; }
         
-        /* Custom Scrollbar */
+        /* Custom Scroll */
         .custom-scroll::-webkit-scrollbar { width: 6px; }
         .custom-scroll::-webkit-scrollbar-thumb { background: #3c3c3c; border-radius: 10px; }
         
-        /* Auth Screen */
-        #auth-screen { position: fixed; inset: 0; z-index: 9999; background: #212121; display: flex; align-items: center; justify-content: center; }
-        .auth-card { width: 400px; background: #2f2f2f; padding: 40px; border-radius: 24px; border: 1px solid #444; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
+        /* Login Overlay */
+        #auth-overlay { position: fixed; inset: 0; z-index: 9999; background: #212121; display: flex; align-items: center; justify-content: center; }
+        .auth-card { width: 400px; background: #2f2f2f; padding: 40px; border-radius: 24px; border: 1px solid #444; text-align: center; }
         
-        .shimmer { background: linear-gradient(90deg, #2f2f2f 0%, #3f3f3f 50%, #2f2f2f 100%); background-size: 200% 100%; animation: shimmer 1.5s infinite; }
-        @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+        .hidden { display: none; }
     </style>
 </head>
-<body class="h-screen flex">
+<body class="flex">
 
-    <div id="auth-screen">
+    <div id="auth-overlay">
         <div class="auth-card">
-            <div class="text-center mb-8">
-                <span class="text-6xl">🧞</span>
-                <h1 class="text-2xl font-bold mt-4">Aladdin AI</h1>
-                <p class="text-gray-400 text-sm">Master Verification Required</p>
+            <div class="mb-6">
+                <span class="text-5xl">🧞</span>
+                <h2 class="text-2xl font-bold mt-4">Aladdin AI</h2>
+                <p class="text-gray-400 text-sm">Security Verification</p>
             </div>
             
-            <div id="auth-step-1">
-                <input id="auth-email" type="email" placeholder="Email address" class="w-full bg-[#3c3c3c] border border-gray-600 rounded-xl p-4 mb-4 outline-none focus:border-emerald-500 transition">
-                <button onclick="sendOTP()" id="otp-btn" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold p-4 rounded-xl transition flex items-center justify-center gap-2">
+            <div id="step-email">
+                <input id="user-email" type="email" placeholder="Enter your email" class="w-full bg-[#3c3c3c] border border-gray-600 rounded-xl p-4 mb-4 outline-none focus:border-emerald-500 text-white">
+                <button onclick="handleSendOTP()" id="send-otp-btn" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold p-4 rounded-xl transition">
                     Send Magic Code
                 </button>
             </div>
 
-            <div id="auth-step-2" class="hidden">
-                <input id="auth-otp" type="text" maxlength="6" placeholder="000000" class="w-full bg-[#3c3c3c] border border-gray-600 rounded-xl p-4 mb-4 text-center text-2xl tracking-[0.5em] outline-none focus:border-emerald-500">
-                <button onclick="verifyOTP()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold p-4 rounded-xl transition">
-                    Enter the Lamp
+            <div id="step-otp" class="hidden">
+                <p class="text-xs text-emerald-400 mb-4">Check your inbox for the code!</p>
+                <input id="user-otp" type="text" placeholder="000000" class="w-full bg-[#3c3c3c] border border-gray-600 rounded-xl p-4 mb-4 text-center text-2xl tracking-widest outline-none focus:border-emerald-500 text-white">
+                <button onclick="handleVerifyOTP()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold p-4 rounded-xl transition">
+                    Verify & Enter
                 </button>
             </div>
         </div>
     </div>
 
-    <aside class="sidebar h-full hidden md:flex flex-col border-r border-white/5">
+    <aside class="sidebar">
         <div class="p-4">
-            <button onclick="createNewChat()" class="w-full flex items-center gap-3 p-3 rounded-lg border border-white/10 hover:bg-white/5 transition">
-                <i class="fa fa-plus"></i>
-                <span class="text-sm font-medium">New Chat</span>
+            <button onclick="resetChat()" class="w-full flex items-center gap-3 p-3 rounded-lg border border-white/10 hover:bg-white/5 transition">
+                <i class="fa fa-plus text-xs"></i>
+                <span class="text-sm">New Chat</span>
             </button>
         </div>
-        
-        <div id="chat-history" class="flex-1 overflow-y-auto custom-scroll px-3 space-y-2">
-            </div>
-
-        <div class="p-4 border-t border-white/5">
-            <div class="flex items-center gap-3 p-2 rounded-xl hover:bg-white/5 cursor-pointer">
-                <div class="w-8 h-8 rounded-lg bg-emerald-600 flex items-center justify-center font-bold text-xs">M</div>
-                <div class="flex-1 min-w-0">
-                    <p id="profile-name" class="text-sm font-medium truncate">Master</p>
-                </div>
-                <i class="fa fa-ellipsis-h text-gray-500"></i>
-            </div>
+        <div id="history-list" class="flex-1 overflow-y-auto custom-scroll px-3 space-y-1"></div>
+        <div class="p-4 border-t border-white/5 text-xs text-gray-500">
+            Logged in as Master 🧞
         </div>
     </aside>
 
-    <main class="flex-1 flex flex-col relative h-full">
-        <header class="h-14 border-b border-white/5 flex items-center justify-between px-4 glass sticky top-0 z-10">
-            <div class="flex items-center gap-2">
-                <button class="md:hidden text-gray-400 p-2"><i class="fa fa-bars"></i></button>
-                <span class="font-semibold">Aladdin AI 🧞</span>
-            </div>
-            <div class="flex items-center gap-4 text-xs font-medium text-gray-400">
-                <span id="model-badge" class="px-2 py-1 bg-white/5 rounded border border-white/10">Llama 3.3</span>
+    <main class="main-content">
+        <header class="h-14 flex items-center justify-between px-6 border-b border-white/5">
+            <div class="font-bold">Aladdin AI 🧞</div>
+            <div class="text-[10px] bg-white/5 px-2 py-1 rounded border border-white/10 text-gray-400 uppercase tracking-tighter">
+                Llama 3.3 Versatile
             </div>
         </header>
 
-        <div id="chat-container" class="flex-1 overflow-y-auto custom-scroll p-4 space-y-6">
-            <div id="welcome-screen" class="h-full flex flex-col items-center justify-center text-center p-8">
-                <div class="w-16 h-16 bg-white rounded-full flex items-center justify-center text-4xl mb-6 shadow-2xl">🧞</div>
-                <h2 class="text-3xl font-bold mb-2">How can I help you today?</h2>
-                <p class="text-gray-400 max-w-md">I am your high-performance AI assistant. I can help with coding, logic, and reasoning.</p>
+        <div id="chat-scroller" class="flex-1 overflow-y-auto custom-scroll p-4">
+            <div id="welcome-box" class="h-full flex flex-col items-center justify-center text-center">
+                <div class="w-16 h-16 bg-white rounded-full flex items-center justify-center text-3xl mb-4">🧞</div>
+                <h1 class="text-3xl font-bold">What's on your mind?</h1>
             </div>
-            <div id="messages-wrapper" class="max-w-3xl mx-auto w-full space-y-8 pb-32">
-                </div>
+            <div id="chat-messages" class="max-w-3xl mx-auto space-y-8 py-10"></div>
         </div>
 
-        <div class="absolute bottom-0 left-0 w-full p-4 bg-gradient-to-t from-[#212121] via-[#212121] to-transparent">
-            <div class="max-w-3xl mx-auto relative">
-                <div id="file-preview-container" class="flex flex-wrap gap-2 mb-2 hidden"></div>
-                
-                <div class="chat-input-container p-2 flex flex-col">
-                    <textarea id="message-input" rows="1" placeholder="Message Aladdin..." class="w-full bg-transparent p-3 outline-none resize-none text-white max-h-[200px]"></textarea>
-                    <div class="flex items-center justify-between mt-2 px-2 pb-1">
-                        <div class="flex items-center gap-2">
-                            <label class="cursor-pointer text-gray-400 hover:text-white p-2 transition">
-                                <i class="fa fa-paperclip"></i>
-                                <input type="file" id="file-upload" class="hidden" multiple onchange="handleFileUpload(event)">
-                            </label>
-                            <button class="text-gray-400 hover:text-white p-2 transition"><i class="fa fa-globe"></i></button>
-                        </div>
-                        <button onclick="sendMessage()" id="send-btn" class="bg-white text-black w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-200 transition disabled:opacity-30 disabled:cursor-not-allowed">
-                            <i class="fa fa-arrow-up"></i>
-                        </button>
+        <div class="p-4 bg-gradient-to-t from-[#212121] to-transparent">
+            <div id="preview-bar" class="max-w-3xl mx-auto flex flex-wrap gap-2 mb-2 hidden"></div>
+            
+            <div class="chat-input-container">
+                <textarea id="main-input" rows="1" placeholder="Type your request..." class="w-full bg-transparent p-4 outline-none resize-none text-white max-h-48"></textarea>
+                <div class="flex items-center justify-between px-4 pb-3">
+                    <div class="flex gap-2">
+                        <label class="p-2 text-gray-400 hover:text-white cursor-pointer transition">
+                            <i class="fa fa-paperclip"></i>
+                            <input type="file" id="file-picker" class="hidden" multiple onchange="onFilesSelected(event)">
+                        </label>
                     </div>
+                    <button onclick="startGeneration()" id="action-btn" class="bg-white text-black w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-200 transition disabled:opacity-20">
+                        <i class="fa fa-arrow-up"></i>
+                    </button>
                 </div>
-                <p class="text-[10px] text-center text-gray-500 mt-2">Aladdin AI can make mistakes. Check important info.</p>
             </div>
         </div>
     </main>
 
     <script>
         /* ═══════════════════════════════════════════════════════════ 
-           CORE CONFIGURATIONS
+           GLOBAL DATA
         ═══════════════════════════════════════════════════════════ */
-        const GROQ_API_KEY = "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";
-        const EJS_SVC = "service_d7q8v4o";
-        const EJS_TPL = "template_9nrhdsl";
-        const EJS_KEY = "5IDeLAjB6gy610xIB";
+        const GK = "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";
+        const ES = "service_d7q8v4o";
+        const ET = "template_9nrhdsl";
+        const EK = "5IDeLAjB6gy610xIB";
         
-        emailjs.init(EJS_KEY);
-
-        let currentChatId = Date.now();
-        let messages = [];
-        let pendingFiles = [];
-        let generatedOTP = null;
-        let isBusy = false;
+        // PDF.js worker
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+        
+        let chatContext = [];
+        let uploadedAssets = [];
+        let secretCode = null;
+        let processing = false;
 
         /* ═══════════════════════════════════════════════════════════ 
-           FIXED LOGIN SYSTEM (EmailJS Syntax Corrected)
+           FIXED LOGIN (EmailJS g_id Fix)
         ═══════════════════════════════════════════════════════════ */
-        async function sendOTP() {
-            const email = document.getElementById("auth-email").value;
-            if (!email.includes("@")) return alert("Valid email dorkar Master!");
+        async function handleSendOTP() {
+            const mail = document.getElementById("user-email").value;
+            if(!mail.includes("@")) return alert("Please enter a valid email.");
 
-            const btn = document.getElementById("otp-btn");
+            const btn = document.getElementById("send-otp-btn");
             btn.disabled = true;
-            btn.innerHTML = `<i class="fa fa-spinner fa-spin"></i> Magic in progress...`;
+            btn.innerText = "Invoking Magic...";
 
-            generatedOTP = Math.floor(100000 + Math.random() * 900000).toString();
+            secretCode = Math.floor(100000 + Math.random() * 900000).toString();
 
             try {
-                // Correct syntax for EmailJS with named parameters
-                await emailjs.send(EJS_SVC, EJS_TPL, {
+                // FIXED: Passing Public Key explicitly in the options to avoid "g_id is required"
+                await emailjs.send(ES, ET, {
                     to_name: "Master",
-                    email: email, // This matches the template variable {{email}}
-                    otp: generatedOTP // This matches {{otp}}
+                    email: mail,
+                    otp: secretCode
+                }, {
+                    publicKey: EK
                 });
                 
-                document.getElementById("auth-step-1").classList.add("hidden");
-                document.getElementById("auth-step-2").classList.remove("hidden");
-                console.log("OTP sent successfully to: " + email);
-            } catch (e) {
-                console.error("EmailJS Error:", e);
-                alert("Email jete shomosha hoyeche. Dashboard check korun.");
+                document.getElementById("step-email").classList.add("hidden");
+                document.getElementById("step-otp").classList.remove("hidden");
+            } catch (err) {
+                console.error("EmailJS Failed:", err);
+                alert("Login Error: Template or Public Key mismatch. Check Console.");
             } finally {
                 btn.disabled = false;
-                btn.innerHTML = "Send Magic Code";
+                btn.innerText = "Send Magic Code";
             }
         }
 
-        function verifyOTP() {
-            const input = document.getElementById("auth-otp").value;
-            if (input === generatedOTP) {
-                localStorage.setItem("aladdin_verified", "true");
-                document.getElementById("auth-screen").style.display = "none";
+        function handleVerifyOTP() {
+            const val = document.getElementById("user-otp").value;
+            if(val === secretCode) {
+                localStorage.setItem("aladdin_auth", "true");
+                document.getElementById("auth-overlay").classList.add("hidden");
             } else {
-                alert("Wrong Code! Lamp bondho e thaklo.");
+                alert("Invalid code, Master!");
             }
         }
 
         /* ═══════════════════════════════════════════════════════════ 
-           FILE HANDLING (Vision & PDF Support)
+           FILE & PDF LOGIC
         ═══════════════════════════════════════════════════════════ */
-        async function handleFileUpload(e) {
-            const files = e.target.files;
-            for (let file of files) {
-                if (file.type.startsWith("image/")) {
-                    const base64 = await convertToBase64(file);
-                    pendingFiles.push({ type: 'image', data: base64, name: file.name });
-                } else if (file.type === "application/pdf") {
-                    const pdfText = await extractPdfText(file);
-                    pendingFiles.push({ type: 'pdf', data: pdfText, name: file.name });
+        async function onFilesSelected(e) {
+            const list = e.target.files;
+            for(let f of list) {
+                if(f.type.startsWith("image/")) {
+                    const b64 = await toBase64(f);
+                    uploadedAssets.push({ type: 'img', data: b64, name: f.name });
+                } else if(f.type === "application/pdf") {
+                    const text = await parsePDF(f);
+                    uploadedAssets.push({ type: 'pdf', data: text, name: f.name });
                 }
             }
-            renderFilePreviews();
+            showPreviews();
         }
 
-        function convertToBase64(file) {
-            return new Promise((resolve) => {
+        function toBase64(f) {
+            return new Promise(r => {
                 const reader = new FileReader();
-                reader.onload = (e) => resolve(e.target.result);
-                reader.readAsDataURL(file);
+                reader.onload = (ev) => r(ev.target.result);
+                reader.readAsDataURL(f);
             });
         }
 
-        async function extractPdfText(file) {
-            const arrayBuffer = await file.arrayBuffer();
-            const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-            let fullText = "";
-            for (let i = 1; i <= pdf.numPages; i++) {
+        async function parsePDF(f) {
+            const buffer = await f.arrayBuffer();
+            const pdf = await pdfjsLib.getDocument({ data: buffer }).promise;
+            let captured = "";
+            for(let i=1; i<=pdf.numPages; i++) {
                 const page = await pdf.getPage(i);
-                const textContent = await page.getTextContent();
-                fullText += textContent.items.map(s => s.str).join(" ") + "\n";
+                const content = await page.getTextContent();
+                captured += content.items.map(s => s.str).join(" ") + "\n";
             }
-            return fullText;
+            return captured;
         }
 
-        function renderFilePreviews() {
-            const container = document.getElementById("file-preview-container");
-            container.innerHTML = "";
-            if (pendingFiles.length > 0) {
-                container.classList.remove("hidden");
-                pendingFiles.forEach((file, idx) => {
-                    const div = document.createElement("div");
-                    div.className = "flex items-center gap-2 bg-white/10 p-2 rounded-lg text-xs border border-white/10";
-                    div.innerHTML = `<span>${file.name}</span><button onclick="removeFile(${idx})">×</button>`;
-                    container.appendChild(div);
+        function showPreviews() {
+            const bar = document.getElementById("preview-bar");
+            bar.innerHTML = "";
+            if(uploadedAssets.length > 0) {
+                bar.classList.remove("hidden");
+                uploadedAssets.forEach((a, i) => {
+                    const chip = document.createElement("div");
+                    chip.className = "bg-white/10 text-[10px] p-2 rounded-md border border-white/10 flex items-center gap-2";
+                    chip.innerHTML = `<span>${a.name}</span><button onclick="removeAsset(${i})">×</button>`;
+                    bar.appendChild(chip);
                 });
             } else {
-                container.classList.add("hidden");
+                bar.classList.add("hidden");
             }
         }
 
-        function removeFile(idx) {
-            pendingFiles.splice(idx, 1);
-            renderFilePreviews();
+        function removeAsset(i) {
+            uploadedAssets.splice(i, 1);
+            showPreviews();
         }
 
         /* ═══════════════════════════════════════════════════════════ 
-           GROQ CORE (Payload Fix & Streaming)
+           GROQ CORE & PAYLOAD CLEANING (400 Error Fix)
         ═══════════════════════════════════════════════════════════ */
-        async function sendMessage() {
-            const input = document.getElementById("message-input");
-            const text = input.value.trim();
-            if ((!text && pendingFiles.length === 0) || isBusy) return;
+        async function startGeneration() {
+            const input = document.getElementById("main-input");
+            const rawText = input.value.trim();
+            if((!rawText && uploadedAssets.length === 0) || processing) return;
 
-            document.getElementById("welcome-screen").classList.add("hidden");
+            document.getElementById("welcome-box").classList.add("hidden");
             
-            // Logic to prepare message content
-            let userContent = text;
-            const currentFiles = [...pendingFiles];
-            pendingFiles = [];
-            renderFilePreviews();
-            
-            // Vision handling
-            const hasImage = currentFiles.some(f => f.type === 'image');
-            if (hasImage) {
-                const img = currentFiles.find(f => f.type === 'image');
-                userContent = [
-                    { type: "text", text: text || "Analyze this image." },
-                    { type: "image_url", image_url: { url: img.data } }
+            // Context Building
+            let finalPrompt = rawText;
+            const currentFiles = [...uploadedAssets];
+            uploadedAssets = [];
+            showPreviews();
+
+            const hasImg = currentFiles.some(x => x.type === 'img');
+            if(hasImg) {
+                const imgObj = currentFiles.find(x => x.type === 'img');
+                finalPrompt = [
+                    { type: "text", text: rawText || "Examine this image." },
+                    { type: "image_url", image_url: { url: imgObj.data } }
                 ];
             }
-            
-            // PDF text injection
-            const pdfFiles = currentFiles.filter(f => f.type === 'pdf');
-            if (pdfFiles.length > 0) {
-                const pdfContext = pdfFiles.map(p => `[File: ${p.name}]\n${p.data}`).join("\n\n");
-                userContent = `[Attached Context]:\n${pdfContext}\n\nUser Question: ${text}`;
+
+            const pdfs = currentFiles.filter(x => x.type === 'pdf');
+            if(pdfs.length > 0) {
+                const context = pdfs.map(p => `[FILE: ${p.name}]\n${p.data}`).join("\n\n");
+                finalPrompt = `[Extracted Document Context]:\n${context}\n\n[User]: ${rawText}`;
             }
 
-            const userMsg = { role: "user", content: userContent };
-            messages.push(userMsg);
-            appendMessage(userMsg);
+            const userEntry = { role: "user", content: finalPrompt };
+            chatContext.push(userEntry);
+            addMessageUI(userEntry);
             
             input.value = "";
             input.style.height = "auto";
-            isBusy = true;
-            toggleSendBtn(false);
+            processing = true;
+            document.getElementById("action-btn").disabled = true;
 
-            // AI Response Placeholder
-            const aiMsgDiv = appendMessage({ role: "assistant", content: "" });
-            const contentDiv = aiMsgDiv.querySelector(".msg-body");
+            const aiBubble = addMessageUI({ role: "assistant", content: "" });
+            const body = aiBubble.querySelector(".msg-txt");
 
             try {
-                // FIXED PAYLOAD: Map messages to remove any custom data like 'timestamp'
-                const apiMessages = messages.map(m => ({
+                // STRICT PAYLOAD CLEANING: Remove everything except role and content
+                const cleanPayload = chatContext.map(m => ({
                     role: m.role,
                     content: m.content
                 }));
 
-                apiMessages.unshift({
+                cleanPayload.unshift({
                     role: "system",
-                    content: "You are Aladdin AI 🧞, a GPT-4 level high-performance system. You prioritize correctness and logic. End every response with: Aladdin is right by your side. 🧞"
+                    content: "You are Aladdin AI 🧞, a top-tier GPT-4 level assistant. End every response with: Aladdin is right by your side. 🧞"
                 });
 
-                const model = hasImage ? "llama-3.2-11b-vision-preview" : "llama-3.3-70b-versatile";
+                const targetModel = hasImg ? "llama-3.2-11b-vision-preview" : "llama-3.3-70b-versatile";
 
                 const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
                     method: "POST",
-                    headers: {
-                        "Authorization": `Bearer ${GROQ_API_KEY}`,
-                        "Content-Type": "application/json"
-                    },
+                    headers: { "Authorization": `Bearer ${GK}`, "Content-Type": "application/json" },
                     body: JSON.stringify({
-                        model: model,
-                        messages: apiMessages,
+                        model: targetModel,
+                        messages: cleanPayload,
                         stream: true,
-                        temperature: 0.6
+                        temperature: 0.5
                     })
                 });
 
-                if (!response.ok) throw new Error("API Limit or Request Error");
-
                 const reader = response.body.getReader();
                 const decoder = new TextDecoder();
-                let fullAiText = "";
+                let accumulated = "";
 
                 while (true) {
                     const { done, value } = await reader.read();
                     if (done) break;
-                    
                     const chunk = decoder.decode(value);
                     const lines = chunk.split("\n");
-                    
-                    for (let line of lines) {
-                        if (line.startsWith("data: ") && line !== "data: [DONE]") {
-                            const json = JSON.parse(line.substring(6));
-                            const delta = json.choices[0].delta.content || "";
-                            fullAiText += delta;
-                            contentDiv.innerHTML = marked.parse(fullAiText);
+                    for(let line of lines) {
+                        if(line.startsWith("data: ") && line !== "data: [DONE]") {
+                            try {
+                                const json = JSON.parse(line.substring(6));
+                                const part = json.choices[0].delta.content || "";
+                                accumulated += part;
+                                body.innerHTML = marked.parse(accumulated);
+                            } catch(e) {}
                         }
                     }
                 }
-                
-                messages.push({ role: "assistant", content: fullAiText });
-                saveToLocalStorage();
+                chatContext.push({ role: "assistant", content: accumulated });
                 hljs.highlightAll();
-
-            } catch (e) {
-                console.error(e);
-                contentDiv.innerText = "Error: System lamp is flickering. Payload clean check failed.";
+            } catch (err) {
+                body.innerText = "The magic lamp flickered... Error connecting to Groq.";
+                console.error(err);
             } finally {
-                isBusy = false;
-                toggleSendBtn(true);
-                scrollDown();
+                processing = false;
+                document.getElementById("action-btn").disabled = false;
+                autoScroll();
             }
         }
 
         /* ═══════════════════════════════════════════════════════════ 
-           UI & UTILS
+           UI HELPERS
         ═══════════════════════════════════════════════════════════ */
-        function appendMessage(msg) {
-            const container = document.getElementById("messages-wrapper");
-            const div = document.createElement("div");
+        function addMessageUI(msg) {
+            const container = document.getElementById("chat-messages");
             const isUser = msg.role === "user";
+            const row = document.createElement("div");
+            row.className = `flex gap-5 p-4 rounded-2xl ${isUser ? 'bg-white/5' : ''}`;
             
-            div.className = `flex gap-4 p-4 rounded-2xl ${isUser ? 'bg-white/5' : ''} animate-in fade-in duration-500`;
+            const txt = typeof msg.content === 'string' ? msg.content : "Analyzed an image";
             
-            const content = typeof msg.content === 'string' ? marked.parse(msg.content) : (msg.content[0]?.text || "Sent an image");
-
-            div.innerHTML = `
-                <div class="w-8 h-8 rounded-lg flex-shrink-0 flex items-center justify-center font-bold ${isUser ? 'bg-purple-600' : 'bg-emerald-600'}">
+            row.innerHTML = `
+                <div class="w-8 h-8 rounded-lg flex-shrink-0 flex items-center justify-center font-bold ${isUser ? 'bg-indigo-600' : 'bg-emerald-600'}">
                     ${isUser ? 'M' : '🧞'}
                 </div>
-                <div class="flex-1 min-w-0 prose prose-invert max-w-none">
-                    <p class="text-xs font-bold text-gray-500 mb-1 uppercase tracking-wider">${isUser ? 'You' : 'Aladdin'}</p>
-                    <div class="msg-body text-[15px] leading-relaxed">${content}</div>
+                <div class="flex-1 prose prose-invert max-w-none">
+                    <p class="text-[10px] font-bold text-gray-500 uppercase mb-1">${isUser ? 'Master' : 'Aladdin'}</p>
+                    <div class="msg-txt text-sm leading-relaxed">${isUser ? txt : marked.parse(txt)}</div>
                 </div>
             `;
-            
-            container.appendChild(div);
-            scrollDown();
-            return div;
+            container.appendChild(row);
+            autoScroll();
+            return row;
         }
 
-        function scrollDown() {
-            const chat = document.getElementById("chat-container");
-            chat.scrollTo({ top: chat.scrollHeight, behavior: 'smooth' });
+        function autoScroll() {
+            const div = document.getElementById("chat-scroller");
+            div.scrollTop = div.scrollHeight;
         }
 
-        function toggleSendBtn(state) {
-            document.getElementById("send-btn").disabled = !state;
-        }
-
-        function saveToLocalStorage() {
-            const chatObj = { id: currentChatId, messages: messages };
-            let history = JSON.parse(localStorage.getItem("aladdin_history") || "[]");
-            const idx = history.findIndex(c => c.id === currentChatId);
-            if (idx > -1) history[idx] = chatObj;
-            else history.unshift(chatObj);
-            localStorage.setItem("aladdin_history", JSON.stringify(history));
-        }
-
-        // Auto-expand textarea
-        document.getElementById("message-input").addEventListener("input", function() {
+        document.getElementById("main-input").addEventListener("input", function() {
             this.style.height = 'auto';
-            this.style.height = (this.scrollHeight) + 'px';
+            this.style.height = this.scrollHeight + 'px';
         });
 
-        // Initialize Check
+        function resetChat() {
+            chatContext = [];
+            document.getElementById("chat-messages").innerHTML = "";
+            document.getElementById("welcome-box").classList.remove("hidden");
+        }
+
         window.onload = () => {
-            if (localStorage.getItem("aladdin_verified") === "true") {
-                document.getElementById("auth-screen").style.display = "none";
+            if(localStorage.getItem("aladdin_auth") === "true") {
+                document.getElementById("auth-overlay").classList.add("hidden");
             }
         };
-
-        function createNewChat() {
-            messages = [];
-            currentChatId = Date.now();
-            document.getElementById("messages-wrapper").innerHTML = "";
-            document.getElementById("welcome-screen").classList.remove("hidden");
-        }
     </script>
 </body>
 </html>
